@@ -37,6 +37,23 @@ def test_prompt_returns_stored_override() -> None:
         assert Pipeline._prompt("summarisation") == "custom {content}"
 
 
+# ── model overrides ─────────────────────────────────────────────────────
+def test_model_uses_env_default_when_no_override(wired_pipeline) -> None:
+    p, _ = wired_pipeline
+    p._settings.model_scoring = "deepseek-r1:70b"
+    with patch.object(pipeline_mod.model_store, "get", return_value=None):
+        assert p._model("scoring") == "deepseek-r1:70b"
+
+
+def test_model_override_wins_over_env_default(wired_pipeline) -> None:
+    p, _ = wired_pipeline
+    p._settings.model_scoring = "deepseek-r1:70b"
+    with patch.object(
+        pipeline_mod.model_store, "get", return_value="deepseek-r2:70b"
+    ):
+        assert p._model("scoring") == "deepseek-r2:70b"
+
+
 # ── CLI dispatch ─────────────────────────────────────────────────────────
 @pytest.mark.parametrize(
     "stage, method",
@@ -47,6 +64,7 @@ def test_prompt_returns_stored_override() -> None:
         ("summarise", "summarise"),
         ("score", "score"),
         ("qa", "qa"),
+        ("promote", "promote"),
         ("stream", "stream"),
     ],
 )
@@ -71,6 +89,7 @@ def test_run_all_invokes_every_stage_in_order() -> None:
     p.summarise.assert_called_once_with(7)
     p.score.assert_called_once_with(7)
     p.qa.assert_called_once_with(7)
+    p.promote.assert_called_once_with(7)
 
 
 # ── streaming mode ───────────────────────────────────────────────────────

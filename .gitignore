@@ -14,6 +14,11 @@ env/
 runs/
 *.log
 
+# Per-deployment operator config (set from the dashboard, not shipped)
+config/agent_prompts/*.txt
+config/share_posts/
+config/model_overrides.json
+
 # Downloaded PDFs / extracted text (large, regenerable from the sources)
 pdfs/
 

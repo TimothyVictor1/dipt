@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Final
 from xml.sax.saxutils import escape
 
+from dipt import share_store
 from dipt.config import Settings, get_settings
 from dipt.database.connection import ConnectionPool
 from dipt.database.repository import PaperRepository
@@ -124,6 +125,7 @@ def _paper_payload(row: dict) -> dict:
         "summary": _split_summary(row["summary"]),
         "categories": row["categories"],
         "category_slugs": [_slugify(c) for c in row["categories"]],
+        "share_post": share_store.get(row["id"]) or "",
     }
 
 

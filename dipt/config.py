@@ -36,6 +36,7 @@ class Settings(BaseSettings):
         model_summarisation: Model used for summarisation.
         model_scoring: Model used for industrial-relevance scoring.
         model_qa: Model used for the QA consistency check.
+        model_promote: Model used to draft the shareable social post.
         contact_email: Email used in API polite-pool headers.
         core_api_key: Optional API key for the CORE source.
         site_base_url: Public base URL of the static site (for RSS links).
@@ -72,6 +73,7 @@ class Settings(BaseSettings):
     model_summarisation: str = Field(default="qwen2.5-coder:32b")
     model_scoring: str = Field(default="deepseek-r1:70b")
     model_qa: str = Field(default="llama3.1:70b")
+    model_promote: str = Field(default="qwen2.5-coder:32b")
 
     # Sources
     contact_email: str = Field(default="tira25@student.bth.se")

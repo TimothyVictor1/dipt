@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 #: Agent keys that may be overridden, matching the ``prompt_template`` argument
 #: each agent's constructor accepts.
 AGENT_KEYS: Final[frozenset[str]] = frozenset(
-    {"quality_gate", "categorisation", "summarisation", "scoring", "qa"}
+    {"quality_gate", "categorisation", "summarisation", "scoring", "qa", "promote"}
 )
 
 _STORE_DIR: Final[Path] = (

@@ -18,12 +18,12 @@ It opens on http://localhost:8501.
 
 | View            | What it shows |
 |-----------------|---------------|
-| Run pipeline    | Start any stage (`fetch` / `parse` / `categorise` / `summarise` / `score` / `qa` / `all` / `stream`) as a background job with a paper cap, then watch its live log. One run at a time. Runs survive a browser refresh or restart because their state lives in `runs/<id>.{json,log}`. `fetch`'s cap limits how many *new* papers are saved. |
+| Run pipeline    | Start any stage (`fetch` / `parse` / `categorise` / `summarise` / `score` / `qa` / `promote` / `all` / `stream`) as a background job with a paper cap, then watch its live log. One run at a time. Runs survive a browser refresh or restart because their state lives in `runs/<id>.{json,log}`. `fetch`'s cap limits how many *new* papers are saved. `promote` drafts the shareable LinkedIn / X post for approved papers. |
 | Schedule        | Turn the automated full-pipeline run on/off. Interval in hours (**default 24**), optional per-cycle paper cap, "Run one cycle now", live daemon + cycle logs, next-run ETA. A background daemon (`scripts/scheduler_daemon.py`) runs `dipt.scheduler` every N hours; it does **not** survive a reboot (use the OS scheduler for that - see `docs/SCHEDULING.md`). |
 | Pipeline status | Paper counts per lifecycle stage, approved / open-flag totals, and recent scheduled runs (needs the `fetch_log` table). |
 | Paper browser   | Filter papers by status, sort by score, and open one to see its categories, four-part summary, and score rationale. |
 | QA queue        | Papers the QA agent escalated. Each shows the stored summary and score; "Mark resolved" clears the flag so the next QA run re-checks the paper. |
-| Settings        | Add / edit / deactivate the 47 categories (used live by the categorisation agent), and edit each agent's prompt. Prompt edits are saved as files under `config/agent_prompts/` and picked up on the next run - no database table, no migration, no privileges. Placeholder validation blocks a save that drops a required `{field}`. |
+| Settings        | Three things, none needing a code change. **Categories**: add / edit / deactivate the 47 (used live by the categorisation agent). **Agent models**: point any stage at a different model when a better one ships - dropdown of what's pulled in Ollama, or type a tag; saved to `config/model_overrides.json`, used on that stage's next run, "Reset to .env default" to undo. **Agent prompts**: edit the prompt an agent sends its model; saved under `config/agent_prompts/`; placeholder validation blocks a save that drops a required `{field}`. |
 
 ## How "Run pipeline" works
 

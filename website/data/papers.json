@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-07T19:15:55.358360+00:00",
+  "generated_at": "2026-09-08T20:23:20.080560+00:00",
   "count": 28,
   "papers": [
     {
@@ -31,7 +31,8 @@
         "software-construction",
         "software-engineering-for-ai-se4ai",
         "large-language-models-for-code-llm4code"
-      ]
+      ],
+      "share_post": "I came across this paper on Kerncap, which tackles the tricky task of capturing and reproducing GPU kernel executions on AMD GPUs. It introduces a symbolic architecture and a deterministic Validator to make this process more efficient and accurate. Practitioners targeting AMD GPUs might find it useful for developing and debugging their applications. #SoftwareEngineering"
     },
     {
       "id": 946,
@@ -61,7 +62,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "agentic-software-engineering-agent"
-      ]
+      ],
+      "share_post": "I came across a paper on TSCG, a new method for managing context in large language models. It aims to improve accuracy and efficiency in few-shot and zero-shot scenarios, which could be really useful for practitioners working with resource-constrained environments or needing to deploy large models at scale. What I found interesting is how conservative TSCG often outperforms its balanced counterpart, especially with smaller models. #AI4SE"
     },
     {
       "id": 944,
@@ -94,7 +96,8 @@
         "advancing-static-analysis-static",
         "software-security",
         "ai-for-software-engineering-ai4se"
-      ]
+      ],
+      "share_post": "I came across a paper on mitigating false positives in static memory safety analysis for Rust programs using reinforcement learning. It caught my eye because it tackles the issue of warning fatigue by improving the precision of static analysis tools. This means developers can trust the warnings more, which is crucial for software security. #softwareengineering"
     },
     {
       "id": 943,
@@ -128,7 +131,8 @@
         "software-security",
         "software-engineering-for-blockchain",
         "empirical-software-engineering"
-      ]
+      ],
+      "share_post": "I came across this paper that examines how firmware updates in ASIC cryptocurrency miners can be exploited by attackers. It highlights that these updates expose vulnerabilities and sensitive information, making it easier for attacks to occur without needing physical access to the miner. Practitioners should take note to understand and address these issues to safeguard their mining operations. #softwaresecurity"
     },
     {
       "id": 939,
@@ -158,7 +162,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-engineering-for-ai-se4ai"
-      ]
+      ],
+      "share_post": "I came across this paper on integrating small language models on-device in mobile apps. It looks at how reducing the model's role from generating full puzzles to just hints can work within Android's constraints. Practitioners might find it useful to learn about the specific challenges and solutions for ensuring a seamless offline experience. #softwareengineering"
     },
     {
       "id": 938,
@@ -193,7 +198,8 @@
         "software-vulnerability-management-svm",
         "ai-for-software-engineering-ai4se",
         "open-source-software-engineering"
-      ]
+      ],
+      "share_post": "I came across a paper on vulnerability identification that caught my eye. It discusses how VPFinder improves accuracy by combining different sources of information about vulnerabilities and their fixes. This could be really useful for practitioners looking to enhance the reliability of automated vulnerability detection in their projects. #SoftwareEngineering"
     },
     {
       "id": 937,
@@ -223,7 +229,8 @@
         "ai-for-software-engineering-ai4se",
         "software-quality",
         "large-language-models-for-code-llm4code"
-      ]
+      ],
+      "share_post": "I came across a paper on Code Broker, a multi-agent system for automated code quality assessment. It uses a hierarchical agent pipeline to handle complex code review tasks more efficiently than traditional static analysis tools. This could be useful for practitioners looking for a more flexible and context-aware approach to code quality evaluation. #softwarequality"
     },
     {
       "id": 936,
@@ -258,7 +265,8 @@
         "ai-for-software-engineering-ai4se",
         "software-security",
         "large-language-models-for-code-llm4code"
-      ]
+      ],
+      "share_post": "I came across a paper titled \"Do Agents Dream of Root Shells?\" that examines how Large Language Model (LLM) agents perform in Capture The Flag (CTF) challenges. The research highlights that while these agents make partial progress on various tasks, they rarely complete challenges fully. This is important for practitioners to understand the current limitations and capabilities of LLMs in cybersecurity, aiding in their design and deployment. #softwaresecurity"
     },
     {
       "id": 933,
@@ -296,7 +304,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-security"
-      ]
+      ],
+      "share_post": "I came across a paper on improving secure code generation by enabling self-correction during code generation. It caught my eye because it addresses a gap in current models, making code safer without losing functionality. This could be really useful for practitioners looking to enhance the security of generated code. #softwaresecurity"
     },
     {
       "id": 932,
@@ -330,7 +339,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-engineering-process"
-      ]
+      ],
+      "share_post": "I came across a paper on repository-level code generation that caught my eye. It discusses InlineCoder, which shows improved performance by focusing on inlining context. Practitioners might find it useful as it consistently yields better results across different domains and contexts. #SoftwareEngineering"
     },
     {
       "id": 930,
@@ -360,7 +370,8 @@
         "software-construction",
         "computing-foundations",
         "software-engineering-operations"
-      ]
+      ],
+      "share_post": "I came across a paper on converting the deal.II library from header files to C++20 modules, which reduced compilation time by about 50%. This one caught my eye because it shows how large C++ projects can benefit from modern modules while keeping existing systems running smoothly. what i found useful is the practical demonstration of performance gains without breaking compatibility. #softwareengineering"
     },
     {
       "id": 928,
@@ -398,7 +409,8 @@
         "robotics-software-engineering-rose",
         "self-adaptive-software-systems-seams",
         "software-engineering-for-ai-se4ai"
-      ]
+      ],
+      "share_post": "I came across a paper on software engineering for self-adaptive robotics that delves into the unique challenges and opportunities in designing and deploying such systems. It covers everything from requirements engineering to operations, focusing on scalability, AI integration, and reliability in unpredictable environments. This one caught my eye because it's crucial for practitioners to ensure these systems are safe and robust. #softwareengineering"
     },
     {
       "id": 927,
@@ -431,7 +443,8 @@
         "search-based-and-fuzz-testing-sbft",
         "ai-for-software-engineering-ai4se",
         "empirical-software-engineering"
-      ]
+      ],
+      "share_post": "I came across this paper on Search-Based Software Engineering and Feature Models. It explores how these two areas can work together to tackle complex software engineering problems. Practitioners might find it useful to understand how integrating these techniques can lead to more efficient solutions. #softwareengineering"
     },
     {
       "id": 953,
@@ -461,7 +474,8 @@
         "software-vulnerability-management-svm",
         "empirical-software-engineering",
         "search-based-and-fuzz-testing-sbft"
-      ]
+      ],
+      "share_post": "I came across a paper on detecting vulnerable code using lightweight methods that combine code metrics with token features. It caught my eye because it offers a faster way to identify potential issues in code without the need for full static analysis. Practitioners can use these models to streamline security assessments and code reviews. #softwarevulnerabilitymanagement"
     },
     {
       "id": 952,
@@ -494,7 +508,8 @@
         "software-engineering-management",
         "cooperative-and-human-aspects-of-se-chase",
         "empirical-software-engineering"
-      ]
+      ],
+      "share_post": "I came across a paper titled \"EngThrive: Make It Fast and Easy to Do Great Work\" that challenges the idea that lines of code can measure developer productivity. It suggests looking at factors like developer satisfaction and team communication instead. This matters because focusing on the wrong metrics can actually hurt productivity. #softwareengineeringmanagement"
     },
     {
       "id": 951,
@@ -539,7 +554,8 @@
         "software-vulnerability-management-svm",
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code"
-      ]
+      ],
+      "share_post": "I came across a paper on root-cause-driven automated vulnerability repair. It discusses how Kumushi improves the identification and fixing of software vulnerabilities by enhancing root cause localization and patch generation. This matters because more accurate and reliable patches can significantly boost software security and maintenance. #softwareengineering"
     },
     {
       "id": 949,
@@ -569,7 +585,8 @@
         "agentic-software-engineering-agent",
         "software-architecture-trends-satrends",
         "systems-of-systems-and-ecosystems-sesos"
-      ]
+      ],
+      "share_post": "I came across a paper on a multi-agent consensus protocol for software remodularization. It tackles the issue of existing methods that don't handle design trade-offs well. This one caught my eye because it offers a principled way to balance cohesion and stability, which practitioners can find useful as systems evolve. #softwareengineering"
     },
     {
       "id": 947,
@@ -600,7 +617,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-maintenance"
-      ]
+      ],
+      "share_post": "I came across a paper on using AI tools like ChatGPT, Gemini AI, and Claude AI to reverse engineer legacy MS Access applications. It focuses on generating documentation and understanding VBA code and SQL queries, which caught my eye. Practitioners might find it useful because the AI demonstrated strong code understanding and could explain VBA snippets accurately, even without comments. #softwaremaintenance"
     },
     {
       "id": 941,
@@ -630,7 +648,8 @@
         "neuro-symbolic-software-engineering-nse",
         "software-requirements",
         "ai-for-software-engineering-ai4se"
-      ]
+      ],
+      "share_post": "I came across a paper on using neuro-symbolic agents to tackle issues in requirements reuse with LLMs. It introduces a symbolic architecture and a validator to ensure reliable and traceable requirements generation, which is particularly important for safety-critical systems. What I found useful is the emphasis on formal guarantees and minimal constraint violations. This one caught my eye because it addresses some of the key challenges in using AI for software requirements. #softwareengineering"
     },
     {
       "id": 940,
@@ -663,7 +682,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-testing"
-      ]
+      ],
+      "share_post": "I came across a paper on generating issue reports from uncovered code segments using LLMs. It caught my eye because it tackles a real problem in software testing—finding bugs in parts of the code that traditional methods often miss. The results show it can identify valid issues effectively, which is crucial for maintaining software security and reliability. #softwareengineering"
     },
     {
       "id": 931,
@@ -694,7 +714,8 @@
         "empirical-software-engineering",
         "software-engineering-models-and-methods",
         "mathematical-foundations"
-      ]
+      ],
+      "share_post": "I came across a paper that looks at evaluating different normalization methods and MCDM techniques together, which is something no study has done before. It provides a way to assess how sensitive rankings are to changes in these methods, helping practitioners understand the robustness of their MCDM conclusions. This can be really useful for ensuring that decisions based on MCDM are reliable. #softwareengineering"
     },
     {
       "id": 929,
@@ -733,7 +754,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-engineering-operations"
-      ]
+      ],
+      "share_post": "I came across a paper on SysLLMatic, which explores how large language models can optimize software systems. What I found useful is that it shows LLMs can significantly improve performance and optimize more programs than traditional methods, which is promising for green computing and real-world applications. This one caught my eye because it demonstrates a practical use of AI in software engineering. #softwareengineering"
     },
     {
       "id": 926,
@@ -767,7 +789,8 @@
         "software-vulnerability-management-svm",
         "advancing-static-analysis-static",
         "privacy-engineering"
-      ]
+      ],
+      "share_post": "I came across a paper on detecting vulnerabilities in encrypted software code while keeping the code private. It introduces Confidential Code Analysis, which lets third parties find security issues without seeing the actual source code. This could be useful for practitioners who want to outsource security checks without exposing their intellectual property. #softwarevulnerabilitymanagement"
     },
     {
       "id": 948,
@@ -801,7 +824,8 @@
         "software-requirements",
         "empirical-software-engineering",
         "software-engineering-models-and-methods"
-      ]
+      ],
+      "share_post": "I came across this paper on integration pathways in human-centered requirements engineering. It looks at how different disciplines contribute to the RE lifecycle and found two main integration pathways. Practitioners might find it useful to understand these pathways to better incorporate user needs and improve their requirements processes. #softwareengineering"
     },
     {
       "id": 935,
@@ -834,7 +858,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "generative-ai-platform-engineering"
-      ]
+      ],
+      "share_post": "I came across a paper titled \"From SWE-ZERO to SWE-HERO\" that explores how coding agents can better learn and reuse context across tasks. The study introduces SWE-ContextBench, a benchmark that evaluates this capability, showing that effective context learning can improve accuracy and efficiency. Practitioners might find it useful to understand how agents can leverage past experiences to solve new tasks more effectively. #SoftwareEngineering"
     },
     {
       "id": 934,
@@ -875,7 +900,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "empirical-software-engineering"
-      ]
+      ],
+      "share_post": "I came across a paper on SWE Context Bench, which looks at how coding agents can learn from past experiences to solve new tasks more efficiently. It found that while accurate summarization and retrieval of past experiences can help, models sometimes get misled by incorrect assumptions. Practitioners might care because it highlights the importance of effective context learning to improve both solution accuracy and computational efficiency in coding #softwareengineering"
     },
     {
       "id": 950,
@@ -907,7 +933,8 @@
         "software-testing",
         "cooperative-and-human-aspects-of-se-chase",
         "empirical-software-engineering"
-      ]
+      ],
+      "share_post": "I came across a paper exploring how visual analysis can help us understand the outputs of software testing tools. It identified common design patterns that could make these tools more intuitive. Practitioners might find it useful to consider these insights for designing better testing systems. #softwaretesting"
     },
     {
       "id": 945,
@@ -938,7 +965,8 @@
         "ai-for-software-engineering-ai4se",
         "large-language-models-for-code-llm4code",
         "software-engineering-models-and-methods"
-      ]
+      ],
+      "share_post": "I came across a paper on LCM, which tackles how large language models manage context. It found that LCM outperforms Claude Code in handling long conversations and maintaining a secure context structure. This could be really useful for practitioners who need robust and secure context management in their software projects. #SoftwareEngineering"
     }
   ]
 }

@@ -10,6 +10,7 @@ the LLM client, the sources, and the agents, then exposes a small CLI:
     python -m dipt.pipeline summarise [N]  # run summarisation (optional limit)
     python -m dipt.pipeline score [N]      # run scoring (optional limit)
     python -m dipt.pipeline qa [N]         # run the QA agent (optional limit)
+    python -m dipt.pipeline promote [N]    # draft the shareable post per paper
     python -m dipt.pipeline all [N]        # run every stage in sequence (batch)
     python -m dipt.pipeline stream [N]     # push each paper through the LLM
                                            # stages one at a time
@@ -36,13 +37,14 @@ from dipt.agents.parser_agent import ParserAgent
 from dipt.agents.qa_agent import QAAgent
 from dipt.agents.quality_gate import QualityGate
 from dipt.agents.scoring_agent import ScoringAgent
+from dipt.agents.share_agent import SharePostAgent
 from dipt.agents.summarisation_agent import SummarisationAgent
 from dipt.config import Settings, get_settings
 from dipt.database.connection import ConnectionPool
 from dipt.database.repository import PaperRepository
 from dipt.exceptions import DIPTError, RepositoryError
 from dipt.logging_config import configure_logging
-from dipt import prompt_store
+from dipt import model_store, prompt_store
 from dipt.models.schemas import PaperStatus
 from dipt.sources.arxiv import ArxivSource
 from dipt.sources.base import PaperSourceFetcher
@@ -81,6 +83,22 @@ class Pipeline:
         """
         return prompt_store.get(agent)
 
+    def _model(self, stage: str) -> str:
+        """Return the model tag a stage should use.
+
+        An admin override from ``config/model_overrides.json`` (see
+        :mod:`dipt.model_store`) wins; otherwise the ``.env`` default.
+
+        Args:
+            stage: One of :data:`dipt.model_store.STAGES`.
+
+        Returns:
+            The model tag to pass to the agent.
+        """
+        return model_store.get(stage) or getattr(
+            self._settings, model_store.STAGE_SETTING[stage]
+        )
+
     def _build_sources(
         self, days_back: int | None = None
     ) -> list[PaperSourceFetcher]:
@@ -115,7 +133,7 @@ class Pipeline:
         return SummarisationAgent(
             self._llm,
             self._repo,
-            self._settings.model_summarisation,
+            self._model("summarisation"),
             prompt_template=self._prompt("summarisation"),
         )
 
@@ -124,7 +142,7 @@ class Pipeline:
         return ScoringAgent(
             self._llm,
             self._repo,
-            self._settings.model_scoring,
+            self._model("scoring"),
             prompt_template=self._prompt("scoring"),
         )
 
@@ -143,7 +161,7 @@ class Pipeline:
         return QAAgent(
             self._llm,
             self._repo,
-            self._settings.model_qa,
+            self._model("qa"),
             summariser=summariser,
             scorer=scorer,
             prompt_template=self._prompt("qa"),
@@ -164,7 +182,7 @@ class Pipeline:
         """
         gate = QualityGate(
             self._llm,
-            self._settings.model_quality_gate,
+            self._model("quality_gate"),
             prompt_template=self._prompt("quality_gate"),
         )
         agent = FetchAgent(self._build_sources(days_back), gate, self._repo)
@@ -196,7 +214,7 @@ class Pipeline:
         agent = CategorisationAgent(
             self._llm,
             self._repo,
-            self._settings.model_categorisation,
+            self._model("categorisation"),
             prompt_template=self._prompt("categorisation"),
         )
         summary = agent.run(limit=limit)
@@ -246,6 +264,26 @@ class Pipeline:
             summary.passed,
             summary.auto_fixed,
             summary.flagged,
+        )
+
+    def promote(self, limit: int | None) -> None:
+        """Draft the shareable social post for approved papers that lack one.
+
+        Args:
+            limit: Optional cap on papers to draft.
+        """
+        agent = SharePostAgent(
+            self._llm,
+            self._repo,
+            self._model("promote"),
+            prompt_template=self._prompt("promote"),
+        )
+        summary = agent.run(limit=limit)
+        logger.info(
+            "Promote summary: generated=%d, failed=%d, skipped=%d",
+            summary.generated,
+            summary.failed,
+            summary.skipped,
         )
 
     def stream(self, limit: int | None) -> None:
@@ -338,6 +376,7 @@ class Pipeline:
         self.summarise(limit)
         self.score(limit)
         self.qa(limit)
+        self.promote(limit)
 
     def close(self) -> None:
         """Release all owned resources."""
@@ -360,6 +399,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "summarise",
             "score",
             "qa",
+            "promote",
             "all",
             "stream",
         ],
@@ -400,6 +440,7 @@ def _run_stage(pipeline: Pipeline, stage: str, limit: int | None) -> None:
         "summarise": lambda: pipeline.summarise(limit),
         "score": lambda: pipeline.score(limit),
         "qa": lambda: pipeline.qa(limit),
+        "promote": lambda: pipeline.promote(limit),
     }[stage]()
 
 

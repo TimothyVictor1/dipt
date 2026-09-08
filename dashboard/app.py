@@ -15,8 +15,8 @@ Views, chosen from the sidebar:
 * Pipeline status - paper counts per lifecycle stage and recent runs.
 * Paper browser  - filter papers and inspect categories, summary, and score.
 * QA queue       - review and clear papers the QA agent escalated.
-* Settings       - manage the category list and the agent prompts, no code
-                   change required.
+* Settings       - manage the category list, the model each stage uses, and
+                   the agent prompts, no code change required.
 
 Rendering deliberately avoids ``st.dataframe`` / ``st.bar_chart`` (they pull in
 pyarrow, which is not always loadable on the locked-down production host) in
@@ -27,13 +27,17 @@ from __future__ import annotations
 
 import streamlit as st
 
-from dipt import prompt_store
+from dipt import model_store, prompt_store
 from dipt.exceptions import DIPTError
 from dashboard import runner, schedule
 from dashboard.data import (
     AGENT_PROMPTS,
+    MODEL_STAGES,
     STATUS_ORDER,
+    effective_model,
+    env_default_model,
     get_repository,
+    installed_ollama_models,
     missing_format_fields,
 )
 
@@ -100,8 +104,11 @@ _STAGE_HELP: dict[str, str] = {
     "(deepseek-r1:70b, ~2-3 min/paper).",
     "qa": "Consistency check: auto-fix, then escalate to the QA queue "
     "(llama3.1:70b, ~20-90 s/paper).",
-    "all": "fetch -> parse -> categorise -> summarise -> score -> qa in one "
-    "go. The cap applies to every stage.",
+    "promote": "Draft a short, first-person LinkedIn / X post for each "
+    "approved paper that does not have one yet (qwen2.5-coder:32b, "
+    "~15-30 s/paper). Shown on the public site with Share buttons.",
+    "all": "fetch -> parse -> categorise -> summarise -> score -> qa -> "
+    "promote in one go. The cap applies to every stage.",
     "stream": "Carry each categorised paper through summarise -> score -> qa "
     "one at a time, so approvals appear sooner.",
 }
@@ -667,11 +674,95 @@ def _settings_prompts() -> None:
             st.info("Already using the default.")
 
 
+def _settings_models() -> None:
+    """Let an admin point a stage at a different model when a better one ships.
+
+    Overrides are stored in ``config/model_overrides.json`` - no ``.env`` edit,
+    no restart. The stage uses the new model on its next run.
+    """
+    st.subheader("Agent models")
+    st.caption(
+        "Each stage uses a model set in `.env`. When a stronger model is "
+        "released, point a stage at it here. The change applies on that "
+        "stage's next run. Pull the model first with `ollama pull <tag>`."
+    )
+
+    installed = installed_ollama_models()
+    if installed:
+        st.caption("Installed in Ollama: " + ", ".join(f"`{m}`" for m in installed))
+    else:
+        st.caption("_Could not reach Ollama to list installed models._")
+
+    labels = dict(MODEL_STAGES)
+    stage = st.selectbox(
+        "Stage", [s for s, _ in MODEL_STAGES], format_func=lambda s: labels[s]
+    )
+    default_tag = env_default_model(stage)
+    override = model_store.get(stage)
+    current = override or default_tag
+
+    if override:
+        st.caption(
+            f"Using a **custom** model: `{override}`  "
+            f"(`.env` default is `{default_tag}`)."
+        )
+    else:
+        st.caption(f"Using the `.env` default: `{default_tag}`.")
+
+    choices = [current] + [m for m in installed if m != current] + ["- type a tag -"]
+    picked = st.selectbox("Model", choices, key=f"model_pick_{stage}")
+    tag = picked
+    if picked == "- type a tag -":
+        tag = st.text_input(
+            "Model tag", value=current, key=f"model_tag_{stage}",
+            placeholder="e.g. llama3.2:90b",
+        ).strip()
+
+    if installed and tag and tag not in installed:
+        st.warning(
+            f"`{tag}` is not pulled in Ollama yet. Run `ollama pull {tag}` "
+            "before the next run of this stage."
+        )
+
+    save_col, reset_col = st.columns(2)
+    if save_col.button("Save model", disabled=not tag or tag == default_tag):
+        try:
+            model_store.set(stage, tag)
+        except (ValueError, OSError) as exc:
+            st.error(f"Could not save: {exc}")
+        else:
+            st.success(
+                f"{labels[stage]} will use `{tag}` on its next run."
+            )
+            st.rerun()
+    if reset_col.button("Reset to .env default", disabled=override is None):
+        if model_store.delete(stage):
+            st.success(f"{labels[stage]} reset to `{default_tag}`.")
+            st.rerun()
+        else:
+            st.info("Already using the default.")
+
+    active = model_store.all_overrides()
+    if active:
+        st.markdown("**Current overrides**")
+        _table(
+            [
+                {"stage": labels.get(s, s), "model": t,
+                 "env default": env_default_model(s)}
+                for s, t in active.items()
+            ],
+            [("stage", "Stage"), ("model", "Model in use"),
+             ("env default", ".env default")],
+        )
+
+
 def view_settings() -> None:
-    """Manage the category list and the agent prompts without code changes."""
+    """Manage categories, agent prompts and models - no code changes."""
     st.header("Settings")
     repo = _repo()
     _settings_categories(repo)
+    st.divider()
+    _settings_models()
     st.divider()
     _settings_prompts()
 

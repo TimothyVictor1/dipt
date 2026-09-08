@@ -72,6 +72,18 @@ def test_paper_payload_shapes_record() -> None:
     assert payload["category_slugs"] == ["software-testing", "ai4se"]
     assert payload["summary"]["key_findings"] == "kf"
     assert payload["score"] == 8.0
+    assert payload["share_post"] == ""  # none drafted for this row
+
+
+def test_paper_payload_includes_share_post_when_present(monkeypatch) -> None:
+    monkeypatch.setattr(
+        site_export.share_store, "get",
+        lambda pid: "I found this one interesting." if pid == 1 else None,
+    )
+    assert site_export._paper_payload(_row(id=1))["share_post"] == (
+        "I found this one interesting."
+    )
+    assert site_export._paper_payload(_row(id=2))["share_post"] == ""
 
 
 def test_build_categories_counts_and_sorts() -> None:

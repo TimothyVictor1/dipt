@@ -233,3 +233,59 @@ a:hover {
     columns: 1;
   }
 }
+
+.share {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.share h2 {
+  font-size: 1.05rem;
+  margin: 0 0 4px;
+}
+.share-hint {
+  font-size: 0.85rem;
+  margin: 0 0 10px;
+}
+.share-text {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  resize: vertical;
+  background: #fff;
+  color: var(--fg);
+}
+.share-text:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.btn {
+  display: inline-block;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:hover {
+  filter: brightness(1.08);
+  text-decoration: none;
+}
+.btn-ghost {
+  background: #fff;
+  color: var(--accent);
+}
+

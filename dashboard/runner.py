@@ -35,6 +35,7 @@ STAGES: tuple[str, ...] = (
     "summarise",
     "score",
     "qa",
+    "promote",
     "all",
     "stream",
 )

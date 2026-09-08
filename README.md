@@ -35,6 +35,8 @@ python -m dipt.pipeline categorise [N]       # assign 1-3 of 47 SE categories
 python -m dipt.pipeline summarise [N]        # four-part structured summary
 python -m dipt.pipeline score [N]            # industrial-relevance score 1-10
 python -m dipt.pipeline qa [N]               # consistency check: auto-fix then flag
+python -m dipt.pipeline promote [N]          # draft a short LinkedIn / X post per
+                                             #   approved paper (shown on the site)
 python -m dipt.pipeline all [N]              # every stage in order (batch)
 python -m dipt.pipeline stream [N]           # one paper through summarise->score->qa
                                              # at a time, so approvals appear sooner
@@ -78,9 +80,18 @@ Static Next.js + Fuse.js site of approved papers. Data is exported from the
 database by `python -m dipt.site_export` (also run automatically by the
 scheduler). See [website/README.md](website/README.md).
 
+Each paper page carries a **Share this paper** panel: the `promote` stage
+drafts a short first-person post (LinkedIn / X, no hype, at most two hashtags),
+which the panel shows in an editable box with one-click *Share on X* / *Share
+on LinkedIn* buttons and a *Copy post + link* button. Drafts are cached as
+files in `config/share_posts/` — no database change needed.
+
 ## Models
 
-Configured in `.env`. Defaults:
+Configured in `.env` (defaults below), and overridable per stage at runtime
+from the dashboard's **Settings → Agent models** — no `.env` edit, no restart.
+Overrides live in `config/model_overrides.json`; "Reset to .env default" clears
+one. Pull a new model first with `ollama pull <tag>`.
 
 | Stage | Model | Notes |
 |-------|-------|-------|
@@ -89,6 +100,7 @@ Configured in `.env`. Defaults:
 | Summarisation | `qwen2.5-coder:32b` | JSON mode; see note below |
 | Scoring       | `deepseek-r1:70b`   | reasoning model, "virtual CTO" |
 | QA            | `llama3.1:70b`      | summary/score consistency check |
+| Promote       | `qwen2.5-coder:32b` | drafts the shareable social post |
 
 The brief specifies `command-r-plus` for summarisation. It does not start on
 the current HP Z2 Mini iGPU allocation (the 56 GB of weights load, then
@@ -102,10 +114,12 @@ headroom. Revert `MODEL_SUMMARISATION` once the iGPU memory ceiling is raised.
 ```
 dipt/            pipeline, agents, sources, models, database, config
   agents/        fetch, parser, categorisation, summarisation, scoring, qa,
-                 quality_gate, llm_client
+                 share (promote), quality_gate, llm_client
   scheduler.py   scheduled full-chain runner with fetch-window narrowing
   site_export.py database -> website/data/*.json + rss.xml
   prompt_store.py  file-backed admin overrides for agent prompts
+  model_store.py   file-backed per-stage model overrides
+  share_store.py   file-backed cache of the per-paper share post
 dashboard/       Streamlit operator console (Run pipeline, Schedule, ...)
   runner.py      background pipeline-run manager
   schedule.py    automated-schedule control (daemon on/off, interval, status)
@@ -114,6 +128,8 @@ scripts/         run_stage / run_scheduled (job wrappers), scheduler_daemon,
                  qa_demo, rescore
 runs/            per-run + daemon state and logs (created at runtime)
 config/agent_prompts/   admin prompt overrides, one .txt per agent (created on save)
+config/share_posts/     drafted share posts, one <paper_id>.txt (created by promote)
+config/model_overrides.json  per-stage model overrides set from the dashboard
 migrations/      SQL for the scheduler's fetch_log table (optional)
 docs/            scheduling setup notes
 tests/           pytest suite, all LLM and DB calls mocked

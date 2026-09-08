@@ -1,0 +1,192 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>DIPT — approved papers (preview)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --fg:#1a1a2e; --muted:#667085; --bg:#fff; --accent:#2f4b7c; --line:#e4e7ec;
+    --card:#fafafa; --high:#1b7f4b; --mid:#b45309; --low:#667085;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--line);padding:14px 0}
+  header .wrap{display:flex;align-items:center;justify-content:space-between}
+  .brand{font-weight:700;font-size:1.2rem;letter-spacing:.04em}
+  .banner{background:#fff8e6;border-bottom:1px solid #f0e0b0;color:#6b5300;
+    font-size:.82rem;padding:8px 0}
+  h1{font-size:1.65rem;margin:0 0 6px}
+  .hero{padding:30px 0 6px}
+  .muted{color:var(--muted)}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .controls input[type=search]{flex:1 1 260px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;font-size:1rem}
+  .controls select{padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .score-filter{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+  .count-line{font-size:.85rem;margin:8px 0 16px}
+  .list{display:flex;flex-direction:column;gap:16px;padding:18px 0 60px}
+  .card{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px 18px;cursor:pointer}
+  .card:hover{border-color:#c8d2e0}
+  .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .card-head h2{margin:0;font-size:1.1rem}
+  .meta{color:var(--muted);font-size:.85rem;margin:4px 0 8px}
+  .teaser{margin:8px 0}
+  .tags{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+  .tags li{font-size:.78rem;background:#eef2f8;border-radius:999px;padding:3px 10px}
+  .score{display:inline-block;font-weight:700;font-size:.85rem;padding:2px 9px;border-radius:999px;color:#fff;white-space:nowrap}
+  .s-high{background:var(--high)} .s-mid{background:var(--mid)} .s-low{background:var(--low)}
+  dialog{border:0;border-radius:12px;max-width:760px;width:92vw;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  dialog::backdrop{background:rgba(20,27,45,.45)}
+  .dlg{padding:24px 28px 30px}
+  .dlg h2{margin:0 0 4px;font-size:1.35rem}
+  .dlg .close{position:absolute;top:12px;right:16px;background:none;border:0;font-size:1.4rem;cursor:pointer;color:var(--muted)}
+  .sec{margin-top:18px}
+  .sec h3{font-size:1rem;margin:0 0 2px}
+  .rationale{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:8px}
+  details{margin-top:18px}
+  details summary{cursor:pointer;color:var(--accent)}
+  .share{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+  .share h3{margin:0 0 8px}
+  .share textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-size:.92rem;line-height:1.5;resize:vertical}
+  .share .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .share a.btn,.share button.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:.85rem;padding:7px 14px;border-radius:7px;cursor:pointer;text-decoration:none}
+  .share button.ghost{background:#fff;color:var(--accent)}
+  footer{border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:.82rem}
+  .empty{color:var(--muted);padding:24px 0}
+</style>
+
+<div class="banner"><div class="wrap">Quick preview of the exported data — not the real Next.js build (that needs Node.js). Same content, same layout idea.</div></div>
+<header><div class="wrap">
+  <span class="brand">DIPT</span>
+  <nav class="muted" style="font-size:.9rem">Papers &nbsp;·&nbsp; Categories &nbsp;·&nbsp; <a href="public/rss.xml">RSS</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Approved Software Engineering research</h1>
+    <p class="muted" id="sub">Loading…</p>
+  </section>
+
+  <section class="controls">
+    <input type="search" id="q" placeholder="Search titles, topics, findings, authors…" aria-label="Search">
+    <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+    <label class="score-filter">Min score: <span id="msv">0</span>
+      <input type="range" id="ms" min="0" max="10" step="1" value="0"></label>
+  </section>
+
+  <p class="muted count-line" id="count"></p>
+  <div class="list" id="list"></div>
+</main>
+
+<footer><div class="wrap">DIPT — automated SE research monitoring. SERL Sweden, Blekinge Institute of Technology.</div></footer>
+
+<dialog id="dlg"><div class="dlg">
+  <button class="close" aria-label="Close" onclick="dlg.close()">×</button>
+  <div id="dlgbody"></div>
+</div></dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const state = { papers: [], q: "", cat: "", ms: 0 };
+
+function band(s){ return s>=8 ? "s-high" : s>=5 ? "s-mid" : "s-low"; }
+function esc(t){ return (t||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function matches(p){
+  if (state.cat && !(p.category_slugs||[]).includes(state.cat)) return false;
+  if (state.ms > 0 && (p.score||0) < state.ms) return false;
+  if (!state.q.trim()) return true;
+  const hay = [p.title, (p.authors||[]).join(" "), (p.categories||[]).join(" "),
+    p.summary?.research_problem, p.summary?.key_findings, p.abstract].join(" ").toLowerCase();
+  return state.q.toLowerCase().split(/\s+/).every(tok => hay.includes(tok));
+}
+
+function render(){
+  const rows = state.papers.filter(matches)
+    .sort((a,b) => (b.score||0) - (a.score||0));
+  $("#count").textContent = rows.length + " shown" +
+    (state.q || state.cat || state.ms ? " (filtered)" : "");
+  const el = $("#list");
+  el.innerHTML = rows.length ? "" : '<p class="empty">No papers match. Try a broader search.</p>';
+  for (const p of rows){
+    const card = document.createElement("article");
+    card.className = "card";
+    card.onclick = () => openDetail(p);
+    const scorePill = (p.score ?? null) === null ? "" :
+      `<span class="score ${band(p.score)}">${Number(p.score).toFixed(1)}</span>`;
+    card.innerHTML = `
+      <div class="card-head"><h2>${esc(p.title)}</h2>${scorePill}</div>
+      <p class="meta">${esc((p.authors||[]).slice(0,4).join(", "))}${(p.authors||[]).length>4?" et al.":""}
+        ${p.published_date ? " · "+esc(p.published_date) : ""}${p.source ? " · "+esc(p.source) : ""}</p>
+      <p class="teaser">${esc(p.summary?.research_problem || (p.abstract||"").slice(0,240))}</p>
+      <ul class="tags">${(p.categories||[]).map(c => `<li>${esc(c)}</li>`).join("")}</ul>`;
+    el.appendChild(card);
+  }
+}
+
+function openDetail(p){
+  const S = p.summary || {};
+  const sec = (label, txt) => txt ? `<div class="sec"><h3>${label}</h3><p>${esc(txt)}</p></div>` : "";
+  $("#dlgbody").innerHTML = `
+    <h2>${esc(p.title)}</h2>
+    <p class="meta">${esc((p.authors||[]).join(", "))}${p.published_date?" · "+esc(p.published_date):""}${p.source?" · "+esc(p.source):""}
+      ${p.doi ? ` · <a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noreferrer">doi:${esc(p.doi)}</a>` : ""}</p>
+    ${(p.score ?? null) !== null ? `<p><span class="score ${band(p.score)}">${Number(p.score).toFixed(1)} / 10</span>
+      <span class="muted"> industrial relevance</span></p>
+      ${p.score_rationale ? `<div class="rationale">${esc(p.score_rationale)}</div>` : ""}` : ""}
+    <ul class="tags">${(p.categories||[]).map(c => `<li>${esc(c)}</li>`).join("")}</ul>
+    ${sec("Research problem", S.research_problem)}
+    ${sec("Methodology", S.methodology)}
+    ${sec("Key findings", S.key_findings)}
+    ${sec("Industrial implications", S.industrial_implications)}
+    ${p.abstract ? `<details><summary>Original abstract</summary><p>${esc(p.abstract)}</p></details>` : ""}
+    <div class="share">
+      <h3>Share this paper</h3>
+      <p class="muted" style="font-size:.85rem;margin:0 0 8px">
+        ${p.share_post ? "A draft post is ready. Edit it if you like, then post." :
+          "No draft was generated for this paper yet (run: python -m dipt.pipeline promote)."}</p>
+      <textarea id="sharetext" rows="5">${esc(p.share_post || p.title)}</textarea>
+      <div class="btns">
+        <a class="btn" id="sx" target="_blank" rel="noreferrer">Share on X</a>
+        <a class="btn" id="sl" target="_blank" rel="noreferrer">Share on LinkedIn</a>
+        <button class="btn ghost" id="sc" type="button">Copy post + link</button>
+      </div>
+    </div>`;
+  const url = location.origin + "/papers/" + p.id;
+  const ta = $("#sharetext");
+  const refresh = () => {
+    const body = ta.value.trim();
+    $("#sx").href = "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(body) + "&url=" + encodeURIComponent(url);
+    $("#sl").href = "https://www.linkedin.com/feed/?shareActive=true&text=" +
+      encodeURIComponent(body + "\n\n" + url);
+  };
+  ta.oninput = refresh; refresh();
+  $("#sc").onclick = async () => {
+    try { await navigator.clipboard.writeText(ta.value.trim() + "\n\n" + url);
+      $("#sc").textContent = "Copied"; setTimeout(() => $("#sc").textContent = "Copy post + link", 1800); }
+    catch { $("#sc").textContent = "Copy failed"; }
+  };
+  $("#dlg").showModal();
+}
+
+Promise.all([
+  fetch("data/papers.json").then(r => r.json()),
+  fetch("data/categories.json").then(r => r.json())
+]).then(([data, cats]) => {
+  state.papers = data.papers || [];
+  $("#sub").textContent =
+    `${data.count} papers, each read, categorised, summarised and scored by a local pipeline.` +
+    (data.generated_at ? `  Updated ${data.generated_at.slice(0,10)}.` : "");
+  const sel = $("#cat");
+  for (const c of cats) sel.insertAdjacentHTML("beforeend",
+    `<option value="${c.slug}">${esc(c.name)} (${c.count})</option>`);
+  render();
+}).catch(e => {
+  $("#sub").textContent = "Could not load data/papers.json — run  python -m dipt.site_export  first. (" + e + ")";
+});
+
+$("#q").oninput = e => { state.q = e.target.value; render(); };
+$("#cat").onchange = e => { state.cat = e.target.value; render(); };
+$("#ms").oninput = e => { state.ms = +e.target.value; $("#msv").textContent = e.target.value; render(); };
+</script>

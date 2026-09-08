@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Layout from '@/components/Layout';
+import ShareBox from '@/components/ShareBox';
 import { getAllPapers, getPaperById } from '@/lib/papers';
 
 export async function getStaticPaths() {
@@ -94,6 +95,8 @@ export default function PaperPage({ paper }) {
             <p>{paper.abstract}</p>
           </details>
         ) : null}
+
+        <ShareBox post={paper.share_post} title={paper.title} />
       </article>
     </Layout>
   );
