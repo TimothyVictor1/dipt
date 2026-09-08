@@ -1,0 +1,1159 @@
+<meta charset="utf-8">
+<title>DIPT System Handbook</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper: #fbfcfd;
+    --surface: #ffffff;
+    --sunk: #f1f4f9;
+    --ink: #171b24;
+    --ink-soft: #495060;
+    --ink-faint: #79828f;
+    --rule: #e3e7ef;
+    --rule-strong: #c8cfdc;
+    --accent: #3546b8;
+    --accent-soft: #eceffb;
+    --ok: #1c7a4a;
+    --ok-soft: #e7f4ec;
+    --warn: #955f00;
+    --warn-soft: #faf0db;
+    --stop: #a83b3b;
+    --stop-soft: #f7eae8;
+    --shadow: 0 1px 2px rgba(20, 27, 45, .04), 0 8px 24px rgba(20, 27, 45, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #10131a;
+      --surface: #171b23;
+      --sunk: #1c212c;
+      --ink: #e7e9f0;
+      --ink-soft: #aab1c0;
+      --ink-faint: #7c8595;
+      --rule: #262c38;
+      --rule-strong: #343b4a;
+      --accent: #93a4ff;
+      --accent-soft: #1a2039;
+      --ok: #5ac98d;
+      --ok-soft: #142620;
+      --warn: #d7a04a;
+      --warn-soft: #292013;
+      --stop: #e17c73;
+      --stop-soft: #2a1a19;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #10131a;
+    --surface: #171b23;
+    --sunk: #1c212c;
+    --ink: #e7e9f0;
+    --ink-soft: #aab1c0;
+    --ink-faint: #7c8595;
+    --rule: #262c38;
+    --rule-strong: #343b4a;
+    --accent: #93a4ff;
+    --accent-soft: #1a2039;
+    --ok: #5ac98d;
+    --ok-soft: #142620;
+    --warn: #d7a04a;
+    --warn-soft: #292013;
+    --stop: #e17c73;
+    --stop-soft: #2a1a19;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .35);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 268px minmax(0, 1fr);
+    gap: 0;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  /* ---------- sidebar ---------- */
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 40px 28px 40px 32px;
+    border-right: 1px solid var(--rule);
+    font-size: 13.5px;
+  }
+  .toc .brand {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .toc .brand-sub {
+    color: var(--ink-faint);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    margin-bottom: 26px;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: sec; }
+  .toc > ol > li { counter-increment: sec; margin: 2px 0; }
+  .toc > ol > li > a::before {
+    content: counter(sec) "  ";
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+  }
+  .toc a {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    line-height: 1.4;
+  }
+  .toc a:hover { background: var(--accent-soft); color: var(--ink); }
+  .toc ol ol { padding-left: 20px; margin: 2px 0 8px; }
+  .toc ol ol a { font-size: 12.5px; color: var(--ink-faint); padding: 2px 8px; }
+  .toc-toggle { display: none; }
+
+  /* ---------- content ---------- */
+  main {
+    padding: 56px clamp(24px, 5vw, 72px) 120px;
+    min-width: 0;
+  }
+  .measure { max-width: 46rem; }
+
+  .doc-head { max-width: 46rem; margin-bottom: 8px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2.1rem, 4.6vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+    margin: 0 0 18px;
+  }
+  .lede {
+    font-size: 1.12rem;
+    color: var(--ink-soft);
+    max-width: 42rem;
+  }
+  .meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin: 28px 0 8px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+  }
+  .meta-strip span {
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    padding: 3px 11px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  section { border-top: 1px solid var(--rule); padding-top: 44px; margin-top: 48px; }
+  section:first-of-type { border-top: 0; margin-top: 40px; }
+
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.72rem;
+    letter-spacing: -0.012em;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0 0 6px;
+    scroll-margin-top: 24px;
+  }
+  h2 .num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-right: 12px;
+    vertical-align: 0.14em;
+  }
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 1.16rem;
+    letter-spacing: -0.005em;
+    margin: 40px 0 4px;
+    scroll-margin-top: 24px;
+  }
+  h3 .num {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    margin-right: 10px;
+  }
+  h4 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 26px 0 2px;
+  }
+
+  p, li { max-width: 46rem; }
+  p { margin: 12px 0; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+  ul, ol.body-list { padding-left: 1.3em; margin: 12px 0; }
+  li { margin: 6px 0; }
+  ul.tight li, ol.tight li { margin: 2px 0; }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--sunk);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.08em 0.36em;
+  }
+  kbd {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8em;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0.05em 0.4em;
+  }
+
+  pre {
+    background: var(--sunk);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+    max-width: 46rem;
+  }
+  pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .cmd { position: relative; }
+  .cmd::before {
+    content: "terminal";
+    position: absolute;
+    top: -1px;
+    right: 12px;
+    transform: translateY(-50%);
+    background: var(--paper);
+    padding: 0 8px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* callouts */
+  .note {
+    border: 1px solid var(--rule-strong);
+    border-left-width: 3px;
+    border-radius: 7px;
+    padding: 14px 18px;
+    margin: 20px 0;
+    max-width: 46rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .note p:first-child { margin-top: 0; }
+  .note p:last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .note.info { border-left-color: var(--accent); }
+  .note.info .tag { color: var(--accent); }
+  .note.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .note.warn .tag { color: var(--warn); }
+  .note.stop { border-left-color: var(--stop); background: var(--stop-soft); }
+  .note.stop .tag { color: var(--stop); }
+  .note.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+  .note.ok .tag { color: var(--ok); }
+
+  /* tables */
+  .table-wrap { overflow-x: auto; margin: 20px 0; max-width: 46rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  thead th {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--rule-strong);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td code { font-size: 12.5px; white-space: nowrap; }
+  .num-col { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* pipeline stepper */
+  .pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: stretch;
+    margin: 24px 0;
+    max-width: 46rem;
+  }
+  .stage {
+    flex: 1 1 90px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 8px;
+    padding: 12px 10px;
+    background: var(--surface);
+    text-align: center;
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+  .stage .s-n {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+  .stage .s-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  .stage .s-model {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+    word-break: break-word;
+  }
+  .stage + .stage::before {
+    content: "→";
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-faint);
+    font-size: 13px;
+  }
+
+  /* status pills */
+  .pill {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-strong);
+    background: var(--sunk);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .pill.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .pill.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+  .pill.stop { background: var(--stop-soft); border-color: var(--stop); color: var(--stop); }
+
+  .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 34px 0 -8px;
+  }
+
+  hr.soft { border: 0; border-top: 1px solid var(--rule); margin: 34px 0; max-width: 46rem; }
+
+  .flow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+    background: var(--sunk);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 20px 0;
+    max-width: 46rem;
+    color: var(--ink-soft);
+    white-space: pre;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    margin-top: 64px;
+    padding-top: 24px;
+    font-size: 13px;
+    color: var(--ink-faint);
+    max-width: 46rem;
+  }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    .toc {
+      position: static;
+      height: auto;
+      border-right: 0;
+      border-bottom: 1px solid var(--rule);
+      padding: 20px 24px;
+    }
+    .toc-nav { display: none; }
+    .toc-toggle {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: 0;
+      font: inherit;
+      color: var(--ink-soft);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 6px 0 0;
+    }
+    .toc[data-open="true"] .toc-nav { display: block; margin-top: 14px; }
+    main { padding: 36px 22px 90px; }
+  }
+
+  /* PDF / print: same content and design, laid out for pages.
+     Nothing here affects the on-screen document. */
+  @media print {
+    :root { --paper: #ffffff; }
+    @page { margin: 16mm 15mm; }
+    html { font-size: 10.2pt; }
+    body { background: #fff; }
+    .shell { display: block; max-width: none; }
+    .toc {
+      position: static;
+      height: auto;
+      overflow: visible;
+      border-right: 0;
+      border-bottom: 1px solid var(--rule);
+      padding: 0 0 18px;
+      margin-bottom: 8px;
+      break-after: page;
+    }
+    .toc-toggle { display: none; }
+    .toc .toc-nav { display: block !important; }
+    .toc a { color: var(--ink-soft); }
+    main { padding: 0; }
+    .measure, .doc-head, p, li, pre, .note, .table-wrap,
+    .pipeline, .flow, footer { max-width: none; }
+    a { color: var(--ink); text-decoration: none; }
+    .eyebrow a, .toc a { text-decoration: none; }
+    section { break-before: auto; }
+    h1, h2, h3, h4 { break-after: avoid; }
+    table, .note, .flow, pre, .pipeline { break-inside: avoid; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
+    .table-wrap, pre, .flow { overflow: visible; }
+    pre, .flow { white-space: pre-wrap; word-break: break-word; }
+    .cmd::before { display: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .shell > .toc { page-break-inside: avoid; }
+  }
+</style>
+
+<div class="shell">
+  <aside class="toc" id="toc" data-open="false">
+    <div class="brand">DIPT</div>
+    <div class="brand-sub">System Handbook</div>
+    <button class="toc-toggle" onclick="var t=document.getElementById('toc');t.dataset.open=t.dataset.open==='true'?'false':'true';">Contents &darr;</button>
+    <nav class="toc-nav">
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#shape">How the system is shaped</a>
+          <ol>
+            <li><a href="#pipeline">The six-stage pipeline</a></li>
+            <li><a href="#lifecycle">The status lifecycle</a></li>
+            <li><a href="#agents">The agents</a></li>
+            <li><a href="#database">The database</a></li>
+            <li><a href="#infra">Shared infrastructure</a></li>
+            <li><a href="#surfaces">The three surfaces</a></li>
+            <li><a href="#models">Local models</a></li>
+          </ol>
+        </li>
+        <li><a href="#built">What was built</a>
+          <ol>
+            <li><a href="#starting">Starting point</a></li>
+            <li><a href="#b-sum">Summarisation agent</a></li>
+            <li><a href="#b-score">Scoring agent</a></li>
+            <li><a href="#b-qa">QA agent</a></li>
+            <li><a href="#b-pipe">Master pipeline &amp; streaming</a></li>
+            <li><a href="#b-dash">Dashboard</a></li>
+            <li><a href="#b-sched">Scheduler</a></li>
+            <li><a href="#b-site">Public website</a></li>
+            <li><a href="#b-extra">Added beyond the brief</a></li>
+            <li><a href="#b-hw">Hardware problems &amp; fixes</a></li>
+            <li><a href="#b-tests">Tests</a></li>
+          </ol>
+        </li>
+        <li><a href="#running">Running the system</a>
+          <ol>
+            <li><a href="#r-prereq">Prerequisites &amp; setup</a></li>
+            <li><a href="#r-start">Starting the pieces</a></li>
+            <li><a href="#r-dash">The dashboard, view by view</a></li>
+            <li><a href="#r-cli">The command line</a></li>
+            <li><a href="#r-sched">The automated schedule</a></li>
+            <li><a href="#r-qademo">The QA demo</a></li>
+            <li><a href="#r-site">Building the website</a></li>
+            <li><a href="#r-first">First-run walkthrough</a></li>
+          </ol>
+        </li>
+        <li><a href="#config">Configuration reference</a></li>
+        <li><a href="#state">Current state &amp; demo data</a></li>
+        <li><a href="#limits">Known limitations &amp; follow-ups</a></li>
+        <li><a href="#files">File-by-file reference</a></li>
+        <li><a href="#trouble">Troubleshooting</a></li>
+        <li><a href="#glossary">Glossary</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="doc-head">
+      <p class="eyebrow">Handover &middot; prepared for the SERL team, BTH</p>
+      <h1>DIPT System Handbook</h1>
+      <p class="lede">Everything the pipeline is, everything that was built, and exactly how to run it &mdash; written for a reader who has not seen the code or the process before.</p>
+      <div class="meta-strip">
+        <span>7 pipeline stages</span>
+        <span>6 agents</span>
+        <span>162 automated tests</span>
+        <span>28 approved papers loaded</span>
+        <span>runs fully offline</span>
+      </div>
+    </div>
+
+    <!-- ============================================ 1 -->
+    <section id="overview">
+      <h2><span class="num">1</span>Overview</h2>
+
+      <p><strong>DIPT</strong> is an automated monitoring line for Software Engineering (SE) research papers, built for Professor Tony Gorschek at SERL Sweden, Blekinge Institute of Technology. It runs entirely on one local workstation (an HP&nbsp;Z2&nbsp;Mini with an AMD Ryzen&nbsp;AI&nbsp;Max Pro&nbsp;395 and 96&nbsp;GB of unified memory) using local language models served by <a href="#glossary">Ollama</a>. There is no cloud service and no per-use cost.</p>
+
+      <p>The system is an <strong>assembly line</strong>. A paper enters as nothing more than a title and an abstract. It comes out the other end fully read, sorted into subject categories, summarised in a fixed four-part structure, and given an industrial-relevance score with a written justification. Each step is handled by a separate program called an <em>agent</em>. Every paper carries a <code>status</code> field in the database that records how far along the line it has travelled, so any agent can stop and later resume without losing work.</p>
+
+      <div class="pipeline" role="img" aria-label="Pipeline stages: Fetch, Parse, Categorise, Summarise, Score, QA, then Approved">
+        <div class="stage"><div class="s-n">01</div><div class="s-name">Fetch</div><div class="s-model">llama3.1:8b</div></div>
+        <div class="stage"><div class="s-n">02</div><div class="s-name">Parse</div><div class="s-model">PyMuPDF</div></div>
+        <div class="stage"><div class="s-n">03</div><div class="s-name">Categorise</div><div class="s-model">llama3.1:70b</div></div>
+        <div class="stage"><div class="s-n">04</div><div class="s-name">Summarise</div><div class="s-model">qwen2.5-coder:32b</div></div>
+        <div class="stage"><div class="s-n">05</div><div class="s-name">Score</div><div class="s-model">deepseek-r1:70b</div></div>
+        <div class="stage"><div class="s-n">06</div><div class="s-name">QA</div><div class="s-model">llama3.1:70b</div></div>
+        <div class="stage" style="border-color: var(--ok);"><div class="s-n" style="color: var(--ok);">✓</div><div class="s-name">Approved</div><div class="s-model">public site</div></div>
+      </div>
+
+      <p>Three of the six agents (Fetch, Parse, Categorise) already existed when this work began. The remaining components &mdash; Summarise, Score, QA, the orchestration around them, an operator dashboard, an automated scheduler, and a public website &mdash; were built during this engagement, along with several conveniences that were not in the original brief. Section&nbsp;3 documents all of it.</p>
+
+      <p><strong>Where things stand now:</strong> the code is complete and covered by 162 automated tests. The database holds 28 papers that have been carried all the way to <span class="pill ok">approved</span>, and the public-site data files have been generated from them. The system is ready to demonstrate and ready to run on a schedule.</p>
+    </section>
+
+    <!-- ============================================ 2 -->
+    <section id="shape">
+      <h2><span class="num">2</span>How the system is shaped</h2>
+      <p>This section is the mental model. Read it once and the rest of the handbook will make sense.</p>
+
+      <h3 id="pipeline"><span class="num">2.1</span>The six-stage pipeline</h3>
+      <p>A paper moves left to right. Each stage reads papers that are in the status it expects, does its work, writes its output to the database, and advances the paper's status. Stages never skip ahead; a paper only reaches <em>Score</em> once <em>Summarise</em> has finished with it.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Stage</th><th>What it does</th><th>Reads papers at</th><th>Leaves them at</th></tr></thead>
+          <tbody>
+            <tr><td class="num-col">1</td><td><strong>Fetch</strong></td><td>Pulls recent open-access SE papers from seven sources (OpenAlex, arXiv, Semantic Scholar, DBLP, CrossRef, Zenodo, CORE). Every candidate must pass an LLM "is this really SE research?" gate before it is saved.</td><td>&mdash;</td><td><span class="pill">fetched</span></td></tr>
+            <tr><td class="num-col">2</td><td><strong>Parse</strong></td><td>Downloads each paper's PDF, checks it is a real PDF, extracts the full text with PyMuPDF, and writes the text to disk.</td><td><span class="pill">fetched</span></td><td><span class="pill">parsed</span> / <span class="pill warn">no_pdf</span> / <span class="pill warn">no_text</span></td></tr>
+            <tr><td class="num-col">3</td><td><strong>Categorise</strong></td><td>Assigns each paper to 1&ndash;3 of 47 SE categories, each with a confidence score. The category list is read live from the database, so it can be edited without touching code.</td><td><span class="pill">parsed</span> / <span class="pill warn">no_pdf</span></td><td><span class="pill">categorised</span></td></tr>
+            <tr><td class="num-col">4</td><td><strong>Summarise</strong></td><td>Produces a structured summary with four labelled parts: research problem, methodology, key findings, industrial implications. Uses the full text when available, the abstract otherwise.</td><td><span class="pill">categorised</span></td><td><span class="pill">summarised</span></td></tr>
+            <tr><td class="num-col">5</td><td><strong>Score</strong></td><td>A reasoning model acts as a "virtual CTO" and gives the paper an industrial-relevance score from 1 to 10 plus a written rationale aimed at a technical executive.</td><td><span class="pill">summarised</span></td><td><span class="pill">scored</span></td></tr>
+            <tr><td class="num-col">6</td><td><strong>QA</strong></td><td>Re-checks the summary and score for consistency and obvious errors. If a problem is found it first tries to fix it automatically by regenerating the affected output; only if that fails does it raise a flag for a human. Papers that pass reach <span class="pill ok">approved</span>.</td><td><span class="pill">scored</span></td><td><span class="pill ok">approved</span> (or a QA flag)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="lifecycle"><span class="num">2.2</span>The status lifecycle</h3>
+      <p>Every paper row has exactly one <code>status</code>. These are all the possible values and how a paper moves between them.</p>
+      <div class="flow">fetched ─▶ parsed ────▶ categorised ─▶ summarised ─▶ scored ─▶ approved
+   │       no_pdf ──▶ categorised        (rejected is available but unused today)
+   │       no_text  (dead end: no usable text and no abstract)
+   └── (a paper is never deleted; it only ever moves forward)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill">fetched</span></td><td>Saved by Fetch, passed the SE gate, nothing else done yet.</td></tr>
+            <tr><td><span class="pill">parsed</span></td><td>PDF downloaded and full text extracted to disk.</td></tr>
+            <tr><td><span class="pill warn">no_pdf</span></td><td>No usable PDF was found. The paper still continues &mdash; later stages fall back to the abstract.</td></tr>
+            <tr><td><span class="pill warn">no_text</span></td><td>A PDF was found but yielded too little text. Dead end unless a human intervenes.</td></tr>
+            <tr><td><span class="pill">categorised</span></td><td>Has 1&ndash;3 category assignments.</td></tr>
+            <tr><td><span class="pill">summarised</span></td><td>Has a four-part summary stored.</td></tr>
+            <tr><td><span class="pill">scored</span></td><td>Has an industrial-relevance score and rationale stored.</td></tr>
+            <tr><td><span class="pill ok">approved</span></td><td>Passed QA. This is the only status that appears on the public website.</td></tr>
+            <tr><td><span class="pill stop">rejected</span></td><td>Defined in the schema for completeness; not produced by any current stage.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="agents"><span class="num">2.3</span>The agents</h3>
+      <p>An "agent" is just a Python class with a <code>run()</code> method. Each one is small, single-purpose, and independently testable. They share no global state &mdash; everything an agent needs is handed to it when it is created.</p>
+      <ul>
+        <li><strong>Fetch agent</strong> &mdash; loops over the configured sources, passes every candidate paper through the quality gate, and saves the survivors. Duplicates (same source identifier) are skipped silently.</li>
+        <li><strong>Parser agent</strong> &mdash; for each fetched paper, downloads the PDF over HTTP with an explicit timeout, verifies the file really is a PDF, extracts and cleans the text, and records where it was written.</li>
+        <li><strong>Categorisation agent</strong> &mdash; loads the 47 active categories from the database, asks the model to pick the best-fitting ones with confidences, validates every returned name against the known list (with a fuzzy fallback), and keeps the top three.</li>
+        <li><strong>Summarisation agent</strong> &mdash; builds a prompt from the paper's title plus up to ~9,000 characters of full text (or the abstract), asks the model for a JSON object with four keys, and stores the rendered result. See <a href="#b-sum">3.2</a>.</li>
+        <li><strong>Scoring agent</strong> &mdash; feeds the stored summary to a reasoning model with a scoring rubric, strips the model's private "thinking" section, parses out the score and rationale, and stores them. See <a href="#b-score">3.3</a>.</li>
+        <li><strong>QA agent</strong> &mdash; the only agent with two modes. It reviews the stored summary and score; on a problem it regenerates the weaker of the two once and re-reviews; if it still fails, it writes a row to the <code>qa_flags</code> table for a person to look at. See <a href="#b-qa">3.4</a>.</li>
+      </ul>
+      <p>A seventh helper, the <strong>quality gate</strong>, is not a pipeline stage but is used by Fetch: it is a fast yes/no classifier that fails closed (when in doubt, or on error, it answers "no").</p>
+
+      <h3 id="database"><span class="num">2.4</span>The database</h3>
+      <p>PostgreSQL, database name <code>dipt</code>, accessed by the application role <code>dipt_user</code>. Six tables were part of the original design; a seventh (<code>fetch_log</code>) is optional and only the scheduler uses it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Table</th><th>Holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>papers</code></td><td>One row per paper: title, abstract, authors, DOI, source, a unique source identifier, PDF URL, publication date, <code>status</code>, and the path to the extracted text file.</td></tr>
+            <tr><td><code>categories</code></td><td>47 rows &mdash; 18 SWEBOK&nbsp;v4 knowledge areas plus 29 emerging SE domains &mdash; each with a name, description, and an <code>is_active</code> flag. Editable from the dashboard.</td></tr>
+            <tr><td><code>paper_categories</code></td><td>Which categories a paper was assigned, with a confidence per assignment.</td></tr>
+            <tr><td><code>summaries</code></td><td>One summary per paper: the rendered four-part text, the model used, and a timestamp.</td></tr>
+            <tr><td><code>scores</code></td><td>One score per paper: the 1&ndash;10 value, the rationale, the model used, and a timestamp.</td></tr>
+            <tr><td><code>qa_flags</code></td><td>One row per unresolved QA problem: the paper, a short flag type, a description, and a <code>resolved</code> flag.</td></tr>
+            <tr><td><code>fetch_log</code> <span class="pill">optional</span></td><td>One row per scheduled run: start time, finish time, papers saved, and success/failure. Used only to narrow the next fetch window and to show run history. Created by the migration in <code>migrations/</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>All SQL lives in one file</strong> (<code>dipt/database/repository.py</code>). Agents never write SQL; they call methods on a repository object. Every query is parameterised, so there is no SQL-injection surface.</p>
+
+      <h3 id="infra"><span class="num">2.5</span>Shared infrastructure</h3>
+      <ul>
+        <li><strong>Configuration</strong> (<code>dipt/config.py</code>) &mdash; all settings come from a <code>.env</code> file, validated at start-up. A missing database password, an out-of-range value, or a bad log level stops the program immediately with a clear message.</li>
+        <li><strong>Exceptions</strong> (<code>dipt/exceptions.py</code>) &mdash; every custom error inherits from <code>DIPTError</code>, so the entry points can catch the whole family in one place while still handling specific failures where it matters.</li>
+        <li><strong>Logging</strong> (<code>dipt/logging_config.py</code>) &mdash; one central set-up; every module logs, nothing prints.</li>
+        <li><strong>Connection pool</strong> (<code>dipt/database/connection.py</code>) &mdash; a small pool of database connections, handed out through a context manager that commits on success and rolls back on any error.</li>
+        <li><strong>LLM client</strong> (<code>dipt/agents/llm_client.py</code>) &mdash; the single wrapper around Ollama. It adds retries with exponential back-off, an optional token cap, and an optional "JSON mode" that forces the model to return valid JSON. Every agent talks to models only through this.</li>
+        <li><strong>Prompt store</strong> (<code>dipt/prompt_store.py</code>) &mdash; lets an administrator override any agent's prompt by dropping a text file in <code>config/agent_prompts/</code>. Added during this work; see <a href="#b-extra">3.9</a>.</li>
+        <li><strong>Typed models</strong> (<code>dipt/models/schemas.py</code>) &mdash; Pydantic models form the boundary between raw external data and internal logic: <code>PaperRecord</code>, <code>Category</code>, <code>CategoryAssignment</code>, <code>PaperSummary</code>, <code>PaperScore</code>, <code>QAReview</code>, plus the <code>PaperStatus</code> and <code>PaperSource</code> enumerations.</li>
+      </ul>
+
+      <h3 id="surfaces"><span class="num">2.6</span>The three surfaces</h3>
+      <p>All three read and write the same PostgreSQL database. They are independent &mdash; you can use any subset.</p>
+      <div class="flow">  sources ─▶ Fetch ─▶┐
+                     ▼
+              PostgreSQL  ◀──▶  Pipeline CLI        (operator types commands)
+                     │    ◀──▶  Dashboard          (operator clicks buttons)
+                     │
+                     └── site_export ─▶ website/data/*.json ─▶ static site (public)</div>
+      <ul>
+        <li><strong>Pipeline CLI</strong> &mdash; <code>python -m dipt.pipeline &lt;stage&gt; [N]</code>. The original way to drive the line. Still fully supported.</li>
+        <li><strong>Dashboard</strong> &mdash; a Streamlit web app for the SERL team. Runs stages as background jobs, shows pipeline status, browses papers, works the QA queue, edits categories and prompts, and turns the automated schedule on and off. Built during this work.</li>
+        <li><strong>Public website</strong> &mdash; a static Next.js + Fuse.js site of approved papers, for the outside world. Data is exported from the database by a small script. Built during this work.</li>
+      </ul>
+
+      <h3 id="models"><span class="num">2.7</span>Local models</h3>
+      <p>Served by Ollama on <code>http://localhost:11434</code>. All chosen so the whole line runs on the one workstation with no external calls.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stage</th><th>Model</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Quality gate</td><td><code>llama3.1:8b</code></td><td>Small and fast; only needs to answer YES/NO.</td></tr>
+            <tr><td>Categorisation</td><td><code>llama3.1:70b</code></td><td>Enough capability to map a paper onto 47 fine-grained categories.</td></tr>
+            <tr><td>Summarisation</td><td><code>qwen2.5-coder:32b</code></td><td>Substituted for the brief's <code>command-r-plus</code>, which will not load on this hardware. See <a href="#b-hw">3.10</a>.</td></tr>
+            <tr><td>Scoring</td><td><code>deepseek-r1:70b</code></td><td>A reasoning model &mdash; it "thinks" before answering, which suits the virtual-CTO judgement task.</td></tr>
+            <tr><td>QA review</td><td><code>llama3.1:70b</code></td><td>Capable general model; the review is a short structured check.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================ 3 -->
+    <section id="built">
+      <h2><span class="num">3</span>What was built</h2>
+      <p>This section is the complete work log: what existed before, what was delivered, the design decisions inside each piece, and the problems that came up along the way.</p>
+
+      <h3 id="starting"><span class="num">3.1</span>Starting point</h3>
+      <p>When this engagement began, the repository already contained a production-standard rebuild of the first three agents &mdash; Fetch, Parse, Categorise &mdash; plus all the shared infrastructure listed in <a href="#infra">2.5</a>, and <strong>39 passing tests</strong>. The database already had the 47 categories and a backlog of roughly 700 papers at <span class="pill">parsed</span> or <span class="pill warn">no_pdf</span>. Nothing in that baseline was rewritten; the new work was added on top and matched to the existing style (type hints everywhere, Google-style docstrings, custom exceptions, no bare <code>except</code>, explicit network timeouts, all SQL in the repository).</p>
+      <p>Six items remained: the Summarisation agent, the Scoring agent, the QA agent, the pipeline orchestration and a streaming mode, the dashboard, the scheduler, and the public website.</p>
+
+      <h3 id="b-sum"><span class="num">3.2</span>Summarisation agent</h3>
+      <p>A partial implementation existed (<code>dipt/agents/summarisation_agent.py</code>). It was finished and corrected:</p>
+      <ul>
+        <li><strong>Full-text bug fixed.</strong> The agent only read a paper's extracted text when the paper's status was exactly <code>parsed</code>. But by the time a paper reaches this stage its status is <code>categorised</code>, so that check was never true and every summary was built from the abstract alone. It now uses the full text whenever a text file exists, regardless of status.</li>
+        <li><strong>Switched to JSON mode.</strong> The original prompt asked the model for nested XML tags. Local models on this box comply with that poorly &mdash; and on longer inputs <code>llama3.1:70b</code> would collapse into repeated phrases. The agent now asks for a JSON object with four string keys and turns on Ollama's JSON mode, which constrains the output to valid JSON. Parsing is lenient: unknown keys are ignored, missing keys become empty, a stray code fence is stripped.</li>
+        <li><strong>Model changed</strong> from <code>command-r-plus</code> to <code>qwen2.5-coder:32b</code> &mdash; see <a href="#b-hw">3.10</a> for the full reasoning.</li>
+        <li><strong>Input capped</strong> at ~9,000 characters and output at ~800 tokens, both to keep the model stable and to keep each paper to under a minute or two.</li>
+      </ul>
+      <p>It was wired into the pipeline (<code>summarise</code> command) and covered by 14 new tests. Verified live: 28 papers summarised with no failures.</p>
+
+      <h3 id="b-score"><span class="num">3.3</span>Scoring agent</h3>
+      <p>New file <code>dipt/agents/scoring_agent.py</code>. It selects <span class="pill">summarised</span> papers, sends the stored summary to <code>deepseek-r1:70b</code> with a scoring rubric, removes the model's <code>&lt;think&gt;&hellip;&lt;/think&gt;</code> block, and extracts a 1&ndash;10 score plus a three-to-five-sentence rationale written for a technical executive. Out-of-range scores are clamped rather than rejected. Saved to the <code>scores</code> table; status advances to <span class="pill">scored</span>. Wired as the <code>score</code> command, 10 new tests, verified live on 28 papers.</p>
+      <p>The rubric was later tuned (sharper bands, an explicit instruction to use the whole range and justify why the number is not one point higher or lower, sampling temperature raised from 0.1 to 0.35) to counter a tendency of the model to give almost every paper the same number. See <a href="#limits">6</a>.</p>
+
+      <h3 id="b-qa"><span class="num">3.4</span>QA agent</h3>
+      <p>New file <code>dipt/agents/qa_agent.py</code>. Professor Gorschek's specific requirement was that QA must have <strong>two modes</strong>, and that the auto-fix mode &mdash; the one that usually gets skipped &mdash; must actually work. Both are implemented and both were demonstrated on real papers.</p>
+      <ol class="body-list">
+        <li><strong>Review.</strong> The agent loads the stored summary and score and asks <code>llama3.1:70b</code> (JSON mode) to fail the paper if the summary is empty, truncated, or off-topic, or if the score is missing, out of range, or plainly inconsistent with its own rationale. The verdict names which output is weaker: <code>summary</code> or <code>score</code>.</li>
+        <li><strong>Auto-fix, then escalate.</strong> On a pass, the paper goes straight to <span class="pill ok">approved</span>. On a fail, the agent regenerates the named output <em>once</em> (calling the Summarisation or Scoring agent), then re-reviews. If it now passes, the paper is approved and the run is recorded as an auto-fix. If it still fails &mdash; or if regeneration produced nothing &mdash; the agent writes a row to <code>qa_flags</code>, leaves the paper at <span class="pill">scored</span>, and moves on. A flagged paper is excluded from future QA runs until a person clears the flag from the dashboard.</li>
+      </ol>
+      <p>Wired as the <code>qa</code> command, 14 new tests covering every branch. A helper script, <code>scripts/qa_demo.py</code>, reproduces both paths on demand for a demonstration:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Command</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td><code>python -m scripts.qa_demo --autofix &lt;id&gt;</code></td><td>Corrupts a paper's stored summary, then shows QA detect it, regenerate the summary, re-check, and approve.</td></tr>
+          <tr><td><code>python -m scripts.qa_demo --escalate &lt;id&gt;</code></td><td>Corrupts the summary and forces regeneration to fail, then shows QA give up and write a <code>qa_flags</code> row visible in the dashboard QA queue.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Live results on the demo batch: 28 of 28 passed review, and the auto-fix path fired once organically on a real paper.</p>
+
+      <h3 id="b-pipe"><span class="num">3.5</span>Master pipeline &amp; streaming</h3>
+      <p><code>dipt/pipeline.py</code> was extended:</p>
+      <ul>
+        <li><code>score</code>, <code>qa</code>, and <code>stream</code> were added to the command list.</li>
+        <li><code>all</code> now runs the whole chain in order (<code>fetch → parse → categorise → summarise → score → qa</code>) in one command.</li>
+        <li><strong>Streaming mode</strong> (<code>stream</code>) takes papers that are <span class="pill">categorised</span> and carries each one individually through summarise → score → QA before moving to the next paper. In batch mode you would wait for every paper to be summarised, then every paper scored, then every paper QA'd, before any single paper is approved; streaming makes approved papers appear from the first paper onward. Fetch/parse/categorise stay batch (they are network-bound or cheap).</li>
+      </ul>
+      <p>7 tests for the wiring and the streaming loop.</p>
+
+      <h3 id="b-dash"><span class="num">3.6</span>Dashboard</h3>
+      <p>A Streamlit app under <code>dashboard/</code>, run with <code>streamlit run dashboard/app.py</code>. Six views (full operating instructions in <a href="#r-dash">4.3</a>):</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>View</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Run pipeline</strong></td><td>Start any stage as a background job with a paper cap; watch its live log; stop it. One run at a time.</td></tr>
+          <tr><td><strong>Schedule</strong></td><td>Turn the automated full-pipeline run on/off; set the interval (default 24&nbsp;h) and an optional per-cycle cap; run one cycle now; see the next-run time.</td></tr>
+          <tr><td><strong>Pipeline status</strong></td><td>Paper counts per lifecycle stage, approved / open-flag totals, and recent scheduled runs.</td></tr>
+          <tr><td><strong>Paper browser</strong></td><td>Filter papers by status; open one to see its categories, four-part summary, score, and rationale.</td></tr>
+          <tr><td><strong>QA queue</strong></td><td>Every escalated paper with its stored summary and score, and a "Mark resolved" button.</td></tr>
+          <tr><td><strong>Settings</strong></td><td>Add / rename / describe / deactivate the 47 categories, and edit any agent's prompt.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Two implementation notes. The dashboard deliberately renders Markdown tables and text bars instead of <code>st.dataframe</code> / <code>st.bar_chart</code>, because the charting library's binary component is blocked by an application-control policy on the production machine. And all database access still goes through the one repository class &mdash; the dashboard adds no SQL of its own.</p>
+
+      <h3 id="b-sched"><span class="num">3.7</span>Scheduler</h3>
+      <p><code>dipt/scheduler.py</code> plus <code>docs/SCHEDULING.md</code> and a one-line SQL migration. A scheduled run does the full chain, but first reads the last successful run's start time and narrows the fetch window to "since then plus one day of overlap" so it does not re-examine papers it has already seen. It records the run in <code>fetch_log</code> and refreshes the website data at the end. <code>docs/SCHEDULING.md</code> gives copy-paste setup for Windows Task Scheduler (the production route) and for cron / launchd. 8 tests.</p>
+
+      <h3 id="b-site"><span class="num">3.8</span>Public website</h3>
+      <p>A complete static Next.js (pages router, static export) + Fuse.js project under <code>website/</code>, plus <code>dipt/site_export.py</code> which reads every <span class="pill ok">approved</span> paper and writes three files the site consumes at build time:</p>
+      <ul class="tight">
+        <li><code>website/data/papers.json</code> &mdash; the full records, including the parsed four-part summary, score, and categories.</li>
+        <li><code>website/data/categories.json</code> &mdash; the categories that have at least one approved paper, with counts.</li>
+        <li><code>website/public/rss.xml</code> &mdash; an RSS 2.0 feed of the most recent approved papers.</li>
+      </ul>
+      <p>Pages: a home page with client-side search (Fuse.js) plus category and minimum-score filters; a detail page per paper; a categories index; a page per category; and the RSS feed. What a visitor sees is described in <a href="#r-site">4.7</a>. 8 tests for the exporter.</p>
+      <div class="note warn"><span class="tag">Not built here</span><p>The website's production build (<code>npm run build</code>) has not been run &mdash; this machine has no Node.js. The project and the exported data are complete; the build must be done on a machine with Node before deploying.</p></div>
+
+      <h3 id="b-extra"><span class="num">3.9</span>Added beyond the brief</h3>
+      <ul>
+        <li><strong>Fetch cap.</strong> <code>fetch</code> now takes a number: <code>python -m dipt.pipeline fetch 20</code> stops after saving 20 new papers. Flows through <code>all</code> and the dashboard too.</li>
+        <li><strong>Dashboard "Run pipeline" view.</strong> Runs each stage as a detached background process, tracked by files under <code>runs/</code>. You can close the browser; the run keeps going. A "recent runs" table shows status and duration; a log pane tails the output; a Stop button kills it.</li>
+        <li><strong>Dashboard "Schedule" view.</strong> A small daemon process runs the whole pipeline every N hours (default 24), started and stopped from the UI. Survives a browser refresh or a Streamlit restart; does not survive a machine reboot (use the OS scheduler for that). Optional per-cycle paper cap. Respects the "one run at a time" rule.</li>
+        <li><strong>File-based prompt overrides.</strong> An administrator can rewrite any agent's prompt from the Settings view. Overrides are saved as plain text files under <code>config/agent_prompts/</code> and picked up on the next run &mdash; no database table, no migration, no special privileges. A save is blocked if it drops a required <code>{placeholder}</code>.</li>
+      </ul>
+
+      <h3 id="b-hw"><span class="num">3.10</span>Hardware problems &amp; fixes</h3>
+      <p>The workstation's integrated GPU (Radeon 8060S, ~76&nbsp;GiB usable) is powerful but has real limits with the largest models. Four issues came up; all are resolved and the fixes are persisted.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>command-r-plus</code> (the brief's summarisation model) never starts</td><td>59&nbsp;GB of weights load, then the model server times out allocating the key/value cache.</td><td>Summarisation now uses <code>qwen2.5-coder:32b</code>, which produces clean structured summaries and leaves memory headroom. One-line revert in <code>.env</code> when the GPU memory ceiling is raised.</td></tr>
+          <tr><td><code>llama3.1:70b</code> produced repeated-phrase gibberish for summaries</td><td>The 70B model degrades on a long prompt combined with a fragile nested-XML output format.</td><td>All structured-output agents switched to JSON mode with lenient JSON parsing, and inputs were capped.</td></tr>
+          <tr><td>Scoring failed for 23 of 28 papers mid-run</td><td>GPU memory exhaustion after several back-to-back 70B model loads; the model server could not allocate a 30&nbsp;GB cache and started returning empty output.</td><td>Ollama restarted with a smaller context window and a quantised key/value cache (roughly one-eighth the memory). The re-run then completed 23/23 with no failures.</td></tr>
+          <tr><td>Model loads timed out under memory pressure</td><td>Ollama's default 5-minute load timeout is too short for a 42&nbsp;GB model when memory is tight.</td><td>Load timeout raised to 20&nbsp;minutes; keep-alive raised to 30&nbsp;minutes so a model stays resident for a whole stage.</td></tr>
+        </tbody>
+      </table></div>
+      <p>The five Ollama settings that fix this are now saved to the Windows user environment, so the Ollama app and any scheduled run pick them up automatically:</p>
+      <pre class="cmd"><code>OLLAMA_LOAD_TIMEOUT   = 20m
+OLLAMA_KEEP_ALIVE     = 30m
+OLLAMA_CONTEXT_LENGTH = 8192
+OLLAMA_KV_CACHE_TYPE  = q8_0
+OLLAMA_FLASH_ATTENTION = 1</code></pre>
+      <div class="note info"><span class="tag">Note</span><p>During this work the Ollama tray app was stopped and a server was run inside the work session. Before relying on the system, launch <strong>Ollama</strong> from the Windows Start menu once &mdash; it will start with the settings above.</p></div>
+
+      <h3 id="b-tests"><span class="num">3.11</span>Tests</h3>
+      <p>The suite grew from <strong>39</strong> to <strong>162</strong>. Every language-model and database call is mocked, so the tests run in about one second and need neither Ollama nor PostgreSQL. Run them with:</p>
+      <pre class="cmd"><code>python -m pytest tests/ -v</code></pre>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Test file</th><th>Covers</th><th class="num-col">Tests</th></tr></thead>
+        <tbody>
+          <tr><td><code>test_summarisation_agent.py</code></td><td>JSON parsing, full-text vs abstract, status advance</td><td class="num-col">14</td></tr>
+          <tr><td><code>test_scoring_agent.py</code></td><td>score extraction, think-block stripping, clamping</td><td class="num-col">10</td></tr>
+          <tr><td><code>test_qa_agent.py</code></td><td>pass / auto-fix / escalate branches</td><td class="num-col">14</td></tr>
+          <tr><td><code>test_pipeline.py</code></td><td>command dispatch, streaming loop, prompt lookup</td><td class="num-col">7</td></tr>
+          <tr><td><code>test_scheduler.py</code></td><td>fetch-window maths, run bookkeeping</td><td class="num-col">8</td></tr>
+          <tr><td><code>test_site_export.py</code></td><td>slugs, summary parsing, RSS, file output</td><td class="num-col">8</td></tr>
+          <tr><td><code>test_prompt_store.py</code></td><td>file overrides, validation, reset</td><td class="num-col">9</td></tr>
+          <tr><td><code>test_runner.py</code></td><td>background-run status from log files</td><td class="num-col">8</td></tr>
+          <tr><td><code>test_schedule.py</code></td><td>daemon config, enable / disable, status</td><td class="num-col">11</td></tr>
+          <tr><td><code>test_fetch_agent.py</code></td><td>the new save cap</td><td class="num-col">4</td></tr>
+          <tr><td><code>test_llm_client.py</code></td><td>retry, JSON mode, token cap</td><td class="num-col">6</td></tr>
+          <tr><td><code>test_repository.py</code> + <code>test_repository_support.py</code></td><td>every SQL method, result mapping</td><td class="num-col">24</td></tr>
+          <tr><td><code>test_categorisation_agent.py</code>, <code>test_quality_gate.py</code>, <code>test_sources.py</code>, <code>test_config.py</code>, <code>test_parser_agent.py</code></td><td>the original baseline, still green</td><td class="num-col">33</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ============================================ 4 -->
+    <section id="running">
+      <h2><span class="num">4</span>Running the system</h2>
+      <p>Written for someone starting from nothing. Every command is run from the project folder:</p>
+      <pre class="cmd"><code>cd C:\Users\sepro\Downloads\dipt_production\dipt_build</code></pre>
+
+      <h3 id="r-prereq"><span class="num">4.1</span>Prerequisites &amp; one-time setup</h3>
+      <ol class="body-list">
+        <li><strong>Python packages.</strong> Once:
+          <pre class="cmd"><code>python -m pip install -r requirements.txt</code></pre></li>
+        <li><strong>The <code>.env</code> file</strong> already exists in the project folder with the database password and paths filled in. If you ever recreate it, copy <code>.env.example</code> and edit it. Full reference in <a href="#config">5</a>.</li>
+        <li><strong>PostgreSQL</strong> must be running with a database called <code>dipt</code>. Check:
+          <pre class="cmd"><code>psql -U postgres -d dipt -c "SELECT 1"</code></pre></li>
+        <li><strong>Ollama</strong> must be running. Launch <strong>Ollama</strong> from the Start menu, then check:
+          <pre class="cmd"><code>curl http://localhost:11434/api/tags</code></pre></li>
+        <li><strong>Optional migration.</strong> Only if you want the scheduler's run history and incremental fetch, run this once as the database owner:
+          <pre class="cmd"><code>psql -U postgres -d dipt -f migrations/001_support_tables.sql</code></pre>
+          Everything else &mdash; the pipeline, the dashboard, editing prompts, the website &mdash; works without it.</li>
+      </ol>
+
+      <h3 id="r-start"><span class="num">4.2</span>Starting the pieces</h3>
+      <p>You need PostgreSQL and Ollama up (above). Then start the dashboard:</p>
+      <pre class="cmd"><code>python -m streamlit run dashboard/app.py</code></pre>
+      <p>It prints a URL and opens your browser at <code>http://localhost:8501</code>. Stop it with <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal. If port 8501 is busy, add <code>--server.port 8600</code>.</p>
+      <p>You do not need the dashboard to run the pipeline &mdash; the command line (<a href="#r-cli">4.4</a>) does everything too.</p>
+
+      <h3 id="r-dash"><span class="num">4.3</span>The dashboard, view by view</h3>
+      <p>Pick a view from the left sidebar.</p>
+
+      <h4>Run pipeline</h4>
+      <ol class="tight">
+        <li>Choose a <strong>Stage</strong>: <code>fetch</code>, <code>parse</code>, <code>categorise</code>, <code>summarise</code>, <code>score</code>, <code>qa</code>, <code>all</code>, or <code>stream</code>.</li>
+        <li>Set the <strong>cap</strong> (the number field). For <code>fetch</code> it limits how many new papers are saved; for everything else it limits how many papers the stage processes. Start small &mdash; the 70B models take 2&ndash;3 minutes per paper.</li>
+        <li>Click <strong>Start run</strong>. It launches in the background; you can leave the page.</li>
+        <li>Watch <strong>Run log</strong> lower down; click <strong>Refresh</strong> to update it. A run shows as 🟢 running, ✅ finished, ❌ failed, or ⚠️ stopped. <strong>Stop this run</strong> kills a running job.</li>
+      </ol>
+      <p>Only one run at a time &mdash; a second Start is refused while one is going.</p>
+
+      <h4>Schedule</h4>
+      <ol class="tight">
+        <li>Set <strong>Interval (hours)</strong> &mdash; default <strong>24</strong>.</li>
+        <li>Optionally set <strong>Papers per cycle</strong> (0 = the whole backlog).</li>
+        <li>Click <strong>Enable / restart</strong>. A background daemon starts and runs the first full cycle immediately, then repeats every N hours.</li>
+        <li>The status row shows ON/OFF, the interval, the cap, whether the daemon is alive, the last cycle's outcome, and the estimated next run.</li>
+        <li><strong>Disable</strong> stops the daemon and any cycle in progress. <strong>Run one cycle now</strong> fires a single cycle without changing the schedule.</li>
+      </ol>
+      <div class="note info"><span class="tag">Reboot</span><p>The daemon does not restart after the machine reboots. For a setup that survives reboots, use Windows Task Scheduler as described in <code>docs/SCHEDULING.md</code>. Use one or the other, not both.</p></div>
+
+      <h4>Pipeline status</h4>
+      <p>Read-only. Three headline numbers (papers total, approved, open QA flags), a bar chart of how many papers sit at each status, and &mdash; if the migration was run &mdash; a table of recent scheduled runs.</p>
+
+      <h4>Paper browser</h4>
+      <p>Filter by status and row count, get a table, then pick a paper to see everything about it: authors, DOI, status, its 1&ndash;3 categories with confidences, the industrial-relevance score and rationale, the four-part summary, and the original abstract.</p>
+
+      <h4>QA queue</h4>
+      <p>One card per paper the QA agent escalated. Each shows the flag type, description, and the stored summary and score. <strong>Mark resolved</strong> clears the flag so the next QA run re-checks that paper. Empty means every scored paper passed.</p>
+
+      <h4>Settings</h4>
+      <p><strong>Categories:</strong> a table of all 47, an "Add a category" form, and an "Edit or deactivate" panel &mdash; changes take effect on the next categorisation run with no restart. <strong>Agent prompts:</strong> pick an agent (quality gate, categorisation, summarisation, scoring, QA), edit its prompt, and <strong>Save prompt</strong> (blocked if you drop a required <code>{placeholder}</code>) or <strong>Reset to default</strong>. Saved prompts are files under <code>config/agent_prompts/</code> and apply on the next run.</p>
+
+      <h3 id="r-cli"><span class="num">4.4</span>The command line</h3>
+      <p>Everything the pipeline does, without the dashboard.</p>
+      <pre class="cmd"><code>python -m dipt.pipeline fetch 20        # fetch, save at most 20 new papers
+python -m dipt.pipeline parse 20       # download + extract text for up to 20
+python -m dipt.pipeline categorise 20  # assign categories to up to 20
+python -m dipt.pipeline summarise 20   # summarise up to 20
+python -m dipt.pipeline score 20       # score up to 20
+python -m dipt.pipeline qa 20          # QA-check up to 20
+python -m dipt.pipeline all 20         # every stage in order, cap 20 each
+python -m dipt.pipeline stream 20      # up to 20 papers, each taken fully
+                                       #   through summarise -> score -> qa</code></pre>
+      <p>The number is optional; leaving it off processes the whole backlog. After a run that produced new approved papers, refresh the website data:</p>
+      <pre class="cmd"><code>python -m dipt.site_export</code></pre>
+
+      <h3 id="r-sched"><span class="num">4.5</span>The automated schedule</h3>
+      <p>Two independent options; pick one.</p>
+      <ul>
+        <li><strong>Dashboard toggle</strong> &mdash; the Schedule view (<a href="#r-dash">4.3</a>). Easiest; good while the workstation stays on. Does not survive a reboot.</li>
+        <li><strong>Windows Task Scheduler</strong> &mdash; reboot-proof, headless, recommended for production. The exact <code>schtasks</code> command and a wrapper batch file are in <code>docs/SCHEDULING.md</code>. It runs the same entry point:
+          <pre class="cmd"><code>python -m dipt.scheduler</code></pre></li>
+      </ul>
+
+      <h3 id="r-qademo"><span class="num">4.6</span>The QA demo</h3>
+      <p>To show Professor Gorschek both QA behaviours on demand (pick any approved or scored paper id, e.g. from the Paper browser):</p>
+      <pre class="cmd"><code>python -m scripts.qa_demo --autofix 942     # detect -> regenerate -> approve
+python -m scripts.qa_demo --escalate 943    # detect -> can't fix -> raise a flag</code></pre>
+      <p>After <code>--escalate</code>, open the dashboard's QA queue to see the flag; "Mark resolved" clears it.</p>
+
+      <h3 id="r-site"><span class="num">4.7</span>Building the website</h3>
+      <p>Needs Node.js, which is not on this machine. On any machine with Node:</p>
+      <pre class="cmd"><code>cd website
+npm ci
+npm run dev      # preview at http://localhost:3000
+npm run build    # produces website/out/  -- a fully static site</code></pre>
+      <p>Deploy <code>website/out/</code> to any static host. For Cloudflare Pages: connect the repository, build command <code>npm run build</code>, output directory <code>website/out</code>, root directory <code>website</code>. A commit that changes <code>website/data/papers.json</code> triggers a rebuild, so the site refreshes whenever the pipeline approves new papers.</p>
+      <p><strong>What a visitor sees:</strong></p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Page</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td>Home (<code>/</code>)</td><td>A count of approved papers, a live search box (matches titles, topics, findings, authors), a category filter, a minimum-score slider, and a card per paper &mdash; title, authors, date, source, a colour-coded score pill, the research-problem sentence, and clickable category tags.</td></tr>
+          <tr><td>Paper (<code>/papers/&lt;id&gt;/</code>)</td><td>Full title and metadata, DOI link, the score out of 10 with its rationale, category tags, the four summary sections, and the original abstract in a fold-out.</td></tr>
+          <tr><td>Categories (<code>/categories/</code>)</td><td>Every category that has at least one approved paper, with its count.</td></tr>
+          <tr><td>Category (<code>/categories/&lt;slug&gt;/</code>)</td><td>All approved papers in that category, highest score first.</td></tr>
+          <tr><td>RSS (<code>/rss.xml</code>)</td><td>The 50 most recent approved papers &mdash; title, link, the "why a practitioner should care" line, publication date.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Only <span class="pill ok">approved</span> papers ever reach the public site.</p>
+
+      <h3 id="r-first"><span class="num">4.8</span>First-run walkthrough</h3>
+      <p>If you are starting with an empty or near-empty database and want to see the whole line work end to end, on a small scale:</p>
+      <pre class="cmd"><code>python -m dipt.pipeline fetch 5
+python -m dipt.pipeline parse 5
+python -m dipt.pipeline categorise 5
+python -m dipt.pipeline summarise 5
+python -m dipt.pipeline score 5
+python -m dipt.pipeline qa 5
+python -m dipt.site_export</code></pre>
+      <p>Expect roughly 20&ndash;40 minutes, almost all of it in <code>score</code>. Then open the dashboard's Paper browser (filter: <code>approved</code>) to see the results, and the Pipeline status view to see the counts move. Or do the same thing from the dashboard's Run pipeline view, one stage at a time.</p>
+    </section>
+
+    <!-- ============================================ 5 -->
+    <section id="config">
+      <h2><span class="num">5</span>Configuration reference</h2>
+
+      <h3><span class="num">5.1</span>The <code>.env</code> file</h3>
+      <p>Sits in the project folder. Loaded and validated at start-up. Never commit it &mdash; it holds the database password.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Setting</th><th>Default / current</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>DB_HOST</code></td><td><code>localhost</code></td><td>PostgreSQL host.</td></tr>
+          <tr><td><code>DB_PORT</code></td><td><code>5432</code></td><td>PostgreSQL port.</td></tr>
+          <tr><td><code>DB_NAME</code></td><td><code>dipt</code></td><td>Database name.</td></tr>
+          <tr><td><code>DB_USER</code></td><td><code>dipt_user</code></td><td>Application role.</td></tr>
+          <tr><td><code>DB_PASSWORD</code></td><td>&mdash;</td><td>Set in the file. Required.</td></tr>
+          <tr><td><code>DB_POOL_MIN</code> / <code>DB_POOL_MAX</code></td><td><code>1</code> / <code>5</code></td><td>Connection-pool bounds.</td></tr>
+          <tr><td><code>OLLAMA_BASE_URL</code></td><td><code>http://localhost:11434</code></td><td>Where Ollama listens.</td></tr>
+          <tr><td><code>MODEL_QUALITY_GATE</code></td><td><code>llama3.1:8b</code></td><td>SE-relevance gate.</td></tr>
+          <tr><td><code>MODEL_CATEGORISATION</code></td><td><code>llama3.1:70b</code></td><td>Category assignment.</td></tr>
+          <tr><td><code>MODEL_SUMMARISATION</code></td><td><code>qwen2.5-coder:32b</code></td><td>Four-part summary. (Brief specifies <code>command-r-plus</code>; see <a href="#b-hw">3.10</a>.)</td></tr>
+          <tr><td><code>MODEL_SCORING</code></td><td><code>deepseek-r1:70b</code></td><td>Industrial-relevance score.</td></tr>
+          <tr><td><code>MODEL_QA</code></td><td><code>llama3.1:70b</code></td><td>Summary/score consistency check.</td></tr>
+          <tr><td><code>CONTACT_EMAIL</code></td><td><code>tira25@student.bth.se</code></td><td>Used in polite-pool headers to the paper sources.</td></tr>
+          <tr><td><code>CORE_API_KEY</code></td><td>empty</td><td>Optional key for the CORE source.</td></tr>
+          <tr><td><code>PDF_DIR</code> / <code>TEXT_DIR</code></td><td><code>...\Software Project\pdfs</code> and <code>...\pdfs\text</code></td><td>Where PDFs and extracted text are written.</td></tr>
+          <tr><td><code>FETCH_DAYS_BACK</code></td><td><code>7</code></td><td>How far back each source looks (unless the scheduler narrows it).</td></tr>
+          <tr><td><code>HTTP_TIMEOUT_SECONDS</code></td><td><code>30</code></td><td>Per-request network timeout.</td></tr>
+          <tr><td><code>LOG_LEVEL</code></td><td><code>INFO</code></td><td><code>DEBUG</code> / <code>INFO</code> / <code>WARNING</code> / <code>ERROR</code> / <code>CRITICAL</code>.</td></tr>
+          <tr><td><code>SITE_BASE_URL</code> / <code>SITE_TITLE</code></td><td><code>https://dipt.pages.dev</code></td><td>Used in the RSS feed links and title.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3><span class="num">5.2</span>Ollama environment variables</h3>
+      <p>Set once in the Windows user environment during this work (see <a href="#b-hw">3.10</a>). They keep the large models stable on this GPU. If Ollama is ever reinstalled or the profile reset, set them again &mdash; without them, scoring runs of more than a handful of papers are likely to fail.</p>
+
+      <h3><span class="num">5.3</span>Agent prompt overrides</h3>
+      <p>Folder <code>config/agent_prompts/</code>. An optional file <code>&lt;agent&gt;.txt</code> per agent &mdash; recognised names: <code>quality_gate</code>, <code>categorisation</code>, <code>summarisation</code>, <code>scoring</code>, <code>qa</code>. If a file is present its contents replace that agent's built-in prompt on the next run; delete the file to revert. Edit these from the dashboard Settings view rather than by hand, so the placeholder check runs.</p>
+    </section>
+
+    <!-- ============================================ 6 -->
+    <section id="state">
+      <h2><span class="num">6</span>Current state &amp; demo data</h2>
+      <p>As delivered, the database contains:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Count</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Papers <span class="pill ok">approved</span></td><td class="num-col">28</td><td>Fully processed: categorised, summarised, scored, QA-passed. These populate the website data.</td></tr>
+          <tr><td>Papers at earlier stages</td><td class="num-col">~700</td><td>Backlog at <span class="pill">parsed</span> / <span class="pill warn">no_pdf</span> / <span class="pill">categorised</span> &mdash; raw material for future runs.</td></tr>
+          <tr><td>Categories</td><td class="num-col">47</td><td>All active.</td></tr>
+          <tr><td>Open QA flags</td><td class="num-col">0</td><td>Run <code>scripts.qa_demo --escalate</code> to create one for a demo.</td></tr>
+          <tr><td>Score range on the 28</td><td class="num-col">5.0 &ndash; 7.0</td><td>Clustered &mdash; see <a href="#limits">7</a>. Rationales are specific and per-paper.</td></tr>
+          <tr><td>Website data files</td><td class="num-col">3</td><td><code>papers.json</code>, <code>categories.json</code>, <code>rss.xml</code> &mdash; generated, current.</td></tr>
+        </tbody>
+      </table></div>
+      <p>The exact current counts at any time are visible in the dashboard's Pipeline status view.</p>
+    </section>
+
+    <!-- ============================================ 7 -->
+    <section id="limits">
+      <h2><span class="num">7</span>Known limitations &amp; recommended follow-ups</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Status</th><th>Recommended follow-up</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Scores cluster</strong></td><td>The scoring model reads each paper and writes a specific, well-reasoned rationale, but it re-anchors the number rather than spreading it (nearly every paper lands within a two-point band). Rubric tuning and a higher temperature helped only a little.</td><td>Redesign the scoring prompt as a <em>comparative</em> judgement ("versus a typical accepted SE paper, is this above or below, and by how much?"), or use a non-reasoning model with a forced distribution. Editable live from the Settings view.</td></tr>
+          <tr><td><strong><code>command-r-plus</code></strong></td><td>The brief's summarisation model does not load on the current GPU allocation.</td><td>Raise the GPU's memory ceiling (BIOS UMA / VRAM split), then set <code>MODEL_SUMMARISATION=command-r-plus</code> in <code>.env</code>. Until then <code>qwen2.5-coder:32b</code> is a good substitute.</td></tr>
+          <tr><td><strong>Website build</strong></td><td>Code and data complete; never built (no Node.js here).</td><td>On a machine with Node: <code>npm ci &amp;&amp; npm run build</code> in <code>website/</code>, then deploy <code>website/out/</code>.</td></tr>
+          <tr><td><strong>Scheduler migration</strong></td><td>The <code>fetch_log</code> table needs the database owner's password, which was not available.</td><td>Run <code>migrations/001_support_tables.sql</code> as <code>postgres</code>. Only affects the scheduler's run history and incremental fetch.</td></tr>
+          <tr><td><strong>Dashboard schedule daemon</strong></td><td>Does not restart after a machine reboot.</td><td>For production, use the Windows Task Scheduler route in <code>docs/SCHEDULING.md</code> instead of the dashboard toggle.</td></tr>
+          <tr><td><strong>GPU throughput</strong></td><td>Scoring is ~2&ndash;3 min/paper; a 25-paper full run is ~2&ndash;3 hours.</td><td>Expected on this hardware. Keep per-run caps modest, or schedule overnight.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ============================================ 8 -->
+    <section id="files">
+      <h2><span class="num">8</span>File-by-file reference</h2>
+
+      <p class="kicker">dipt/ &mdash; the pipeline</p>
+      <div class="table-wrap"><table><tbody>
+        <tr><td><code>pipeline.py</code></td><td>Command-line entry point; wires everything together; the <code>all</code> and <code>stream</code> orchestration.</td></tr>
+        <tr><td><code>config.py</code></td><td>Validated settings loaded from <code>.env</code>.</td></tr>
+        <tr><td><code>exceptions.py</code></td><td>The <code>DIPTError</code> exception family.</td></tr>
+        <tr><td><code>logging_config.py</code></td><td>Central logging set-up.</td></tr>
+        <tr><td><code>prompt_store.py</code></td><td>File-backed admin prompt overrides.</td></tr>
+        <tr><td><code>scheduler.py</code></td><td>Scheduled full-chain runner with fetch-window narrowing and run logging.</td></tr>
+        <tr><td><code>site_export.py</code></td><td>Database &rarr; <code>website/data/*.json</code> + <code>rss.xml</code>.</td></tr>
+        <tr><td><code>models/schemas.py</code></td><td>All typed data models and the status/source enums.</td></tr>
+        <tr><td><code>database/connection.py</code></td><td>Threaded connection pool + commit/rollback context manager.</td></tr>
+        <tr><td><code>database/repository.py</code></td><td>Every SQL statement in the system.</td></tr>
+        <tr><td><code>agents/fetch_agent.py</code></td><td>Fetch stage (with the new save cap).</td></tr>
+        <tr><td><code>agents/parser_agent.py</code></td><td>Parse stage &mdash; PDF download + text extraction.</td></tr>
+        <tr><td><code>agents/categorisation_agent.py</code></td><td>Categorise stage.</td></tr>
+        <tr><td><code>agents/summarisation_agent.py</code></td><td>Summarise stage.</td></tr>
+        <tr><td><code>agents/scoring_agent.py</code></td><td>Score stage.</td></tr>
+        <tr><td><code>agents/qa_agent.py</code></td><td>QA stage &mdash; auto-fix then escalate.</td></tr>
+        <tr><td><code>agents/quality_gate.py</code></td><td>Fail-closed SE-relevance classifier used by Fetch.</td></tr>
+        <tr><td><code>agents/llm_client.py</code></td><td>The one Ollama wrapper &mdash; retries, token cap, JSON mode.</td></tr>
+        <tr><td><code>sources/*.py</code></td><td>One module per paper source (arXiv, OpenAlex, &hellip;), all sharing one interface.</td></tr>
+      </tbody></table></div>
+
+      <p class="kicker">dashboard/ &mdash; the operator console</p>
+      <div class="table-wrap"><table><tbody>
+        <tr><td><code>app.py</code></td><td>The Streamlit app &mdash; all six views.</td></tr>
+        <tr><td><code>data.py</code></td><td>Cached repository connection; the agent-prompt registry.</td></tr>
+        <tr><td><code>runner.py</code></td><td>Background-run manager for the Run pipeline view.</td></tr>
+        <tr><td><code>schedule.py</code></td><td>Automated-schedule control &mdash; daemon on/off, interval, status.</td></tr>
+      </tbody></table></div>
+
+      <p class="kicker">scripts/ &mdash; wrappers &amp; tools</p>
+      <div class="table-wrap"><table><tbody>
+        <tr><td><code>run_stage.py</code></td><td>Runs one stage and marks its log when done (used by the dashboard).</td></tr>
+        <tr><td><code>run_scheduled.py</code></td><td>Runs one full scheduled cycle and marks its log.</td></tr>
+        <tr><td><code>scheduler_daemon.py</code></td><td>The loop behind the dashboard Schedule view.</td></tr>
+        <tr><td><code>qa_demo.py</code></td><td>Reproduces the two QA modes on demand.</td></tr>
+        <tr><td><code>rescore.py</code></td><td>Rewinds approved/scored papers to <span class="pill">summarised</span> so scoring can be re-run after prompt tuning.</td></tr>
+      </tbody></table></div>
+
+      <p class="kicker">website/ &mdash; the public site</p>
+      <div class="table-wrap"><table><tbody>
+        <tr><td><code>pages/index.js</code></td><td>Home: search, filters, paper cards.</td></tr>
+        <tr><td><code>pages/papers/[id].js</code></td><td>One paper's detail page.</td></tr>
+        <tr><td><code>pages/categories/index.js</code>, <code>[slug].js</code></td><td>Category index and per-category pages.</td></tr>
+        <tr><td><code>lib/papers.js</code></td><td>Reads the exported JSON at build time.</td></tr>
+        <tr><td><code>components/</code>, <code>styles/</code></td><td>Layout, paper card, global CSS.</td></tr>
+        <tr><td><code>data/*.json</code>, <code>public/rss.xml</code></td><td>Generated by <code>site_export</code>; the site's only data source.</td></tr>
+      </tbody></table></div>
+
+      <p class="kicker">supporting</p>
+      <div class="table-wrap"><table><tbody>
+        <tr><td><code>migrations/001_support_tables.sql</code></td><td>Creates the optional <code>fetch_log</code> table. Run as the DB owner.</td></tr>
+        <tr><td><code>config/agent_prompts/</code></td><td>Where saved prompt overrides live (one <code>.txt</code> per agent).</td></tr>
+        <tr><td><code>runs/</code></td><td>Created at runtime &mdash; per-run and daemon state and logs.</td></tr>
+        <tr><td><code>docs/SCHEDULING.md</code></td><td>OS-scheduler setup (Windows Task Scheduler, cron, launchd).</td></tr>
+        <tr><td><code>docs/HANDBOOK.html</code></td><td>This document.</td></tr>
+        <tr><td><code>README.md</code></td><td>Short project README; points here for detail.</td></tr>
+        <tr><td><code>tests/</code></td><td>162 tests; all external calls mocked.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <!-- ============================================ 9 -->
+    <section id="trouble">
+      <h2><span class="num">9</span>Troubleshooting</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Symptom</th><th>Likely cause &amp; fix</th></tr></thead>
+        <tbody>
+          <tr><td>A stage fails immediately with "<code>timed out waiting for llama-server to start</code>"</td><td>The model could not load into GPU memory. Restart Ollama (Start menu &rarr; Ollama), confirm the five environment variables from <a href="#b-hw">3.10</a> are set, and re-run. If it persists, run fewer papers per run.</td></tr>
+          <tr><td>Scoring works for a few papers then every one fails fast with "No usable score"</td><td>GPU memory exhaustion after repeated 70B loads. Restart Ollama and re-run; the environment variables above make this far less likely. The un-scored papers are still at <span class="pill">summarised</span> &mdash; just run <code>score</code> again.</td></tr>
+          <tr><td>Summaries come back as one phrase repeated many times</td><td>A model degrading on a long or awkward prompt. This is why summarisation uses <code>qwen2.5-coder:32b</code> in JSON mode; if you changed the model or prompt, revert it.</td></tr>
+          <tr><td>Dashboard shows "Could not connect to the database"</td><td>PostgreSQL is not running, or <code>.env</code> has the wrong password/host. Test with <code>psql -U postgres -d dipt -c "SELECT 1"</code>.</td></tr>
+          <tr><td>Dashboard starts but a chart or table view errors</td><td>Should not happen &mdash; the dashboard avoids the blocked charting component. If a fresh dependency install pulled it back in, it is harmless; the views render as Markdown tables.</td></tr>
+          <tr><td>"Prompt editing needs&hellip;" or run-history panel is empty</td><td>The optional migration was not run. Prompt editing actually works without it (files, not a table); only the scheduler's history needs <code>migrations/001_support_tables.sql</code>.</td></tr>
+          <tr><td>Port 8501 already in use</td><td>Another Streamlit is running, or a previous one did not exit. Add <code>--server.port 8600</code>, or close the other process.</td></tr>
+          <tr><td>Pipeline status shows nothing / no approved papers</td><td>Nothing has been run yet, or everything is still mid-pipeline. Run the stages (<a href="#r-first">4.8</a>) or check the counts per status.</td></tr>
+          <tr><td>The Schedule view says "ON but the daemon is not running"</td><td>The machine rebooted or the daemon was killed. Click "Enable / restart". For a permanent setup, switch to Task Scheduler.</td></tr>
+          <tr><td>Website build fails / <code>npm</code> not found</td><td>Node.js is not installed on this machine. Build on a machine that has it.</td></tr>
+          <tr><td>Tests fail after a change</td><td><code>python -m pytest tests/ -v</code> shows which. All external calls are mocked, so a failure is in the code, not the environment.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ============================================ 10 -->
+    <section id="glossary">
+      <h2><span class="num">10</span>Glossary</h2>
+      <div class="table-wrap"><table><tbody>
+        <tr><td><strong>Agent</strong></td><td>A small single-purpose program (a Python class with a <code>run()</code> method) that handles one pipeline stage.</td></tr>
+        <tr><td><strong>Pipeline stage</strong></td><td>One step on the assembly line: Fetch, Parse, Categorise, Summarise, Score, or QA.</td></tr>
+        <tr><td><strong>Status</strong></td><td>The single field on each paper that records how far it has travelled down the line.</td></tr>
+        <tr><td><strong>Quality gate</strong></td><td>A fast LLM yes/no check that decides whether a fetched paper is genuinely SE research. Fails closed &mdash; on any doubt or error it answers no.</td></tr>
+        <tr><td><strong>Ollama</strong></td><td>The local service that hosts and runs the language models on <code>localhost:11434</code>. No data leaves the machine.</td></tr>
+        <tr><td><strong>Model tag</strong></td><td>The name Ollama uses for a specific model, e.g. <code>llama3.1:70b</code> &mdash; family, then size.</td></tr>
+        <tr><td><strong>JSON mode</strong></td><td>An Ollama option that forces a model's output to be syntactically valid JSON. Used to make the local models' structured output reliable.</td></tr>
+        <tr><td><strong>Reasoning model</strong></td><td>A model (here <code>deepseek-r1:70b</code>) that writes a private "thinking" passage before its answer. That passage is stripped before parsing.</td></tr>
+        <tr><td><strong>KV cache / context length</strong></td><td>Memory a model uses per request, proportional to how much text it holds in view. Shrinking both was the fix for the GPU memory failures.</td></tr>
+        <tr><td><strong>Quantisation</strong> (e.g. <code>q8_0</code>)</td><td>Storing model numbers at lower precision to use less memory, with little quality loss.</td></tr>
+        <tr><td><strong>Streaming mode</strong></td><td>Processing one paper all the way through the LLM stages before starting the next, so approved papers appear sooner.</td></tr>
+        <tr><td><strong>Repository</strong></td><td>The single class that holds every SQL statement; agents call its methods instead of writing SQL.</td></tr>
+        <tr><td><strong>Daemon</strong></td><td>A long-running background process. Here, the one the dashboard Schedule view starts to run the pipeline on an interval.</td></tr>
+        <tr><td><strong>SWEBOK</strong></td><td>The Software Engineering Body of Knowledge; its v4 knowledge areas make up 18 of the 47 categories.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <footer>
+      <p>DIPT System Handbook &mdash; prepared as a complete handover of the work delivered. For the short version see <code>README.md</code>; for scheduler setup see <code>docs/SCHEDULING.md</code>; for the dashboard specifics see <code>dashboard/README.md</code>. Run <code>python -m pytest tests/ -v</code> at any time to confirm the system is intact.</p>
+    </footer>
+  </main>
+</div>

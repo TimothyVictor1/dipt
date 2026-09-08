@@ -54,9 +54,15 @@ class QualityGate:
         model: Model tag to use for classification.
     """
 
-    def __init__(self, client: OllamaClient, model: str) -> None:
+    def __init__(
+        self,
+        client: OllamaClient,
+        model: str,
+        prompt_template: str | None = None,
+    ) -> None:
         self._client = client
         self._model = model
+        self._prompt_template = prompt_template or _PROMPT_TEMPLATE
 
     def is_software_engineering(self, title: str, abstract: str = "") -> bool:
         """Classify whether a paper is SE research.
@@ -78,7 +84,7 @@ class QualityGate:
         if abstract.strip():
             content += f"\nAbstract: {abstract[:600]}"
 
-        prompt = _PROMPT_TEMPLATE.format(content=content)
+        prompt = self._prompt_template.format(content=content)
 
         try:
             answer = self._client.chat(self._model, prompt)

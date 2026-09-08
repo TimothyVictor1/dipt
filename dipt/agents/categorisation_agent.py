@@ -91,10 +91,12 @@ class CategorisationAgent:
         client: OllamaClient,
         repository: PaperRepository,
         model: str,
+        prompt_template: str | None = None,
     ) -> None:
         self._client = client
         self._repo = repository
         self._model = model
+        self._prompt_template = prompt_template or _PROMPT_TEMPLATE
 
     def run(self, limit: int | None = None) -> CategorisationSummary:
         """Categorise all papers in ``parsed`` or ``no_pdf`` state.
@@ -210,7 +212,7 @@ class CategorisationAgent:
         Returns:
             A validated, de-duplicated list of assignments (possibly empty).
         """
-        prompt = _PROMPT_TEMPLATE.format(
+        prompt = self._prompt_template.format(
             category_list=category_list_text,
             content=content,
             max_categories=_MAX_CATEGORIES,

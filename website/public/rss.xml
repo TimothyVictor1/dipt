@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>DIPT - SE Research Monitor</title>
+    <link>https://dipt.pages.dev</link>
+    <description>Newly approved Software Engineering research, summarised and scored for industrial relevance.</description>
+    <lastBuildDate>Mon, 07 Sep 2026 19:15:55 +0000</lastBuildDate>
+    <item>
+      <title>Kerncap: Automated Kernel Extraction and Isolation for AMD GPUs</title>
+      <link>https://dipt.pages.dev/papers/942</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/942</guid>
+      <description>This work is significant for developers targeting AMD GPUs as it provides an open-source, AMD-native tool that supports HIP and Triton kernels, enabling efficient and accurate reproduction of GPU kernel executions.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>TSCG: Deterministic Tool-Schema Compilation for Agentic LLM Deployments</title>
+      <link>https://dipt.pages.dev/papers/946</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/946</guid>
+      <description>Practitioners should care about TSCG as it enhances the performance of large language models by improving accuracy and efficiency, making it suitable for resource-constrained environments and large-scale deployments.</description>
+      <pubDate>Mon, 04 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Mitigating False Positives in Static Memory Safety Analysis of Rust Programs via Reinforcement Learning</title>
+      <link>https://dipt.pages.dev/papers/944</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/944</guid>
+      <description>Practitioners should care because this approach improves the precision of static analysis tools, reduces false positives, and strategically uses dynamic validation to enhance the reliability and trustworthiness of the analysis results.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Firmware Distribution as Attack Surface: A Security Study of ASIC Cryptocurrency Miners</title>
+      <link>https://dipt.pages.dev/papers/943</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/943</guid>
+      <description>Practitioners should care about this research to understand and mitigate the identified vulnerabilities in mining firmware to protect against potential attacks that could compromise the security and integrity of cryptocurrency mining operations.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Less Is More: Engineering Challenges of On-Device Small Language Model Integration in a Mobile Application</title>
+      <link>https://dipt.pages.dev/papers/939</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/939</guid>
+      <description>Practitioners should care about this work to understand the practical challenges and solutions for integrating on-device LLMs into mobile applications, ensuring a fully offline and private user experience while mitigating identified failures through strategic prompt engineering and architectural adaptations.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Vulnerability Identification by Harnessing Inter-connected Multi-Source Information</title>
+      <link>https://dipt.pages.dev/papers/938</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/938</guid>
+      <description>Practitioners should care about VPFinder because it enhances the trust and reliability of automated vulnerability detection by providing a more comprehensive understanding of vulnerabilities through joint modeling of multiple, interdependent information sources.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Code Broker: A Multi-Agent System for Automated Code Quality Assessment</title>
+      <link>https://dipt.pages.dev/papers/937</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/937</guid>
+      <description>Practitioners can benefit from this work by utilizing a more flexible and modular code review system that can handle complex tasks more efficiently and provide more context-aware assessments compared to traditional static analysis tools.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Do Agents Dream of Root Shells? Partial-Credit Evaluation of LLM Agents in Capture the Flag Challenges</title>
+      <link>https://dipt.pages.dev/papers/936</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/936</guid>
+      <description>Practitioners should care about this work to understand the autonomous capabilities of LLM agents in cybersecurity tasks, design, evaluate, and safely deploy such systems in practice. The findings inform the design of future agent architectures and evaluation pipelines.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Autoregressive, Yet Revisable: In Decoding Revision for Secure Code Generation</title>
+      <link>https://dipt.pages.dev/papers/933</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/933</guid>
+      <description>Practitioners should care as Stream of Revision enhances the security of generated code without sacrificing functionality, achieving matched or superior performance compared to recent secure-code baselines.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>In Line with Context: Repository-Level Code Generation via Context Inlining</title>
+      <link>https://dipt.pages.dev/papers/932</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/932</guid>
+      <description>InlineCoder consistently yields significant gains across repositories from diverse domains and under varied contextual environments, highlighting its robustness and generalizability for repository-level code generation.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Experience converting a large mathematical software package written in C++ to C++20 modules</title>
+      <link>https://dipt.pages.dev/papers/930</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/930</guid>
+      <description>Practitioners should care because this approach allows large C++ projects to leverage the performance benefits of C++20 modules while maintaining backward compatibility with existing codebases and build systems.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Software Engineering for Self-Adaptive Robotics: A Research Agenda</title>
+      <link>https://dipt.pages.dev/papers/928</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/928</guid>
+      <description>Practitioners should care about this research to ensure that self-adaptive robotic systems are reliable, safe, and robust in unpredictable environments, which is crucial for the successful deployment of such systems.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Search-Based Software Engineering and AI Foundation Models: Current Landscape and Future Roadmap</title>
+      <link>https://dipt.pages.dev/papers/927</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/927</guid>
+      <description>Practitioners should care about this research to understand how integrating SBSE and FMs can lead to more efficient and effective solutions for complex software engineering challenges, and to be aware of the challenges and opportunities in empirical evaluations of such techniques.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Lightweight Vulnerability Detection from Code Metrics and Token Features</title>
+      <link>https://dipt.pages.dev/papers/953</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/953</guid>
+      <description>Practitioners can leverage these lightweight models to quickly identify potentially vulnerable code segments, aiding in more efficient code reviews and security assessments without the overhead of full static analysis.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>EngThrive: Make It Fast and Easy to Do Great Work</title>
+      <link>https://dipt.pages.dev/papers/952</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/952</guid>
+      <description>Practitioners should care because optimizing for the wrong metrics can degrade productivity. EngThrive provides a more holistic approach by considering multiple dimensions of productivity, leading to better outcomes. It helps in making informed decisions that positively impact developers' experience and organizational success.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Root-Cause-Driven Automated Vulnerability Repair</title>
+      <link>https://dipt.pages.dev/papers/951</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/951</guid>
+      <description>Practitioners should care about Kumushi as it provides a more reliable method for identifying and fixing the root causes of software vulnerabilities, which can lead to more effective and efficient software maintenance and security.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>A Multi-Agent Consensus Protocol for Stable Software Remodularization</title>
+      <link>https://dipt.pages.dev/papers/949</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/949</guid>
+      <description>Practitioners should care about AMCP because it offers a principled mechanism for managing trade-offs between cohesion and stability, and it can evolve incrementally as the system changes, providing more balanced and adaptable software architectures.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Semantic Reverse Engineering Legacy Software Applications with ChatGPT, Gemini AI, and Claude AI</title>
+      <link>https://dipt.pages.dev/papers/947</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/947</guid>
+      <description>Practitioners should care because the AI tools demonstrated a high level of code understanding and semantic abstraction power, even when excluding comments and error messages, which is crucial for understanding and maintaining legacy software applications.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Neuro-Symbolic Agents for Hallucination-Free Requirements Reuse</title>
+      <link>https://dipt.pages.dev/papers/941</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/941</guid>
+      <description>Practitioners should care about this work because it provides a more reliable and traceable method for generating software requirements using LLMs, with strong formal guarantees and minimal constraint violations, which is crucial for safety-critical systems.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>LLM-Guided Issue Generation from Uncovered Code Segments</title>
+      <link>https://dipt.pages.dev/papers/940</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/940</guid>
+      <description>This work is crucial for enhancing software security and reliability by facilitating timely responses to potential security threats, ensuring that even short, untested parts of the code are not overlooked for critical bugs.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Addressing Methodological Sensitivity in MCDM with a Systematic Pipeline Approach to Data Transformation Sensitivity Analysis</title>
+      <link>https://dipt.pages.dev/papers/931</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/931</guid>
+      <description>Practitioners can use the results to assess the robustness of conclusions drawn from MCDM, as the approach provides interpretable sensitivity bounds and enables the assessment of the impact of different normalization methods and aggregation functions on rankings.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>SysLLMatic: Large Language Models are Software System Optimizers</title>
+      <link>https://dipt.pages.dev/papers/929</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/929</guid>
+      <description>Practitioners should care because LLMs can serve as practical software system optimizers with tangible benefits for green computing, demonstrating that LLMs can be effectively used for optimizing large-scale applications with realistic workloads.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Detecting Vulnerabilities in Encrypted Software Code while Ensuring Code Privacy</title>
+      <link>https://dipt.pages.dev/papers/926</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/926</guid>
+      <description>Practitioners should care because this approach enables the outsourcing of security tasks to third parties without sacrificing the secrecy of their developers’ intellectual property and ensuring the privacy of their code, integrating into DevSecOps of the software development lifecycle.</description>
+      <pubDate>Wed, 15 Jan 2025 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Two Integration Pathways in Human-Centered Requirements Engineering: A Systematic Mapping Study of Structural Gaps</title>
+      <link>https://dipt.pages.dev/papers/948</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/948</guid>
+      <description>Practitioners should care about this research to better understand and integrate multidisciplinary contributions in the RE lifecycle, improve the responsiveness to user needs, and evolve toward approaches that explicitly represent and operationalize user experience as a first-class concern in requirements specification.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>From SWE-ZERO to SWE-HERO: Execution-free to Execution-based Fine-tuning for Software Engineering Agents</title>
+      <link>https://dipt.pages.dev/papers/935</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/935</guid>
+      <description>Practitioners should care because SWE-ContextBench provides a principled and realistic testbed for studying context learning in coding agents, complementing existing benchmarks. It helps in understanding how effectively agents can learn from previous context to solve new tasks more efficiently.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>SWE Context Bench: A Benchmark for Context Learning in Coding</title>
+      <link>https://dipt.pages.dev/papers/934</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/934</guid>
+      <description>Practitioners should care about this research to ensure that coding agents not only produce correct solutions but also efficiently reuse prior experience to solve new tasks faster and with reduced computational costs.</description>
+      <pubDate>Wed, 06 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Exploring the Output of Software Testing Tools through a Visual Comparative Analysis</title>
+      <link>https://dipt.pages.dev/papers/950</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/950</guid>
+      <description>Practitioners should care about this work to better design and develop software testing tools that are more intuitive and user-friendly based on the visual patterns and design insights gained from the study.</description>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>LCM: Lossless Context Management</title>
+      <link>https://dipt.pages.dev/papers/945</link>
+      <guid isPermaLink="true">https://dipt.pages.dev/papers/945</guid>
+      <description>Practitioners should care about LCM as it provides a more secure and powerful context management system for large language models, preserving the integrity and retrievability of the full conversation history without the need for dynamic interaction or device access.</description>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,7 +1,27 @@
-dipt-env/
-.venv/
-__pycache__/
-*.pyc
+# Local secrets / config — never commit
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Pipeline runtime state and logs
+runs/
+*.log
+
+# Downloaded PDFs / extracted text (large, regenerable from the sources)
 pdfs/
-*.pdf
+
+# Node / website build output (see also website/.gitignore)
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

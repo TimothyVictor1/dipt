@@ -58,8 +58,14 @@ class FetchAgent:
         self._gate = quality_gate
         self._repo = repository
 
-    def run(self) -> FetchSummary:
+    def run(self, limit: int | None = None) -> FetchSummary:
         """Execute a full fetch across every configured source.
+
+        Args:
+            limit: Optional cap on the total number of *new* papers saved
+                across all sources. Once reached, remaining candidates and
+                sources are skipped. ``None`` means save everything that passes
+                the gate.
 
         Returns:
             A :class:`FetchSummary` describing the run.
@@ -72,9 +78,17 @@ class FetchAgent:
             summary.rejected.setdefault(name, 0)
             summary.duplicates.setdefault(name, 0)
 
+            if limit is not None and summary.total_saved >= limit:
+                logger.info(
+                    "Fetch agent: save limit %d reached, skipping source '%s'",
+                    limit,
+                    name,
+                )
+                continue
+
             logger.info("Fetch agent: starting source '%s'", name)
             try:
-                self._process_source(source, summary)
+                self._process_source(source, summary, limit)
             except SourceError:
                 logger.exception("Source '%s' failed; continuing with others", name)
 
@@ -90,17 +104,30 @@ class FetchAgent:
         return summary
 
     def _process_source(
-        self, source: PaperSourceFetcher, summary: FetchSummary
+        self,
+        source: PaperSourceFetcher,
+        summary: FetchSummary,
+        limit: int | None = None,
     ) -> None:
         """Process every record from a single source.
 
         Args:
             source: The source to harvest.
             summary: The summary object to update in place.
+            limit: Optional cap on the total number of saved papers; when the
+                running total reaches it, processing stops early.
         """
         name = source.source_name
 
         for record in source.fetch():
+            if limit is not None and summary.total_saved >= limit:
+                logger.info(
+                    "Fetch agent: save limit %d reached, stopping source '%s'",
+                    limit,
+                    name,
+                )
+                return
+
             if not self._gate.is_software_engineering(record.title, record.abstract):
                 summary.rejected[name] += 1
                 logger.debug("Rejected (not SE): %s", record.title[:60])

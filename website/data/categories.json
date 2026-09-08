@@ -1,0 +1,152 @@
+[
+  {
+    "name": "AI for Software Engineering (AI4SE)",
+    "slug": "ai-for-software-engineering-ai4se",
+    "count": 17
+  },
+  {
+    "name": "Large Language Models for Code (LLM4Code)",
+    "slug": "large-language-models-for-code-llm4code",
+    "count": 14
+  },
+  {
+    "name": "Empirical Software Engineering",
+    "slug": "empirical-software-engineering",
+    "count": 8
+  },
+  {
+    "name": "Software Security",
+    "slug": "software-security",
+    "count": 4
+  },
+  {
+    "name": "Software Vulnerability Management (SVM)",
+    "slug": "software-vulnerability-management-svm",
+    "count": 4
+  },
+  {
+    "name": "Software Engineering Models and Methods",
+    "slug": "software-engineering-models-and-methods",
+    "count": 3
+  },
+  {
+    "name": "Software Engineering for AI (SE4AI)",
+    "slug": "software-engineering-for-ai-se4ai",
+    "count": 3
+  },
+  {
+    "name": "Advancing Static Analysis (STATIC)",
+    "slug": "advancing-static-analysis-static",
+    "count": 2
+  },
+  {
+    "name": "Agentic Software Engineering (AGENT)",
+    "slug": "agentic-software-engineering-agent",
+    "count": 2
+  },
+  {
+    "name": "Cooperative and Human Aspects of SE (CHASE)",
+    "slug": "cooperative-and-human-aspects-of-se-chase",
+    "count": 2
+  },
+  {
+    "name": "Search-Based and Fuzz Testing (SBFT)",
+    "slug": "search-based-and-fuzz-testing-sbft",
+    "count": 2
+  },
+  {
+    "name": "Software Construction",
+    "slug": "software-construction",
+    "count": 2
+  },
+  {
+    "name": "Software Engineering Operations",
+    "slug": "software-engineering-operations",
+    "count": 2
+  },
+  {
+    "name": "Software Requirements",
+    "slug": "software-requirements",
+    "count": 2
+  },
+  {
+    "name": "Software Testing",
+    "slug": "software-testing",
+    "count": 2
+  },
+  {
+    "name": "Computing Foundations",
+    "slug": "computing-foundations",
+    "count": 1
+  },
+  {
+    "name": "Generative AI Platform Engineering",
+    "slug": "generative-ai-platform-engineering",
+    "count": 1
+  },
+  {
+    "name": "Mathematical Foundations",
+    "slug": "mathematical-foundations",
+    "count": 1
+  },
+  {
+    "name": "Neuro-Symbolic Software Engineering (NSE)",
+    "slug": "neuro-symbolic-software-engineering-nse",
+    "count": 1
+  },
+  {
+    "name": "Open Source Software Engineering",
+    "slug": "open-source-software-engineering",
+    "count": 1
+  },
+  {
+    "name": "Privacy Engineering",
+    "slug": "privacy-engineering",
+    "count": 1
+  },
+  {
+    "name": "Robotics Software Engineering (RoSE)",
+    "slug": "robotics-software-engineering-rose",
+    "count": 1
+  },
+  {
+    "name": "Self-Adaptive Software Systems (SEAMS)",
+    "slug": "self-adaptive-software-systems-seams",
+    "count": 1
+  },
+  {
+    "name": "Software Architecture Trends (SATrends)",
+    "slug": "software-architecture-trends-satrends",
+    "count": 1
+  },
+  {
+    "name": "Software Engineering Management",
+    "slug": "software-engineering-management",
+    "count": 1
+  },
+  {
+    "name": "Software Engineering Process",
+    "slug": "software-engineering-process",
+    "count": 1
+  },
+  {
+    "name": "Software Engineering for Blockchain",
+    "slug": "software-engineering-for-blockchain",
+    "count": 1
+  },
+  {
+    "name": "Software Maintenance",
+    "slug": "software-maintenance",
+    "count": 1
+  },
+  {
+    "name": "Software Quality",
+    "slug": "software-quality",
+    "count": 1
+  },
+  {
+    "name": "Systems of Systems and Ecosystems (SESoS)",
+    "slug": "systems-of-systems-and-ecosystems-sesos",
+    "count": 1
+  }
+]

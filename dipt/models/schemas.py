@@ -110,3 +110,80 @@ class CategoryAssignment(BaseModel):
     category_id: int
     category_name: str
     confidence: float = Field(..., ge=0.0, le=1.0)
+
+
+class PaperSummary(BaseModel):
+    """A structured, four-part summary of a paper.
+
+    The summary is broken into the sections an industrial reader cares about,
+    so downstream stages (scoring, the dashboard) can rely on a consistent
+    shape. The :meth:`to_text` rendering is what gets persisted to the
+    ``summaries`` table.
+
+    Attributes:
+        research_problem: The problem the paper sets out to address.
+        methodology: How the work was carried out.
+        key_findings: The main results and contributions.
+        industrial_implications: Why a practitioner should care.
+    """
+
+    research_problem: str = ""
+    methodology: str = ""
+    key_findings: str = ""
+    industrial_implications: str = ""
+
+    def is_empty(self) -> bool:
+        """Return whether every section is blank.
+
+        Returns:
+            ``True`` if no section contains any text.
+        """
+        return not any(
+            section.strip()
+            for section in (
+                self.research_problem,
+                self.methodology,
+                self.key_findings,
+                self.industrial_implications,
+            )
+        )
+
+    def to_text(self) -> str:
+        """Render the summary to the plain-text form stored in the database.
+
+        Returns:
+            A headed, human-readable summary string.
+        """
+        return (
+            f"Research Problem:\n{self.research_problem.strip()}\n\n"
+            f"Methodology:\n{self.methodology.strip()}\n\n"
+            f"Key Findings:\n{self.key_findings.strip()}\n\n"
+            f"Industrial Implications:\n{self.industrial_implications.strip()}"
+        )
+
+
+class PaperScore(BaseModel):
+    """An industrial-relevance score for a paper.
+
+    Attributes:
+        score: Relevance score on a 1 to 10 scale.
+        rationale: Written justification for the score.
+    """
+
+    score: float = Field(..., ge=1.0, le=10.0)
+    rationale: str = ""
+
+
+class QAReview(BaseModel):
+    """The outcome of a quality-assurance check on a paper.
+
+    Attributes:
+        passed: Whether the summary and score passed the consistency check.
+        target: Which output to regenerate when not passed: ``"summary"``,
+            ``"score"``, or ``"none"``.
+        reason: Human-readable explanation of the verdict.
+    """
+
+    passed: bool
+    target: str = "none"
+    reason: str = ""

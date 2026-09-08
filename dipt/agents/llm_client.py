@@ -46,6 +46,8 @@ class OllamaClient:
         model: str,
         prompt: str,
         temperature: float = 0.1,
+        max_tokens: int | None = None,
+        json_mode: bool = False,
     ) -> str:
         """Run a single-turn chat completion with retries.
 
@@ -53,6 +55,13 @@ class OllamaClient:
             model: Ollama model tag (e.g. ``"llama3.1:70b"``).
             prompt: The user prompt.
             temperature: Sampling temperature; low values give stable output.
+            max_tokens: Optional hard cap on generated tokens (``num_predict``).
+                Left unset, generation runs until the model emits a stop token,
+                which a verbose model may never do; callers with a bounded
+                expected answer should pass a cap.
+            json_mode: When ``True``, ask Ollama to constrain the output to
+                valid JSON (``format="json"``). The prompt must still describe
+                the JSON shape expected.
 
         Returns:
             The assistant message content, stripped of surrounding whitespace.
@@ -61,13 +70,18 @@ class OllamaClient:
             LLMRequestError: If all retry attempts fail.
         """
         last_error: Exception | None = None
+        options: dict[str, float | int] = {"temperature": temperature}
+        if max_tokens is not None:
+            options["num_predict"] = max_tokens
+        fmt = "json" if json_mode else ""
 
         for attempt in range(1, self._max_retries + 1):
             try:
                 response = self._client.chat(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
-                    options={"temperature": temperature},
+                    options=options,
+                    format=fmt,
                 )
                 content = response["message"]["content"]
                 return content.strip()

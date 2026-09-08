@@ -1,0 +1,295 @@
+==============================================================================
+ DIPT  -  DEMO RUNBOOK
+==============================================================================
+
+Everything to do for a live demonstration, in order.
+
+HOW TO USE THIS FILE
+  1. Open a PowerShell terminal.
+  2. Go to the project folder:
+         cd C:\Users\sepro\Downloads\dipt_production\dipt_build
+  3. Work through the parts below. Copy each ">" line into the terminal.
+  4. Lines in "quotes" under Part 1 / Part 2 are what to say or click.
+
+Every command here is a plain "python -m ..." call - safe to copy and paste.
+
+TIMING
+  Two steps are slow because the large models run on the local GPU:
+  Part 3 (one paper end to end, about 5-9 minutes the first time) and
+  Part 4.1 (QA auto-fix, about 4-6 minutes). Start them early and keep
+  talking. Everything else is instant.
+
+
+==============================================================================
+ PART 0  -  15 MINUTES BEFORE THE DEMO
+==============================================================================
+
+Do all of Part 0 ahead of time. If a check fails, fix it before you start.
+
+------------------------------------------------------------------------------
+0.1  One command checks everything: database, data, Ollama, models, settings
+------------------------------------------------------------------------------
+>  python -m scripts.demo check
+
+  It should end with "READY."
+  If not, it prints exactly what is wrong. Common fixes:
+    - PostgreSQL not running  -> start the PostgreSQL service.
+    - Ollama down             -> see step 0.3 below.
+    - A tuned setting unset   -> see step 0.3 below.
+
+------------------------------------------------------------------------------
+0.2  Note the paper IDs you will use
+------------------------------------------------------------------------------
+>  python -m scripts.demo ids
+
+  This runbook uses:
+    paper 946  for the QA auto-fix demo   (Part 4.1)
+    paper 929  for the QA escalate demo   (Part 4.2)
+  If 946 / 929 are not listed as approved, pick two that are and use those
+  instead wherever the runbook says 946 or 929.
+
+------------------------------------------------------------------------------
+0.3  If Ollama is DOWN, or a tuned setting is unset
+------------------------------------------------------------------------------
+Run this in a SEPARATE PowerShell terminal and leave it open for the demo:
+
+>  taskkill /F /IM "ollama app.exe" 2>$null; taskkill /F /IM ollama.exe 2>$null
+>  $env:OLLAMA_LOAD_TIMEOUT   = "20m"
+>  $env:OLLAMA_KEEP_ALIVE     = "30m"
+>  $env:OLLAMA_CONTEXT_LENGTH = "8192"
+>  $env:OLLAMA_KV_CACHE_TYPE  = "q8_0"
+>  $env:OLLAMA_FLASH_ATTENTION = "1"
+>  & "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" serve
+
+Then re-run:  python -m scripts.demo check
+
+(Launching the "Ollama" app from the Start menu also works - it reads the
+same persisted settings - but this way you see its log.)
+
+------------------------------------------------------------------------------
+0.4  The code is intact  -  162 automated tests  (about 1 second)
+------------------------------------------------------------------------------
+>  python -m pytest tests/ -q
+
+  Expect: "162 passed". Run this if anyone asks about test coverage.
+
+------------------------------------------------------------------------------
+0.5  Refresh the public-site data from the current approved papers
+------------------------------------------------------------------------------
+>  python -m dipt.site_export
+
+------------------------------------------------------------------------------
+0.6  Start the dashboard
+------------------------------------------------------------------------------
+Run this in a SEPARATE terminal and leave it open:
+
+>  python -m streamlit run dashboard/app.py
+
+  Opens http://localhost:8501 . Have it on screen before you begin.
+  (If port 8501 is busy, add:  --server.port 8600 )
+
+PART 0 DONE. You are ready.
+
+
+==============================================================================
+ PART 1  -  THE 60-SECOND STORY   (say this)
+==============================================================================
+
+"DIPT is an automated reading line for Software Engineering research papers,
+ built for Professor Gorschek's group. It runs entirely on this one
+ workstation with local models  -  no cloud, no cost.
+
+ A paper goes in as just a title and an abstract. Six stages act on it in
+ turn  -  fetch, parse, categorise, summarise, score, and a QA check  -  and
+ it comes out fully read: sorted into subject categories, summarised in a
+ fixed four-part structure, and given an industrial-relevance score from 1
+ to 10 with a written justification, as if a CTO had triaged it.
+
+ Every paper carries a status, so the line can stop and resume anywhere.
+ There is an operator dashboard to drive and inspect it, an automated
+ schedule, and a public website that publishes only the papers that pass QA."
+
+Then move to the dashboard.
+
+
+==============================================================================
+ PART 2  -  WALK THE DASHBOARD   (click through; nothing to run)
+==============================================================================
+
+Go view by view in the left sidebar.
+
+PIPELINE STATUS
+  "Here is the whole backlog at a glance."
+  Point at the three numbers (papers total, approved, open QA flags) and the
+  bar chart of how many papers sit at each stage.
+
+PAPER BROWSER
+  Set the status filter to "approved". Open paper 946 (or another 7.0).
+  Show, in order:
+    - the 1-3 categories with confidence
+    - the industrial-relevance score and the rationale written under it
+    - the four-part summary: research problem, methodology, key findings,
+      industrial implications
+    - the original abstract in the fold-out  -  "this is all the model
+      started from."
+
+SETTINGS
+  Two things the team controls without a developer:
+    - Categories: the 47 categories are a live table  -  add, rename,
+      deactivate. Takes effect on the next categorisation run.
+    - Agent prompts: pick any agent, edit the exact prompt it sends its
+      model, Save. Stored as a file, used on the next run. No database
+      change, no restart.
+
+QA QUEUE
+  Empty right now. "We will fill this in a moment." (Part 4.)
+
+RUN PIPELINE
+  "Any stage can be run here as a background job with a paper cap, and you
+   watch its log." (Do not start one yet unless you want the Part 3 run to
+   happen here instead of the terminal.)
+
+SCHEDULE
+  "And it can run itself. Default every 24 hours: it fetches only what is
+   new since the last run, takes it through the whole line, and refreshes
+   the website."
+
+
+==============================================================================
+ PART 3  -  LIVE: ONE PAPER THROUGH THE ENTIRE LINE
+==============================================================================
+
+Takes one "categorised" paper and carries it through
+summarise -> score -> QA  to  approved. One paper, end to end.
+
+START THIS EARLY (during Part 1 or 2). About 5-9 minutes the first time;
+the output streams as it goes.
+
+>  python -m dipt.pipeline stream 1
+
+When it finishes, go to the dashboard PAPER BROWSER, filter to "approved":
+the new paper is there with a fresh summary and score. Or confirm from the
+terminal:
+
+>  python -m scripts.demo newest
+
+ALTERNATIVE: do the same from the dashboard RUN PIPELINE view  -  stage
+"stream", cap 1, Start run  -  so it runs in the background while you talk.
+
+
+==============================================================================
+ PART 4  -  QA HAS TWO MODES   (Professor Gorschek's requirement)
+==============================================================================
+
+The QA agent does not just flag problems. When it finds one it FIRST tries
+to fix it automatically by regenerating the weaker output, and only
+escalates to a human if that fails. Both paths are shown here on real
+papers. The helper deliberately breaks a paper's stored summary so QA has
+something to catch.
+
+------------------------------------------------------------------------------
+4.1  AUTO-FIX PATH    (about 4-6 minutes)
+------------------------------------------------------------------------------
+>  python -m scripts.qa_demo --autofix 946
+
+  Watch the log: QA fails the paper for a missing summary, regenerates the
+  summary, re-checks, and approves. Outcome: auto_fixed.
+  Paper 946 is left cleanly approved  -  no cleanup needed.
+
+------------------------------------------------------------------------------
+4.2  ESCALATE PATH    (under a minute)
+------------------------------------------------------------------------------
+>  python -m scripts.qa_demo --escalate 929
+
+  Regeneration is forced to fail, so QA gives up and writes a row to the QA
+  queue for a person. Outcome: flagged.
+
+------------------------------------------------------------------------------
+4.3  SHOW IT IN THE DASHBOARD
+------------------------------------------------------------------------------
+Switch to the QA QUEUE view. Paper 929 is now there with the flag type,
+description, and its stored summary and score. Click "Mark resolved" to
+clear it  -  "and that is how a human closes the loop."
+
+Paper 929's summary was deliberately corrupted. Restore it after the demo
+with Part 7.
+
+
+==============================================================================
+ PART 5  -  THE PUBLIC WEBSITE
+==============================================================================
+
+The data was refreshed in 0.5. Show what a visitor would get:
+
+>  python -m scripts.demo site
+
+The site itself is a static Next.js + Fuse.js project in website\ (home page
+with live search, filters, a page per paper, a page per category, an RSS
+feed). Building it (npm run build) needs Node.js, which is not on this
+machine  -  build on a machine that has Node, then deploy website\out\.
+The project and the data are complete.
+
+
+==============================================================================
+ PART 6  -  IF THEY ASK ABOUT THE CODE / ARCHITECTURE / PROCESS
+==============================================================================
+
+  Full written handover : docs\HANDBOOK.html  (open in a browser)
+                          docs\DIPT-System-Handbook.pdf
+        Short version    : README.md
+        Scheduler setup  : docs\SCHEDULING.md
+
+  Quick figures:
+    - 6 agents: fetch, parser, categorisation, summarisation, scoring, qa
+      (plus the quality gate used by fetch)
+    - 7 database tables; all SQL in one file (dipt\database\repository.py)
+    - 162 automated tests, all external calls mocked
+    - 3 surfaces: the pipeline CLI, the Streamlit dashboard, the static site
+
+
+==============================================================================
+ PART 7  -  AFTER THE DEMO   (restore the demo papers)
+==============================================================================
+
+Puts paper 929 (broken by the escalate demo) back to "categorised" so a
+later run reprocesses it cleanly, and clears any leftover demo flag.
+Paper 946 needs nothing.
+
+>  python -m scripts.demo restore
+
+
+==============================================================================
+ EVERY COMMAND IN ONE PLACE
+==============================================================================
+
+Run from  C:\Users\sepro\Downloads\dipt_production\dipt_build
+with PostgreSQL and Ollama running.
+
+  python -m scripts.demo check                  pre-flight (DB, Ollama, env)
+  python -m scripts.demo ids                    the demo paper ids
+  python -m scripts.demo newest                 most recent approved paper
+  python -m scripts.demo site                   what the website shows
+  python -m scripts.demo restore                undo the QA demos
+
+  python -m pytest tests/ -q                    162 tests, ~1 s
+  python -m dipt.site_export                    refresh website data
+
+  python -m streamlit run dashboard/app.py      dashboard, leave running
+
+  python -m dipt.pipeline fetch 20              trailing number = cap
+  python -m dipt.pipeline parse 20
+  python -m dipt.pipeline categorise 20
+  python -m dipt.pipeline summarise 20
+  python -m dipt.pipeline score 20
+  python -m dipt.pipeline qa 20
+  python -m dipt.pipeline all 10                whole chain, cap 10
+  python -m dipt.pipeline stream 1              one paper, end to end
+
+  python -m scripts.qa_demo --autofix 946       detect -> fix -> approve
+  python -m scripts.qa_demo --escalate 929      detect -> flag for a human
+
+  python -m dipt.scheduler                      full chain, incremental,
+                                                logged (or use the dashboard
+                                                Schedule view)
+
+==============================================================================
