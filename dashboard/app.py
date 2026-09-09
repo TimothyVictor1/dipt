@@ -28,17 +28,18 @@ from __future__ import annotations
 import streamlit as st
 
 from dipt import model_store, prompt_store
-from dipt.exceptions import DIPTError
+from dipt.exceptions import DIPTError, ModelPullError
 from dashboard import runner, schedule
 from dashboard.data import (
     AGENT_PROMPTS,
     MODEL_STAGES,
     STATUS_ORDER,
-    effective_model,
+    download_model,
     env_default_model,
     get_repository,
     installed_ollama_models,
     missing_format_fields,
+    model_is_installed,
 )
 
 st.set_page_config(page_title="DIPT dashboard", page_icon="📄", layout="wide")
@@ -674,24 +675,50 @@ def _settings_prompts() -> None:
             st.info("Already using the default.")
 
 
+def _run_download(tag: str) -> bool:
+    """Download ``tag`` with a live progress readout. Returns True on success."""
+    box = st.status(f"Downloading `{tag}` ...", expanded=True)
+    bar = box.progress(0.0, text="starting")
+
+    def _progress(status: str, done: int, total: int) -> None:
+        if total > 0:
+            frac = max(0.0, min(1.0, done / total))
+            mb = f"{done / 1e6:.0f} / {total / 1e6:.0f} MB"
+            bar.progress(frac, text=f"{status or 'downloading'} - {mb}")
+        elif status:
+            box.write(status)
+
+    try:
+        download_model(tag, _progress)
+    except ModelPullError as exc:
+        box.update(label=f"Download failed: {tag}", state="error")
+        st.error(str(exc))
+        return False
+    bar.progress(1.0, text="done")
+    box.update(label=f"`{tag}` downloaded", state="complete")
+    return True
+
+
 def _settings_models() -> None:
     """Let an admin point a stage at a different model when a better one ships.
 
-    Overrides are stored in ``config/model_overrides.json`` - no ``.env`` edit,
-    no restart. The stage uses the new model on its next run.
+    Typing any model name is enough - if it is not on the machine yet it is
+    downloaded here (and re-downloading a name updates it to the latest
+    version). Overrides are stored in ``config/model_overrides.json`` - no
+    ``.env`` edit, no restart; the stage uses the new model on its next run.
     """
     st.subheader("Agent models")
     st.caption(
-        "Each stage uses a model set in `.env`. When a stronger model is "
-        "released, point a stage at it here. The change applies on that "
-        "stage's next run. Pull the model first with `ollama pull <tag>`."
+        "Each stage uses a model set in `.env`. Point a stage at a different "
+        "one here - just type its name. If it is not downloaded yet it will "
+        "be fetched automatically (here on save, or on the stage's next run)."
     )
 
     installed = installed_ollama_models()
     if installed:
-        st.caption("Installed in Ollama: " + ", ".join(f"`{m}`" for m in installed))
+        st.caption("Already downloaded: " + ", ".join(f"`{m}`" for m in installed))
     else:
-        st.caption("_Could not reach Ollama to list installed models._")
+        st.caption("_Could not reach Ollama to list downloaded models._")
 
     labels = dict(MODEL_STAGES)
     stage = st.selectbox(
@@ -709,32 +736,49 @@ def _settings_models() -> None:
     else:
         st.caption(f"Using the `.env` default: `{default_tag}`.")
 
-    choices = [current] + [m for m in installed if m != current] + ["- type a tag -"]
+    choices = [current] + [m for m in installed if m != current] + ["- type a name -"]
     picked = st.selectbox("Model", choices, key=f"model_pick_{stage}")
     tag = picked
-    if picked == "- type a tag -":
+    if picked == "- type a name -":
         tag = st.text_input(
-            "Model tag", value=current, key=f"model_tag_{stage}",
-            placeholder="e.g. llama3.2:90b",
+            "Model name",
+            value=current,
+            key=f"model_tag_{stage}",
+            placeholder="e.g. llama3.3  or  qwen2.5:72b",
+            help="Any name from ollama.com/library. A bare name means its "
+            "latest version.",
         ).strip()
 
-    if installed and tag and tag not in installed:
-        st.warning(
-            f"`{tag}` is not pulled in Ollama yet. Run `ollama pull {tag}` "
-            "before the next run of this stage."
+    on_machine = bool(tag) and (tag in installed or model_is_installed(tag))
+    if tag and not on_machine:
+        st.info(
+            f"`{tag}` is not on this machine yet - Save will download it "
+            "(large models can take several minutes; keep this tab open)."
         )
 
-    save_col, reset_col = st.columns(2)
-    if save_col.button("Save model", disabled=not tag or tag == default_tag):
-        try:
-            model_store.set(stage, tag)
-        except (ValueError, OSError) as exc:
-            st.error(f"Could not save: {exc}")
-        else:
-            st.success(
-                f"{labels[stage]} will use `{tag}` on its next run."
-            )
-            st.rerun()
+    save_col, upd_col, reset_col = st.columns(3)
+    if save_col.button(
+        "Save model", type="primary", disabled=not tag or tag == current
+    ):
+        ok = True
+        if not on_machine:
+            ok = _run_download(tag)
+        if ok:
+            try:
+                model_store.set(stage, tag)
+            except (ValueError, OSError) as exc:
+                st.error(f"Could not save: {exc}")
+            else:
+                st.success(f"{labels[stage]} will use `{tag}` on its next run.")
+                st.rerun()
+
+    if upd_col.button(
+        "Update model", disabled=not tag,
+        help="Re-download this model to get its latest published version.",
+    ):
+        if _run_download(tag):
+            st.success(f"`{tag}` updated to the latest version.")
+
     if reset_col.button("Reset to .env default", disabled=override is None):
         if model_store.delete(stage):
             st.success(f"{labels[stage]} reset to `{default_tag}`.")

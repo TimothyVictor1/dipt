@@ -23,7 +23,7 @@ It opens on http://localhost:8501.
 | Pipeline status | Paper counts per lifecycle stage, approved / open-flag totals, and recent scheduled runs (needs the `fetch_log` table). |
 | Paper browser   | Filter papers by status, sort by score, and open one to see its categories, four-part summary, and score rationale. |
 | QA queue        | Papers the QA agent escalated. Each shows the stored summary and score; "Mark resolved" clears the flag so the next QA run re-checks the paper. |
-| Settings        | Three things, none needing a code change. **Categories**: add / edit / deactivate the 47 (used live by the categorisation agent). **Agent models**: point any stage at a different model when a better one ships - dropdown of what's pulled in Ollama, or type a tag; saved to `config/model_overrides.json`, used on that stage's next run, "Reset to .env default" to undo. **Agent prompts**: edit the prompt an agent sends its model; saved under `config/agent_prompts/`; placeholder validation blocks a save that drops a required `{field}`. |
+| Settings        | Three things, none needing a code change. **Categories**: add / edit / deactivate the 47 (used live by the categorisation agent). **Agent models**: point any stage at a different model when a better one ships - pick from what's downloaded, or just type a name; if it isn't on the machine it's downloaded then and there (progress bar), or on the stage's next run. "Update model" re-pulls the latest of a tag. Saved to `config/model_overrides.json`; "Reset to .env default" to undo. **Agent prompts**: edit the prompt an agent sends its model; saved under `config/agent_prompts/`; placeholder validation blocks a save that drops a required `{field}`. |
 
 ## How "Run pipeline" works
 

@@ -91,7 +91,10 @@ files in `config/share_posts/` — no database change needed.
 Configured in `.env` (defaults below), and overridable per stage at runtime
 from the dashboard's **Settings → Agent models** — no `.env` edit, no restart.
 Overrides live in `config/model_overrides.json`; "Reset to .env default" clears
-one. Pull a new model first with `ollama pull <tag>`.
+one. **You do not need to `ollama pull` first**: a model that isn't downloaded
+yet is fetched automatically — the dashboard downloads it when you save it (with
+a progress bar), and the pipeline downloads it on that stage's first run.
+Re-saving / "Update model" re-pulls the latest version of a tag.
 
 | Stage | Model | Notes |
 |-------|-------|-------|
@@ -119,6 +122,7 @@ dipt/            pipeline, agents, sources, models, database, config
   site_export.py database -> website/data/*.json + rss.xml
   prompt_store.py  file-backed admin overrides for agent prompts
   model_store.py   file-backed per-stage model overrides
+  model_pull.py    download / update Ollama models on demand
   share_store.py   file-backed cache of the per-paper share post
 dashboard/       Streamlit operator console (Run pipeline, Schedule, ...)
   runner.py      background pipeline-run manager

@@ -72,6 +72,10 @@ class LLMResponseError(LLMError):
     """Raised when the LLM returns an unusable or unparseable response."""
 
 
+class ModelPullError(LLMError):
+    """Raised when a model cannot be downloaded from the Ollama registry."""
+
+
 # ── Parsing ──────────────────────────────────────────────────────────────
 class ParserError(DIPTError):
     """Base class for PDF download / text-extraction failures."""

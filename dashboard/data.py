@@ -10,12 +10,9 @@ from __future__ import annotations
 
 import logging
 
-import json
-import urllib.request
-
 import streamlit as st
 
-from dipt import model_store
+from dipt import model_pull, model_store
 from dipt.agents.categorisation_agent import _PROMPT_TEMPLATE as _CATEGORISE_PROMPT
 from dipt.agents.qa_agent import _PROMPT_TEMPLATE as _QA_PROMPT
 from dipt.agents.quality_gate import _PROMPT_TEMPLATE as _QUALITY_GATE_PROMPT
@@ -114,13 +111,17 @@ def effective_model(stage: str) -> str:
 
 def installed_ollama_models() -> list[str]:
     """Return the model tags currently pulled in Ollama, or ``[]`` on failure."""
-    try:
-        url = f"{get_settings().ollama_base_url}/api/tags"
-        with urllib.request.urlopen(url, timeout=4) as resp:
-            data = json.load(resp)
-        return sorted(m["name"] for m in data.get("models", []))
-    except Exception:  # noqa: BLE001 - dashboard must not crash if Ollama is down
-        return []
+    return model_pull.list_installed(get_settings().ollama_base_url)
+
+
+def model_is_installed(tag: str) -> bool:
+    """Return whether ``tag`` is downloaded (bare names imply ``:latest``)."""
+    return model_pull.is_installed(get_settings().ollama_base_url, tag)
+
+
+def download_model(tag: str, on_progress=None) -> None:
+    """Download (or update) a model. Raises :class:`ModelPullError` on failure."""
+    model_pull.pull(get_settings().ollama_base_url, tag, on_progress)
 
 
 def missing_format_fields(template: str, required: tuple[str, ...]) -> list[str]:
