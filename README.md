@@ -105,12 +105,26 @@ Re-saving / "Update model" re-pulls the latest version of a tag.
 | QA            | `llama3.1:70b`      | summary/score consistency check |
 | Promote       | `qwen3.6:35b-a3b`   | drafts the shareable social post |
 
-The brief specifies `command-r-plus` for summarisation. It does not start on
-the current HP Z2 Mini iGPU allocation (the 56 GB of weights load, then
-llama-server times out allocating the KV cache), and `llama3.1:70b` collapses
-into repetition loops on the long summarisation prompt. `qwen2.5-coder:32b`
-with Ollama JSON mode produces clean structured summaries and leaves memory
-headroom. Revert `MODEL_SUMMARISATION` once the iGPU memory ceiling is raised.
+Models are assigned per task, and the assignment is measured rather than
+assumed. The machine is memory-bandwidth-bound at roughly 205 GB/s, so
+generation speed tracks how many bytes of weights are read per token. A dense
+70B model reads 42.5 GB and manages 4.9 tok/s; `qwen3.6:35b-a3b` is a
+mixture-of-experts model that reads about 2.75 GB per token and measures
+74.6 tok/s on the same machine, which is why a 35B model outruns a dense 8B
+one here.
+
+Three earlier choices were retired. `command-r-plus` never started: its
+weights load, then llama-server times out allocating the KV cache.
+`llama3.1:70b` collapses into repetition loops on the long summarisation
+prompt and remains only on QA, where being a different model family from the
+summariser it checks is worth the speed. `qwen2.5-coder:32b` is a
+code-specialised model and was writing research prose and the drafted social
+posts; `deepseek-r1:70b` did not finish a single scoring call inside fifteen
+minutes.
+
+Every stage reads its model from `.env`, and the dashboard can override any
+stage without an edit, so changing one is a settings change rather than a code
+change.
 
 ## Layout
 

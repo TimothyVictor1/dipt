@@ -26,6 +26,25 @@ def _client(base_url: str) -> ollama.Client:
     return ollama.Client(host=base_url)
 
 
+def _tag_of(entry: object) -> str:
+    """Return the model tag from one entry of an Ollama list response.
+
+    The client has carried three shapes for this: a plain dict keyed ``name``
+    (<=0.3), a dict keyed ``model``, and a typed ``Model`` object exposing
+    ``.model`` (>=0.4). Reading all three keeps model detection working across
+    client upgrades instead of silently reporting that nothing is installed.
+
+    Args:
+        entry: One item from the list response.
+
+    Returns:
+        The tag, or ``""`` when the entry carries none.
+    """
+    if isinstance(entry, dict):
+        return str(entry.get("model") or entry.get("name") or "")
+    return str(getattr(entry, "model", "") or getattr(entry, "name", "") or "")
+
+
 def list_installed(base_url: str) -> list[str]:
     """Return the model tags currently downloaded, or ``[]`` if Ollama is down.
 
@@ -39,10 +58,11 @@ def list_installed(base_url: str) -> list[str]:
         resp = _client(base_url).list()
     except (ollama.ResponseError, ConnectionError, OSError, KeyError):
         return []
-    models = resp.get("models", []) if isinstance(resp, dict) else []
-    return sorted(
-        m.get("name", "") for m in models if isinstance(m, dict) and m.get("name")
-    )
+    if isinstance(resp, dict):
+        models = resp.get("models", [])
+    else:
+        models = getattr(resp, "models", []) or []
+    return sorted(tag for tag in (_tag_of(m) for m in models) if tag)
 
 
 def is_installed(base_url: str, tag: str) -> bool:

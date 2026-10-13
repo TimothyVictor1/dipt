@@ -100,3 +100,40 @@ def test_ensure_pulls_when_missing() -> None:
     with _with_client(inner):
         assert model_pull.ensure(_BASE, "fresh:1b") is True
     inner.pull.assert_called_once()
+
+
+# ── client response shapes ───────────────────────────────────────────────
+class _Model:
+    """Typed entry as returned by ollama-python >= 0.4."""
+
+    def __init__(self, model: str) -> None:
+        self.model = model
+
+
+class _ListResponse:
+    """Typed response object as returned by ollama-python >= 0.4."""
+
+    def __init__(self, models: list) -> None:
+        self.models = models
+
+
+@pytest.mark.parametrize(
+    ("resp", "label"),
+    [
+        ({"models": [{"name": "a:1"}, {"name": "b:2"}]}, "dict keyed 'name' (<=0.3)"),
+        ({"models": [{"model": "a:1"}, {"model": "b:2"}]}, "dict keyed 'model'"),
+        (_ListResponse([_Model("a:1"), _Model("b:2")]), "typed ListResponse (>=0.4)"),
+    ],
+)
+def test_list_installed_reads_every_client_shape(monkeypatch, resp, label) -> None:
+    """Model detection must survive an ollama-python upgrade.
+
+    Regression test: upgrading the client from 0.3.3 to 0.6.2 changed the
+    response from dicts keyed "name" to typed objects exposing ".model".
+    Reading only the old shape made list_installed return [] forever, so the
+    dashboard reported every installed model as missing.
+    """
+    monkeypatch.setattr(
+        model_pull, "_client", lambda _url: type("C", (), {"list": lambda self: resp})()
+    )
+    assert model_pull.list_installed("http://x") == ["a:1", "b:2"], label

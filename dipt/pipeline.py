@@ -53,6 +53,32 @@ from dipt.sources.openalex import OpenAlexSource
 logger = logging.getLogger(__name__)
 
 
+class StageFailed(DIPTError):
+    """Raised when a stage processed papers and every one of them failed.
+
+    A stage that could not do any work must not report success. Without this,
+    a run with the model server down exits 0, and the dashboard and scheduler
+    both record it as finished.
+    """
+
+
+def _check_total_failure(stage: str, done: int, failed: int) -> None:
+    """Raise when a stage had work to do and none of it succeeded.
+
+    Args:
+        stage: Stage name, for the message.
+        done: Number of papers the stage completed.
+        failed: Number of papers that failed.
+
+    Raises:
+        StageFailed: If ``failed`` is non-zero and nothing succeeded.
+    """
+    if failed and not done:
+        raise StageFailed(
+            f"{stage}: all {failed} paper(s) failed - is Ollama running?"
+        )
+
+
 class Pipeline:
     """Owns dependency wiring and exposes per-stage entry points.
 
@@ -223,6 +249,7 @@ class Pipeline:
             summary.categorised,
             summary.failed,
         )
+        _check_total_failure("categorise", summary.categorised, summary.failed)
 
     def summarise(self, limit: int | None) -> None:
         """Run the summarisation agent.
@@ -236,6 +263,7 @@ class Pipeline:
             summary.summarised,
             summary.failed,
         )
+        _check_total_failure("summarise", summary.summarised, summary.failed)
 
     def score(self, limit: int | None) -> None:
         """Run the scoring agent.
@@ -249,6 +277,7 @@ class Pipeline:
             summary.scored,
             summary.failed,
         )
+        _check_total_failure("score", summary.scored, summary.failed)
 
     def qa(self, limit: int | None) -> None:
         """Run the QA agent.
@@ -285,6 +314,7 @@ class Pipeline:
             summary.failed,
             summary.skipped,
         )
+        _check_total_failure("promote", summary.generated, summary.failed)
 
     def stream(self, limit: int | None) -> None:
         """Carry each categorised paper through summarise, score, and QA.
