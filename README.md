@@ -98,12 +98,12 @@ Re-saving / "Update model" re-pulls the latest version of a tag.
 
 | Stage | Model | Notes |
 |-------|-------|-------|
-| Quality gate  | `qwen3.6:35b-a3b`   | fast SE-relevance gate |
-| Categorisation| `qwen3.6:35b-a3b`   | 47-category assignment |
-| Summarisation | `qwen3.6:35b-a3b`   | JSON mode; see note below |
-| Scoring       | `qwen3.6:35b-a3b`   | hybrid-reasoning, "virtual CTO" |
-| QA            | `llama3.1:70b`      | summary/score consistency check |
-| Promote       | `qwen3.6:35b-a3b`   | drafts the shareable social post |
+| Quality gate  | `qwen3.6:35b-a3b`     | fast SE-relevance gate |
+| Categorisation| `qwen3.6:35b-a3b`     | 47-category assignment |
+| Summarisation | `llama3.1:70b`        | four-part structured summary |
+| Scoring       | `deepseek-r1:70b`     | reasoning model, "virtual CTO" |
+| QA            | `gemma3:27b`          | summary/score consistency check |
+| Promote       | `qwen3.6:35b-a3b`     | drafts the shareable social post |
 
 Models are assigned per task, and the assignment is measured rather than
 assumed. The machine is memory-bandwidth-bound at roughly 205 GB/s, so
@@ -113,14 +113,33 @@ mixture-of-experts model that reads about 2.75 GB per token and measures
 74.6 tok/s on the same machine, which is why a 35B model outruns a dense 8B
 one here.
 
-Three earlier choices were retired. `command-r-plus` never started: its
-weights load, then llama-server times out allocating the KV cache.
-`llama3.1:70b` collapses into repetition loops on the long summarisation
-prompt and remains only on QA, where being a different model family from the
-summariser it checks is worth the speed. `qwen2.5-coder:32b` is a
-code-specialised model and was writing research prose and the drafted social
-posts; `deepseek-r1:70b` did not finish a single scoring call inside fifteen
-minutes.
+Eight models from seven providers were run through the production pipeline on
+identical papers. Three were rejected on measured evidence rather than on
+reputation:
+
+* `gpt-oss:20b` (OpenAI) returns invalid JSON under the exact combination this
+  project uses, `format=json` with `think=False`, leaking reasoning into the
+  content field. It fails Ollama's strict JSON-schema mode too.
+* `command-a` (Cohere, 111B) does not start. Its memory fit succeeds, then
+  llama-server errors allocating; a bounded seven-minute wait confirmed it.
+  This is the same wall `command-r-plus` (59 GB) hits.
+* `nemotron` (NVIDIA, 70B) judged two of three genuine Software Engineering
+  papers to be out of scope. The quality gate discards papers irreversibly, so
+  a false-negative rate like that is disqualifying there regardless of how the
+  model performs elsewhere.
+
+`qwen2.5-coder:32b` was also retired: it is a code-specialised model and was
+summarising research prose and drafting the professor's social posts.
+
+The current assignment deliberately spreads four providers across the stages.
+Correlated failure is the risk a single-vendor pipeline carries: QA checks the
+summariser's output, so running both on the same model family would have the
+checker share the blind spots of the thing it checks. The stages are therefore
+matched to measured behaviour, not to latency - `llama3.1:70b` summarises in
+about three minutes a paper where a faster model takes eighteen seconds, and
+is used anyway because its output is sound. Its earlier repetition loops came
+from context overflow at the old 8192-token window, which the explicit
+`num_ctx` on the summarisation call now prevents.
 
 Every stage reads its model from `.env`, and the dashboard can override any
 stage without an edit, so changing one is a settings change rather than a code

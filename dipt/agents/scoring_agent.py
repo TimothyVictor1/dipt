@@ -25,11 +25,12 @@ logger = logging.getLogger(__name__)
 _REQUEST_DELAY_SECONDS: Final[float] = 2.0
 _MIN_SCORE: Final[float] = 1.0
 _MAX_SCORE: Final[float] = 10.0
-# The answer is a number and two or three sentences. The old cap of 2500 was
-# sized for a reasoning model that spent most of its output in a <think> block
-# before answering; the client now suppresses that reasoning (think=False), so
-# the budget only has to cover the answer itself.
-_MAX_OUTPUT_TOKENS: Final[int] = 800
+# num_predict is a ceiling, not a target: a model that answers in 150 tokens
+# and stops costs nothing extra under a high cap. The ceiling stays generous so
+# that a reasoning model, which spends most of its budget in a <think> block
+# before answering, still has room to reach the answer. Cutting this to 800
+# made deepseek-r1 run out mid-reasoning and return no score at all.
+_MAX_OUTPUT_TOKENS: Final[int] = 2500
 # Deterministic by design. An earlier comment here claimed that sampling
 # "restores discrimination across papers", which confuses variance with
 # discrimination: temperature makes the same paper score differently on

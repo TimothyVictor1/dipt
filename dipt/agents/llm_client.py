@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 
 _MAX_RETRIES: Final[int] = 3
 _BASE_BACKOFF_SECONDS: Final[float] = 2.0
+# Per-request ceiling. Without one the underlying HTTP client waits forever, so
+# a wedged model load leaves the pipeline hanging with no log line and a
+# dashboard run stuck on "running". Generous enough for a cold 70B load, which
+# can take minutes, while still bounding a genuine hang.
+_REQUEST_TIMEOUT_SECONDS: Final[float] = 900.0
 _MISSING_MODEL_HINTS: Final[tuple[str, ...]] = (
     "not found",
     "try pulling it",
@@ -46,11 +51,12 @@ class OllamaClient:
         max_retries: int = _MAX_RETRIES,
         base_backoff_seconds: float = _BASE_BACKOFF_SECONDS,
         auto_pull: bool = True,
+        timeout_seconds: float = _REQUEST_TIMEOUT_SECONDS,
     ) -> None:
         if max_retries < 1:
             raise ValueError("max_retries must be >= 1")
         self._host = host
-        self._client = ollama.Client(host=host)
+        self._client = ollama.Client(host=host, timeout=timeout_seconds)
         self._max_retries = max_retries
         self._base_backoff = base_backoff_seconds
         self._auto_pull = auto_pull
