@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import Layout from '@/components/Layout';
+import Breadcrumb from '@/components/Breadcrumb';
 import PaperCard from '@/components/PaperCard';
 import {
   getAllCategories,
@@ -26,14 +26,21 @@ export async function getStaticProps({ params }) {
 export default function CategoryPage({ category, papers }) {
   return (
     <Layout title={category.name}>
-      <p className="back">
-        <Link href="/categories/">&larr; All categories</Link>
+      <Breadcrumb
+        items={[
+          { label: 'Papers', href: '/' },
+          { label: 'Topics', href: '/categories/' },
+          { label: category.name },
+        ]}
+      />
+      <h1 className="section-title" style={{ marginTop: 12 }}>
+        {category.name}
+      </h1>
+      <p className="page-sub" style={{ marginBottom: 16 }}>
+        {papers.length} approved paper{papers.length === 1 ? '' : 's'}, highest
+        industrial-relevance score first.
       </p>
-      <h1>{category.name}</h1>
-      <p className="muted">
-        {papers.length} approved paper{papers.length === 1 ? '' : 's'}
-      </p>
-      <div className="list">
+      <div className="serp-results">
         {papers.map((p) => (
           <PaperCard key={p.id} paper={p} />
         ))}

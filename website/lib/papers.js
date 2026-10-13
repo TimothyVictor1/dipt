@@ -34,6 +34,33 @@ export function getPapersInCategory(slug) {
   return getAllPapers().filter((p) => (p.category_slugs ?? []).includes(slug));
 }
 
+/** Distinct source names present in the data, e.g. ['arxiv', 'openalex']. */
+export function getSources() {
+  return [...new Set(getAllPapers().map((p) => p.source).filter(Boolean))].sort();
+}
+
+/**
+ * Papers most related to `id`: those sharing the most categories, then the
+ * highest scored. Excludes the paper itself.
+ */
+export function getRelatedPapers(id, limit = 6) {
+  const self = getPaperById(id);
+  if (!self) return [];
+  const mine = new Set(self.category_slugs ?? []);
+  return getAllPapers()
+    .filter((p) => String(p.id) !== String(id))
+    .map((p) => ({
+      p,
+      shared: (p.category_slugs ?? []).filter((s) => mine.has(s)).length,
+    }))
+    .filter((x) => x.shared > 0)
+    .sort(
+      (a, b) => b.shared - a.shared || (b.p.score ?? 0) - (a.p.score ?? 0)
+    )
+    .slice(0, limit)
+    .map((x) => x.p);
+}
+
 /**
  * The compact record the client-side search index is built from. Keeping this
  * small keeps the inlined JSON on the home page small.

@@ -1,11 +1,43 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 /**
- * Page chrome shared by every route: head tags, header nav, footer.
+ * Page chrome: head tags, a minimal OpenAlex-style top bar (brand + nav only —
+ * search is the hero on the results page, not in the bar), and a footer.
+ *
+ * The footer carries a discreet "operator mode" toggle. It is the only thing
+ * that reveals the per-paper Share panel; a visitor arriving from a shared
+ * post never sees it.
  */
 export default function Layout({ children, title, description }) {
-  const fullTitle = title ? `${title} - DIPT` : 'DIPT - SE Research Monitor';
+  const router = useRouter();
+  const [operator, setOperator] = useState(false);
+
+  useEffect(() => {
+    try {
+      setOperator(localStorage.getItem('dipt-operator') === '1');
+    } catch {
+      setOperator(false);
+    }
+  }, []);
+
+  const fullTitle = title
+    ? `${title} — DIPT`
+    : 'DIPT — Software Engineering research monitor';
+
+  function toggleOperator() {
+    try {
+      const next = operator ? '0' : '1';
+      localStorage.setItem('dipt-operator', next);
+      setOperator(next === '1');
+      router.reload();
+    } catch {
+      /* storage unavailable */
+    }
+  }
+
   return (
     <>
       <Head>
@@ -14,7 +46,7 @@ export default function Layout({ children, title, description }) {
           name="description"
           content={
             description ??
-            'Newly approved Software Engineering research, summarised and scored for industrial relevance.'
+            'Recent Software Engineering research, read and summarised, scored for industrial relevance.'
           }
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -25,25 +57,38 @@ export default function Layout({ children, title, description }) {
           href="/rss.xml"
         />
       </Head>
-      <header className="site-header">
-        <div className="wrap">
+
+      <header className="appbar">
+        <div className="appbar-inner">
           <Link href="/" className="brand">
-            DIPT
+            <span className="brand-mark" aria-hidden="true" />
+            <span>DIPT</span>
           </Link>
-          <nav>
+          <nav className="appbar-nav">
             <Link href="/">Papers</Link>
-            <Link href="/categories/">Categories</Link>
+            <Link href="/categories/">Topics</Link>
             <a href="/rss.xml">RSS</a>
           </nav>
         </div>
       </header>
-      <main className="wrap">{children}</main>
+
+      <div className="page">{children}</div>
+
       <footer className="site-footer">
-        <div className="wrap">
+        <div className="footer-inner">
           <p>
-            DIPT - automated Software Engineering research monitoring. SERL
-            Sweden, Blekinge Institute of Technology.
+            DIPT — automated Software Engineering research monitoring. SERL
+            Sweden, Blekinge Institute of Technology. Papers are read and
+            summarised by local models; every listed paper passed a
+            consistency check.
           </p>
+          <button
+            type="button"
+            className="operator-toggle"
+            onClick={toggleOperator}
+          >
+            Operator mode: {operator ? 'on' : 'off'}
+          </button>
         </div>
       </footer>
     </>

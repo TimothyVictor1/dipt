@@ -1,18 +1,29 @@
 import { useEffect, useState } from 'react';
 
 /**
- * "Share this paper" panel. Shows the AI-drafted post (editable), and one-click
- * buttons that open the LinkedIn / X composer pre-filled, plus a copy button
- * for anywhere else. The link always points at this paper's page on the site.
+ * "Share this paper" panel — for the site owner only.
+ *
+ * Renders nothing unless operator mode is on (a flag the owner sets from the
+ * footer, stored in localStorage). A visitor who arrives from a shared
+ * LinkedIn / X post never sees it, so there is no re-share loop and no social
+ * controls on the public read page.
  */
 export default function ShareBox({ post, title }) {
+  const [operator, setOperator] = useState(false);
   const [text, setText] = useState(post || '');
   const [url, setUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    try {
+      setOperator(localStorage.getItem('dipt-operator') === '1');
+    } catch {
+      setOperator(false);
+    }
     setUrl(window.location.href);
   }, []);
+
+  if (!operator) return null;
 
   const body = (text || title || '').trim();
   const withLink = url ? `${body}\n\n${url}` : body;
@@ -37,11 +48,12 @@ export default function ShareBox({ post, title }) {
 
   return (
     <section className="share">
-      <h2>Share this paper</h2>
-      <p className="muted share-hint">
+      <span className="share-flag">Operator</span>
+      <h3>Share this paper</h3>
+      <p className="share-hint">
         {post
-          ? 'A draft post is ready. Edit it if you like, then post.'
-          : 'No draft was generated for this paper. Write a line and share it.'}
+          ? 'A draft post is ready. Edit it if you like, then post. The link points to this page.'
+          : 'No draft was generated. Write a line and share it — the link points to this page.'}
       </p>
       <textarea
         className="share-text"
@@ -57,7 +69,7 @@ export default function ShareBox({ post, title }) {
         <a className="btn" href={liHref} target="_blank" rel="noreferrer">
           Share on LinkedIn
         </a>
-        <button className="btn btn-ghost" type="button" onClick={copy}>
+        <button className="btn btn-primary" type="button" onClick={copy}>
           {copied ? 'Copied' : 'Copy post + link'}
         </button>
       </div>

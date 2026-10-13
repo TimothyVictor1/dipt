@@ -1,192 +1,363 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>DIPT — approved papers (preview)</title>
+<title>DIPT — Software Engineering research monitor (preview)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* OpenAlex (openalex-gui) design tokens — light mode only. */
   :root{
-    --fg:#1a1a2e; --muted:#667085; --bg:#fff; --accent:#2f4b7c; --line:#e4e7ec;
-    --card:#fafafa; --high:#1b7f4b; --mid:#b45309; --low:#667085;
+    --ox-bg-base:#fff; --ox-bg-subtle:#fafafa; --ox-bg-muted:#f5f5f5; --ox-bg-emphasis:#ebebeb;
+    --ox-text-primary:#171717; --ox-text-secondary:#3f3f3f; --ox-text-tertiary:#5c5c5c;
+    --ox-text-muted:#8a8a8a;
+    --ox-border-subtle:#f0f0f0; --ox-border-default:#e2e2e2; --ox-border-strong:#d4d4d4;
+    --ox-accent:#000; --ox-accent-on:#fff; --ox-accent-hover:#1a1a1a;
+    --ox-info-fg:#1f6feb;
+    --ox-success-fg:#1a7f37; --ox-success-bg:#e6f7ec; --ox-success-border:#b9e3c6;
+    --ox-warning-fg:#9a6700; --ox-warning-bg:#fff4d6; --ox-warning-border:#f5d27c;
+    --ox-link:var(--ox-info-fg);
+    --ox-font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --ox-type-display:500 1.5rem/1.875rem var(--ox-font-sans);
+    --ox-type-h2:500 1rem/1.5rem var(--ox-font-sans);
+    --ox-type-h3:500 .9375rem/1.4375rem var(--ox-font-sans);
+    --ox-type-body:400 .875rem/1.5rem var(--ox-font-sans);
+    --ox-type-body-emph:500 .875rem/1.5rem var(--ox-font-sans);
+    --ox-type-label:500 .8125rem/normal var(--ox-font-sans);
+    --ox-type-caption:500 .75rem/1rem var(--ox-font-sans);
+    --ox-type-prose:400 .9375rem/1.6 var(--ox-font-sans);
+    --ox-content-max:1120px; --ox-prose-max:680px; --ox-rail-width:300px; --ox-topbar-height:52px;
+    --ox-radius-xs:4px; --ox-radius-sm:6px; --ox-radius-md:8px; --ox-radius-lg:12px;
+    --ox-focus-ring:0 0 0 2px #fff,0 0 0 4px var(--ox-accent);
+    --ox-ease:cubic-bezier(.25,.46,.45,.94);
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--fg);
-    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
-  header{border-bottom:1px solid var(--line);padding:14px 0}
-  header .wrap{display:flex;align-items:center;justify-content:space-between}
-  .brand{font-weight:700;font-size:1.2rem;letter-spacing:.04em}
-  .banner{background:#fff8e6;border-bottom:1px solid #f0e0b0;color:#6b5300;
-    font-size:.82rem;padding:8px 0}
-  h1{font-size:1.65rem;margin:0 0 6px}
-  .hero{padding:30px 0 6px}
-  .muted{color:var(--muted)}
-  .controls{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}
-  .controls input[type=search]{flex:1 1 260px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;font-size:1rem}
-  .controls select{padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:#fff}
-  .score-filter{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
-  .count-line{font-size:.85rem;margin:8px 0 16px}
-  .list{display:flex;flex-direction:column;gap:16px;padding:18px 0 60px}
-  .card{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px 18px;cursor:pointer}
-  .card:hover{border-color:#c8d2e0}
-  .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-  .card-head h2{margin:0;font-size:1.1rem}
-  .meta{color:var(--muted);font-size:.85rem;margin:4px 0 8px}
-  .teaser{margin:8px 0}
-  .tags{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px}
-  .tags li{font-size:.78rem;background:#eef2f8;border-radius:999px;padding:3px 10px}
-  .score{display:inline-block;font-weight:700;font-size:.85rem;padding:2px 9px;border-radius:999px;color:#fff;white-space:nowrap}
-  .s-high{background:var(--high)} .s-mid{background:var(--mid)} .s-low{background:var(--low)}
-  dialog{border:0;border-radius:12px;max-width:760px;width:92vw;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-  dialog::backdrop{background:rgba(20,27,45,.45)}
-  .dlg{padding:24px 28px 30px}
-  .dlg h2{margin:0 0 4px;font-size:1.35rem}
-  .dlg .close{position:absolute;top:12px;right:16px;background:none;border:0;font-size:1.4rem;cursor:pointer;color:var(--muted)}
-  .sec{margin-top:18px}
-  .sec h3{font-size:1rem;margin:0 0 2px}
-  .rationale{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:8px}
-  details{margin-top:18px}
-  details summary{cursor:pointer;color:var(--accent)}
-  .share{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
-  .share h3{margin:0 0 8px}
-  .share textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-size:.92rem;line-height:1.5;resize:vertical}
-  .share .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .share a.btn,.share button.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:.85rem;padding:7px 14px;border-radius:7px;cursor:pointer;text-decoration:none}
-  .share button.ghost{background:#fff;color:var(--accent)}
-  footer{border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:.82rem}
-  .empty{color:var(--muted);padding:24px 0}
+  body{margin:0;background:var(--ox-bg-base);color:var(--ox-text-primary);font:var(--ox-type-body);-webkit-font-smoothing:antialiased}
+  h1,h2,h3{margin:0;color:var(--ox-text-primary);letter-spacing:-.005em}
+  p{margin:0}
+  a{color:var(--ox-link);text-decoration-line:underline;text-decoration-color:transparent;text-underline-offset:2px;text-decoration-thickness:1px;transition:text-decoration-color 120ms var(--ox-ease)}
+  a:hover{text-decoration-color:currentColor}
+  :focus-visible{outline:none;box-shadow:var(--ox-focus-ring);border-radius:2px}
+  .ox-num{font-variant-numeric:tabular-nums slashed-zero}
+  .banner{background:var(--ox-bg-subtle);border-bottom:1px solid var(--ox-border-default);color:var(--ox-text-tertiary);font:var(--ox-type-caption);padding:6px 0;text-align:center}
+
+  .appbar{position:sticky;top:0;z-index:100;background:var(--ox-bg-base);border-bottom:1px solid var(--ox-border-default)}
+  .appbar-inner{max-width:var(--ox-content-max);margin:0 auto;height:var(--ox-topbar-height);padding:0 24px;display:flex;align-items:center;gap:24px}
+  .brand{display:inline-flex;align-items:center;gap:8px;color:var(--ox-text-primary);font:var(--ox-type-h3);letter-spacing:-.01em;text-decoration:none}
+  .brand-mark{width:20px;height:20px;border-radius:var(--ox-radius-sm);background:var(--ox-accent)}
+  .appbar-nav{margin-left:auto;display:flex;align-items:center;gap:20px}
+  .appbar-nav a{color:var(--ox-text-secondary);font:var(--ox-type-label);text-decoration:none}
+  .appbar-nav a:hover{color:var(--ox-text-primary)}
+
+  .page{max-width:var(--ox-content-max);margin:0 auto;padding:24px 24px 48px}
+
+  .serp-search{max-width:640px;margin:0 auto 24px;position:relative}
+  .serp-search .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ox-text-tertiary);pointer-events:none}
+  .serp-search input{width:100%;height:40px;padding:0 12px 0 32px;font:var(--ox-type-prose);color:var(--ox-text-primary);background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-md);transition:border-color 150ms var(--ox-ease)}
+  .serp-search input::placeholder{color:var(--ox-text-muted)}
+  .serp-search input:focus{outline:none;border-color:var(--ox-border-strong);box-shadow:var(--ox-focus-ring)}
+
+  .serp-body{display:grid;grid-template-columns:minmax(0,1fr) var(--ox-rail-width);gap:24px;align-items:start}
+  .serp-head{display:flex;align-items:center;gap:12px;min-height:32px;padding-bottom:8px;flex-wrap:wrap}
+  .serp-count{font:var(--ox-type-body);color:var(--ox-text-tertiary)}
+  .serp-head .spacer{flex:1}
+  .serp-sort{display:inline-flex;align-items:center;gap:6px;font:var(--ox-type-caption);color:var(--ox-text-tertiary)}
+  .serp-sort select{height:28px;padding:0 8px;font:var(--ox-type-caption);color:var(--ox-text-secondary);background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-sm);cursor:pointer}
+  .filter-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .filter-chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 6px 0 8px;font:var(--ox-type-caption);color:var(--ox-text-secondary);background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-sm);cursor:pointer}
+  .filter-chip:hover{background:var(--ox-bg-muted)}
+  .filter-chip .x{color:var(--ox-text-muted);font-size:.9rem;line-height:1}
+
+  .serp-results{border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-md);overflow:hidden;background:var(--ox-bg-base)}
+  .result-row{display:flex;gap:16px;padding:12px 16px;border-bottom:1px solid var(--ox-border-subtle);cursor:pointer;transition:background-color 120ms var(--ox-ease)}
+  .result-row:last-child{border-bottom:0}
+  .result-row:hover{background:var(--ox-bg-muted)}
+  .result-main{min-width:0;flex:1}
+  .result-title{font:var(--ox-type-body-emph);color:var(--ox-text-primary)}
+  .result-row:hover .result-title{text-decoration:underline;text-underline-offset:2px}
+  .result-meta{margin-top:4px;font:var(--ox-type-caption);color:var(--ox-text-tertiary)}
+  .result-tags{margin-top:4px;font:var(--ox-type-caption);color:var(--ox-text-tertiary)}
+  .result-aside{flex-shrink:0}
+  .serp-empty{padding:32px 16px;text-align:center;font:var(--ox-type-body);color:var(--ox-text-tertiary)}
+
+  .rail{display:flex;flex-direction:column;gap:12px;position:sticky;top:calc(var(--ox-topbar-height) + 16px)}
+  .groupby{padding:12px 8px}
+  .groupby-title{font:var(--ox-type-h3);color:var(--ox-text-primary);padding:0 8px;margin-bottom:4px}
+  .groupby-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:28px;padding:0 8px;background:none;border:0;text-align:left;font:var(--ox-type-body);color:var(--ox-text-secondary);cursor:pointer;border-radius:var(--ox-radius-sm);transition:background-color 120ms var(--ox-ease)}
+  .groupby-row:hover{background:var(--ox-bg-muted)}
+  .groupby-row.on{background:var(--ox-bg-emphasis);color:var(--ox-text-primary);font:var(--ox-type-body-emph)}
+  .groupby-row .label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .groupby-row .count{flex-shrink:0;font:var(--ox-type-caption);color:var(--ox-text-tertiary);font-variant-numeric:tabular-nums}
+  .groupby-more{margin-top:4px;padding:4px 8px;background:none;border:0;font:var(--ox-type-caption);color:var(--ox-link);cursor:pointer}
+
+  .score{display:inline-flex;align-items:baseline;gap:1px;padding:2px 6px;border-radius:var(--ox-radius-xs);font:var(--ox-type-caption);font-variant-numeric:tabular-nums slashed-zero;white-space:nowrap;border:1px solid transparent}
+  .score-high{color:var(--ox-success-fg);background:var(--ox-success-bg);border-color:var(--ox-success-border)}
+  .score-mid{color:var(--ox-warning-fg);background:var(--ox-warning-bg);border-color:var(--ox-warning-border)}
+  .score-low{color:var(--ox-text-tertiary);background:var(--ox-bg-muted);border-color:var(--ox-border-default)}
+  .score-cap{font-weight:400;opacity:.7}
+
+  dialog{border:0;border-radius:var(--ox-radius-lg);max-width:var(--ox-content-max);width:94vw;padding:0;box-shadow:0 12px 32px -8px rgba(0,0,0,.18),0 4px 12px -4px rgba(0,0,0,.08)}
+  dialog::backdrop{background:rgba(0,0,0,.32)}
+  .entity{padding:24px 28px 32px;position:relative}
+  .entity .close{position:absolute;top:14px;right:18px;background:none;border:0;font-size:1.4rem;line-height:1;cursor:pointer;color:var(--ox-text-tertiary)}
+  .entity-meta-row{display:flex;align-items:center;gap:12px;min-height:24px;flex-wrap:wrap}
+  .entity-meta-row .spacer{flex:1}
+  .entity-meta-row a,.crumb-sep{font:var(--ox-type-caption);color:var(--ox-text-tertiary);text-decoration:none}
+  .entity-title{font:var(--ox-type-display);margin-top:8px;max-width:40ch}
+  .entity-byline{margin-top:4px;font:var(--ox-type-body);color:var(--ox-text-secondary)}
+  .entity-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;font:var(--ox-type-caption);color:var(--ox-text-secondary);background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-sm);text-decoration:none}
+  .entity-body{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;margin-top:24px}
+  .entity-card{border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-md);padding:24px}
+  .entity-card>h2{font:var(--ox-type-h2);margin-bottom:16px}
+  .summary-grid{margin:0;display:flex;flex-direction:column;gap:20px;max-width:var(--ox-prose-max)}
+  .summary-item dt{font:var(--ox-type-label);color:var(--ox-text-tertiary);margin-bottom:4px}
+  .summary-item dd{margin:0;font:var(--ox-type-prose);color:var(--ox-text-secondary)}
+  .summary-note{margin-top:20px;font:var(--ox-type-caption);color:var(--ox-text-muted)}
+  .entity-abstract{margin-top:12px}
+  .entity-abstract summary{cursor:pointer;font:var(--ox-type-label);color:var(--ox-text-secondary)}
+  .entity-abstract p{margin-top:12px;font:var(--ox-type-prose);color:var(--ox-text-secondary);max-width:var(--ox-prose-max)}
+  .entity-related{margin-top:24px}
+  .entity-related>h2{font:var(--ox-type-h2);margin-bottom:12px}
+  .entity-related-more{margin-top:12px;text-align:right}
+  .entity-related-more a{font:var(--ox-type-caption)}
+  .entity-side{display:flex;flex-direction:column;gap:16px}
+  .metrics{padding:16px 8px 12px}
+  .metrics+.metrics{border-top:1px solid var(--ox-border-subtle)}
+  .metrics>h3{font:var(--ox-type-h3);padding:0 8px;margin-bottom:12px}
+  .metrics-score{display:flex;align-items:baseline;gap:4px;padding:0 8px;font:var(--ox-type-display);font-variant-numeric:tabular-nums slashed-zero}
+  .metrics-score .cap{font:var(--ox-type-body);color:var(--ox-text-muted)}
+  .metrics-word{margin-top:4px;padding:0 8px;font:var(--ox-type-body-emph);color:var(--ox-text-secondary)}
+  .metrics-why{margin-top:8px;padding:0 8px;font:var(--ox-type-body);color:var(--ox-text-tertiary)}
+  .metrics-list{list-style:none;margin:0;padding:0}
+  .metrics-list li{min-height:28px;display:flex;align-items:center;padding:0 8px}
+  .metrics-list a{font:var(--ox-type-body);color:var(--ox-link);text-decoration:none}
+
+  .share{margin-top:32px;padding-top:24px;border-top:1px solid var(--ox-border-default)}
+  .share-flag{display:inline-block;padding:2px 6px;border-radius:var(--ox-radius-xs);font:var(--ox-type-caption);letter-spacing:.05em;text-transform:uppercase;color:var(--ox-text-tertiary);background:var(--ox-bg-muted)}
+  .share>h3{margin:8px 0 4px;font:var(--ox-type-h3)}
+  .share-hint{margin-bottom:12px;font:var(--ox-type-caption);color:var(--ox-text-muted)}
+  .share-text{width:100%;padding:10px 12px;font:var(--ox-type-body);color:var(--ox-text-primary);background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-md);resize:vertical}
+  .share-text:focus{outline:none;border-color:var(--ox-border-strong);box-shadow:var(--ox-focus-ring)}
+  .share-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .btn{display:inline-flex;align-items:center;height:32px;padding:0 16px;font:var(--ox-type-label);color:var(--ox-text-primary);background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-md);cursor:pointer;text-decoration:none}
+  .btn:hover{background:var(--ox-bg-muted)}
+  .btn-primary{color:var(--ox-accent-on);background:var(--ox-accent);border-color:var(--ox-accent)}
+  .btn-primary:hover{background:var(--ox-accent-hover)}
+
+  .site-footer{border-top:1px solid var(--ox-border-default);background:var(--ox-bg-base)}
+  .footer-inner{max-width:var(--ox-content-max);margin:0 auto;padding:24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .footer-inner p{margin:0;max-width:70ch;font:var(--ox-type-caption);color:var(--ox-text-muted)}
+  .operator-toggle{flex-shrink:0;height:28px;padding:0 12px;background:var(--ox-bg-base);border:1px solid var(--ox-border-default);border-radius:var(--ox-radius-md);color:var(--ox-text-tertiary);font:var(--ox-type-caption);cursor:pointer}
+  .operator-toggle:hover{background:var(--ox-bg-muted)}
+
+  @media (max-width:900px){
+    .serp-body,.entity-body{grid-template-columns:1fr}
+    .rail{position:static;order:-1}
+    .entity-side{flex-direction:row;flex-wrap:wrap}
+    .entity-title{font:500 1.25rem/1.75rem var(--ox-font-sans);max-width:none}
+  }
 </style>
 
-<div class="banner"><div class="wrap">Quick preview of the exported data — not the real Next.js build (that needs Node.js). Same content, same layout idea.</div></div>
-<header><div class="wrap">
-  <span class="brand">DIPT</span>
-  <nav class="muted" style="font-size:.9rem">Papers &nbsp;·&nbsp; Categories &nbsp;·&nbsp; <a href="public/rss.xml">RSS</a></nav>
+<div class="banner">Preview of the exported data — not the production Next.js build (needs Node.js). Same design and behaviour.</div>
+
+<header class="appbar"><div class="appbar-inner">
+  <span class="brand"><span class="brand-mark"></span>DIPT</span>
+  <nav class="appbar-nav"><a href="#">Papers</a><a href="#">Topics</a><a href="public/rss.xml">RSS</a></nav>
 </div></header>
 
-<main class="wrap">
-  <section class="hero">
-    <h1>Approved Software Engineering research</h1>
-    <p class="muted" id="sub">Loading…</p>
-  </section>
+<div class="page">
+  <form class="serp-search" onsubmit="event.preventDefault();state.q=$('#q').value;render()">
+    <span class="ic" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+    <input id="q" type="search" placeholder="Search papers, topics, authors…">
+  </form>
 
-  <section class="controls">
-    <input type="search" id="q" placeholder="Search titles, topics, findings, authors…" aria-label="Search">
-    <select id="cat" aria-label="Category"><option value="">All categories</option></select>
-    <label class="score-filter">Min score: <span id="msv">0</span>
-      <input type="range" id="ms" min="0" max="10" step="1" value="0"></label>
-  </section>
+  <div class="serp-body">
+    <main>
+      <div class="serp-head">
+        <span class="serp-count ox-num" id="count"></span>
+        <div class="filter-chips" id="chips"></div>
+        <span class="spacer"></span>
+        <label class="serp-sort">Sort
+          <select id="sort"><option value="score">Relevance score</option><option value="date">Newest</option><option value="title">Title A–Z</option></select>
+        </label>
+      </div>
+      <div class="serp-results" id="list"></div>
+    </main>
 
-  <p class="muted count-line" id="count"></p>
-  <div class="list" id="list"></div>
-</main>
+    <aside class="rail" id="rail"></aside>
+  </div>
+</div>
 
-<footer><div class="wrap">DIPT — automated SE research monitoring. SERL Sweden, Blekinge Institute of Technology.</div></footer>
+<footer class="site-footer"><div class="footer-inner">
+  <p>DIPT — automated Software Engineering research monitoring. SERL Sweden, Blekinge Institute of Technology. Papers are read and summarised by local models; every listed paper passed a consistency check.</p>
+  <button class="operator-toggle" id="op-toggle">Operator mode: off</button>
+</div></footer>
 
-<dialog id="dlg"><div class="dlg">
-  <button class="close" aria-label="Close" onclick="dlg.close()">×</button>
-  <div id="dlgbody"></div>
-</div></dialog>
+<dialog id="dlg"><div class="entity"><button class="close" onclick="dlg.close()">×</button><div id="work"></div></div></dialog>
 
 <script>
 const $ = s => document.querySelector(s);
-const state = { papers: [], q: "", cat: "", ms: 0 };
+const esc = t => (t||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const state = { papers:[], cats:[], srcs:[], q:"", cat:"", ms:0, src:"", sort:"score", allCats:false };
+let operator = false;
+try { operator = localStorage.getItem('dipt-operator') === '1'; } catch {}
+const CAT_LIMIT = 8;
+const STEPS = [{v:5,l:"5 and up"},{v:7,l:"7 and up"},{v:8,l:"8 and up"}];
 
-function band(s){ return s>=8 ? "s-high" : s>=5 ? "s-mid" : "s-low"; }
-function esc(t){ return (t||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+const band = s => s>=8?"score-high":s>=5?"score-mid":"score-low";
+const word = s => s>=8?"High relevance":s>=5?"Moderate relevance":"Limited relevance";
+const chip = (s,big) => s==null?"" : `<span class="score ${band(s)}">${Number(s).toFixed(1)}${big?'<span class="score-cap">&nbsp;/ 10</span>':''}</span>`;
+const byId = id => state.papers.find(p=>String(p.id)===String(id));
 
 function matches(p){
   if (state.cat && !(p.category_slugs||[]).includes(state.cat)) return false;
-  if (state.ms > 0 && (p.score||0) < state.ms) return false;
+  if (state.src && p.source !== state.src) return false;
+  if (state.ms>0 && (p.score||0) < state.ms) return false;
   if (!state.q.trim()) return true;
-  const hay = [p.title, (p.authors||[]).join(" "), (p.categories||[]).join(" "),
-    p.summary?.research_problem, p.summary?.key_findings, p.abstract].join(" ").toLowerCase();
-  return state.q.toLowerCase().split(/\s+/).every(tok => hay.includes(tok));
+  const hay=[p.title,(p.authors||[]).join(" "),(p.categories||[]).join(" "),p.summary?.research_problem,p.summary?.key_findings,p.abstract].join(" ").toLowerCase();
+  return state.q.toLowerCase().split(/\s+/).every(t=>hay.includes(t));
 }
+function sortRows(rows){
+  const r=[...rows];
+  if(state.sort==="score") r.sort((a,b)=>(b.score||0)-(a.score||0));
+  else if(state.sort==="date") r.sort((a,b)=>String(b.published_date||"").localeCompare(String(a.published_date||"")));
+  else r.sort((a,b)=>a.title.localeCompare(b.title));
+  return r;
+}
+function rowHTML(p, compact){
+  const cats=p.categories||[], cap=compact?2:3;
+  return `<article class="result-row" data-id="${p.id}">
+    <div class="result-main">
+      <span class="result-title">${esc(p.title)}</span>
+      <div class="result-meta">${esc((p.authors||[]).slice(0,3).join(", "))}${(p.authors||[]).length>3?" et al.":""}${p.published_date?" · "+esc(p.published_date):""}${p.source?" · "+esc(p.source):""}</div>
+      ${cats.length?`<div class="result-tags">${esc(cats.slice(0,cap).join(", "))}${cats.length>cap?" +"+(cats.length-cap):""}</div>`:""}
+    </div>
+    <div class="result-aside">${chip(p.score)}</div>
+  </article>`;
+}
+function catName(slug){ return (state.cats.find(c=>c.slug===slug)||{}).name; }
 
 function render(){
-  const rows = state.papers.filter(matches)
-    .sort((a,b) => (b.score||0) - (a.score||0));
-  $("#count").textContent = rows.length + " shown" +
-    (state.q || state.cat || state.ms ? " (filtered)" : "");
-  const el = $("#list");
-  el.innerHTML = rows.length ? "" : '<p class="empty">No papers match. Try a broader search.</p>';
-  for (const p of rows){
-    const card = document.createElement("article");
-    card.className = "card";
-    card.onclick = () => openDetail(p);
-    const scorePill = (p.score ?? null) === null ? "" :
-      `<span class="score ${band(p.score)}">${Number(p.score).toFixed(1)}</span>`;
-    card.innerHTML = `
-      <div class="card-head"><h2>${esc(p.title)}</h2>${scorePill}</div>
-      <p class="meta">${esc((p.authors||[]).slice(0,4).join(", "))}${(p.authors||[]).length>4?" et al.":""}
-        ${p.published_date ? " · "+esc(p.published_date) : ""}${p.source ? " · "+esc(p.source) : ""}</p>
-      <p class="teaser">${esc(p.summary?.research_problem || (p.abstract||"").slice(0,240))}</p>
-      <ul class="tags">${(p.categories||[]).map(c => `<li>${esc(c)}</li>`).join("")}</ul>`;
-    el.appendChild(card);
-  }
+  const rows = sortRows(state.papers.filter(matches));
+  const filters = [];
+  if(state.q.trim()) filters.push({k:"q",l:'“'+state.q.trim()+'”',c:()=>state.q=""});
+  if(state.cat) filters.push({k:"c",l:catName(state.cat),c:()=>state.cat=""});
+  if(state.ms>0) filters.push({k:"s",l:"score "+state.ms+"+",c:()=>state.ms=0});
+  if(state.src) filters.push({k:"src",l:state.src,c:()=>state.src=""});
+
+  $("#count").textContent = `${rows.length} paper${rows.length===1?"":"s"}${filters.length?" · filtered":""}`;
+  const cw=$("#chips"); cw.innerHTML="";
+  filters.forEach(f=>{
+    const b=document.createElement("button"); b.className="filter-chip"; b.type="button";
+    b.innerHTML=esc(f.l)+' <span class="x">×</span>';
+    b.onclick=()=>{ f.c(); if(f.k==="q")$("#q").value=""; render(); };
+    cw.appendChild(b);
+  });
+
+  const el=$("#list");
+  el.innerHTML = rows.length ? rows.map(p=>rowHTML(p,false)).join("") : '<p class="serp-empty">No papers match. Try adjusting your search or filters.</p>';
+  el.querySelectorAll(".result-row").forEach(c=>c.onclick=()=>openWork(byId(c.dataset.id)));
+  renderRail();
 }
 
-function openDetail(p){
-  const S = p.summary || {};
-  const sec = (label, txt) => txt ? `<div class="sec"><h3>${label}</h3><p>${esc(txt)}</p></div>` : "";
-  $("#dlgbody").innerHTML = `
-    <h2>${esc(p.title)}</h2>
-    <p class="meta">${esc((p.authors||[]).join(", "))}${p.published_date?" · "+esc(p.published_date):""}${p.source?" · "+esc(p.source):""}
-      ${p.doi ? ` · <a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noreferrer">doi:${esc(p.doi)}</a>` : ""}</p>
-    ${(p.score ?? null) !== null ? `<p><span class="score ${band(p.score)}">${Number(p.score).toFixed(1)} / 10</span>
-      <span class="muted"> industrial relevance</span></p>
-      ${p.score_rationale ? `<div class="rationale">${esc(p.score_rationale)}</div>` : ""}` : ""}
-    <ul class="tags">${(p.categories||[]).map(c => `<li>${esc(c)}</li>`).join("")}</ul>
-    ${sec("Research problem", S.research_problem)}
-    ${sec("Methodology", S.methodology)}
-    ${sec("Key findings", S.key_findings)}
-    ${sec("Industrial implications", S.industrial_implications)}
-    ${p.abstract ? `<details><summary>Original abstract</summary><p>${esc(p.abstract)}</p></details>` : ""}
-    <div class="share">
+function railCard(title, rows){
+  return `<div class="groupby"><div class="groupby-title">${title}</div>${rows}</div>`;
+}
+function railRow(label, count, on, attr){
+  return `<button type="button" class="groupby-row${on?' on':''}" ${attr}><span class="label">${esc(label)}</span><span class="count">${count}</span></button>`;
+}
+function renderRail(){
+  const shown = state.allCats ? state.cats : state.cats.slice(0,CAT_LIMIT);
+  let topics = railRow("All topics", state.papers.length, !state.cat, 'data-cat=""');
+  topics += shown.map(c=>railRow(c.name, c.count, state.cat===c.slug, `data-cat="${c.slug}"`)).join("");
+  if(state.cats.length>CAT_LIMIT)
+    topics += `<button type="button" class="groupby-more" data-more="1">${state.allCats?"Show fewer":"Show all "+state.cats.length}</button>`;
+
+  let rel = railRow("Any score", state.papers.length, state.ms===0, 'data-ms="0"');
+  rel += STEPS.map(s=>railRow(s.l, state.papers.filter(p=>(p.score||0)>=s.v).length, state.ms===s.v, `data-ms="${s.v}"`)).join("");
+
+  let html = railCard("By topic", topics) + railCard("By industrial relevance", rel);
+  if(state.srcs.length>1){
+    let src = railRow("All sources", state.papers.length, !state.src, 'data-src=""');
+    src += state.srcs.map(s=>railRow(s, state.papers.filter(p=>p.source===s).length, state.src===s, `data-src="${esc(s)}"`)).join("");
+    html += railCard("By source", src);
+  }
+  if(state.generatedAt) html += `<p class="summary-note" style="padding:0 8px;margin-top:4px">Updated ${state.generatedAt.slice(0,10)}.</p>`;
+  const rail=$("#rail"); rail.innerHTML=html;
+  rail.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{state.cat=state.cat===b.dataset.cat?"":b.dataset.cat;render()});
+  rail.querySelectorAll("[data-ms]").forEach(b=>b.onclick=()=>{const v=+b.dataset.ms;state.ms=state.ms===v?0:v;render()});
+  rail.querySelectorAll("[data-src]").forEach(b=>b.onclick=()=>{state.src=state.src===b.dataset.src?"":b.dataset.src;render()});
+  const more=rail.querySelector("[data-more]"); if(more)more.onclick=()=>{state.allCats=!state.allCats;renderRail()};
+}
+
+function related(p){
+  const mine=new Set(p.category_slugs||[]);
+  return state.papers.filter(x=>String(x.id)!==String(p.id))
+    .map(x=>({x,n:(x.category_slugs||[]).filter(s=>mine.has(s)).length}))
+    .filter(o=>o.n>0).sort((a,b)=>b.n-a.n || (b.x.score||0)-(a.x.score||0))
+    .slice(0,6).map(o=>o.x);
+}
+function openWork(p){
+  const S=p.summary||{}, cats=p.categories||[], slugs=p.category_slugs||[];
+  const sec=(l,t)=>t?`<div class="summary-item"><dt>${l}</dt><dd>${esc(t)}</dd></div>`:"";
+  const rel=related(p);
+  const url = location.origin + location.pathname + "#paper-" + p.id;
+  const post = (p.share_post||"").trim() || p.title;
+  const withLink = post + "\n\n" + url;
+  const shareHTML = operator ? `
+    <section class="share">
+      <span class="share-flag">Operator</span>
       <h3>Share this paper</h3>
-      <p class="muted" style="font-size:.85rem;margin:0 0 8px">
-        ${p.share_post ? "A draft post is ready. Edit it if you like, then post." :
-          "No draft was generated for this paper yet (run: python -m dipt.pipeline promote)."}</p>
-      <textarea id="sharetext" rows="5">${esc(p.share_post || p.title)}</textarea>
-      <div class="btns">
-        <a class="btn" id="sx" target="_blank" rel="noreferrer">Share on X</a>
-        <a class="btn" id="sl" target="_blank" rel="noreferrer">Share on LinkedIn</a>
-        <button class="btn ghost" id="sc" type="button">Copy post + link</button>
+      <p class="share-hint">${p.share_post?"A draft post is ready. Edit it if you like, then post. The link points to this page.":"No draft was generated. Write a line and share it — the link points to this page."}</p>
+      <textarea class="share-text" id="sharetext" rows="5">${esc(post)}</textarea>
+      <div class="share-actions">
+        <a class="btn" target="_blank" rel="noreferrer" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(post)}&url=${encodeURIComponent(url)}">Share on X</a>
+        <a class="btn" target="_blank" rel="noreferrer" href="https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(withLink)}">Share on LinkedIn</a>
+        <button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('sharetext').value+'\\n\\n'+${JSON.stringify(url)});this.textContent='Copied'">Copy post + link</button>
       </div>
+    </section>` : "";
+
+  $("#work").innerHTML = `
+    <div class="entity-meta-row">
+      <a href="#">← Papers</a>
+      ${cats[0]?`<span class="crumb-sep">/</span><a href="#">${esc(cats[0])}</a>`:""}
+      <span class="spacer"></span>
+      ${p.doi?`<a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noreferrer">doi:${esc(p.doi)}</a>`:""}
+    </div>
+    <h1 class="entity-title">${esc(p.title)}</h1>
+    <p class="entity-byline">${esc((p.authors||[]).slice(0,6).join(", "))}${(p.authors||[]).length>6?" +"+((p.authors||[]).length-6)+" more":""}${p.published_date?" · "+esc(p.published_date):""}${p.source?" · "+esc(p.source):""}</p>
+    ${cats.length?`<div class="entity-links">${cats.map(c=>`<span class="tag">${esc(c)}</span>`).join("")}</div>`:""}
+    <div class="entity-body">
+      <div>
+        <section class="entity-card">
+          <h2>Summary</h2>
+          <dl class="summary-grid">${sec("Research problem",S.research_problem)}${sec("Methodology",S.methodology)}${sec("Key findings",S.key_findings)}${sec("Industrial implications",S.industrial_implications)}</dl>
+          <p class="summary-note">Generated by a local language model from the paper text. Every listed paper passed an automated consistency check.</p>
+          ${p.abstract?`<details class="entity-abstract"><summary>Original abstract</summary><p>${esc(p.abstract)}</p></details>`:""}
+        </section>
+        ${rel.length?`<section class="entity-related"><h2>Related papers</h2><div class="serp-results">${rel.map(x=>rowHTML(x,true)).join("")}</div>${cats[0]?`<p class="entity-related-more"><a href="#">More in ${esc(cats[0])} →</a></p>`:""}</section>`:""}
+        ${shareHTML}
+      </div>
+      <aside class="entity-side">
+        ${p.score!=null?`<div class="metrics"><h3>Industrial relevance</h3><div class="metrics-score">${Number(p.score).toFixed(1)}<span class="cap">/ 10</span></div><p class="metrics-word">${word(p.score)}</p>${p.score_rationale?`<p class="metrics-why">${esc(p.score_rationale)}</p>`:""}</div>`:""}
+        ${cats.length?`<div class="metrics"><h3>Topics</h3><ul class="metrics-list">${cats.map(c=>`<li><a href="#">${esc(c)}</a></li>`).join("")}</ul></div>`:""}
+      </aside>
     </div>`;
-  const url = location.origin + "/papers/" + p.id;
-  const ta = $("#sharetext");
-  const refresh = () => {
-    const body = ta.value.trim();
-    $("#sx").href = "https://twitter.com/intent/tweet?text=" +
-      encodeURIComponent(body) + "&url=" + encodeURIComponent(url);
-    $("#sl").href = "https://www.linkedin.com/feed/?shareActive=true&text=" +
-      encodeURIComponent(body + "\n\n" + url);
-  };
-  ta.oninput = refresh; refresh();
-  $("#sc").onclick = async () => {
-    try { await navigator.clipboard.writeText(ta.value.trim() + "\n\n" + url);
-      $("#sc").textContent = "Copied"; setTimeout(() => $("#sc").textContent = "Copy post + link", 1800); }
-    catch { $("#sc").textContent = "Copy failed"; }
-  };
+  $("#work").querySelectorAll(".entity-related .result-row").forEach(c=>c.onclick=()=>openWork(byId(c.dataset.id)));
   $("#dlg").showModal();
 }
 
 Promise.all([
-  fetch("data/papers.json").then(r => r.json()),
-  fetch("data/categories.json").then(r => r.json())
-]).then(([data, cats]) => {
-  state.papers = data.papers || [];
-  $("#sub").textContent =
-    `${data.count} papers, each read, categorised, summarised and scored by a local pipeline.` +
-    (data.generated_at ? `  Updated ${data.generated_at.slice(0,10)}.` : "");
-  const sel = $("#cat");
-  for (const c of cats) sel.insertAdjacentHTML("beforeend",
-    `<option value="${c.slug}">${esc(c.name)} (${c.count})</option>`);
+  fetch("data/papers.json").then(r=>r.json()),
+  fetch("data/categories.json").then(r=>r.json())
+]).then(([data,cats])=>{
+  state.papers=data.papers||[]; state.cats=cats||[]; state.generatedAt=data.generated_at||"";
+  state.srcs=[...new Set(state.papers.map(p=>p.source).filter(Boolean))].sort();
   render();
-}).catch(e => {
-  $("#sub").textContent = "Could not load data/papers.json — run  python -m dipt.site_export  first. (" + e + ")";
-});
+}).catch(e=>{ $("#list").innerHTML='<p class="serp-empty">Could not load data/papers.json — run  python -m dipt.site_export  first. ('+e+')</p>'; });
 
-$("#q").oninput = e => { state.q = e.target.value; render(); };
-$("#cat").onchange = e => { state.cat = e.target.value; render(); };
-$("#ms").oninput = e => { state.ms = +e.target.value; $("#msv").textContent = e.target.value; render(); };
+$("#sort").onchange=e=>{state.sort=e.target.value;render()};
+$("#op-toggle").textContent = "Operator mode: " + (operator?"on":"off");
+$("#op-toggle").onclick=()=>{ operator=!operator; try{localStorage.setItem('dipt-operator',operator?'1':'0')}catch{} $("#op-toggle").textContent="Operator mode: "+(operator?"on":"off"); };
 </script>

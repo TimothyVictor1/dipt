@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Layout from '@/components/Layout';
+import PaperCard from '@/components/PaperCard';
 import ShareBox from '@/components/ShareBox';
-import { getAllPapers, getPaperById } from '@/lib/papers';
+import { getAllPapers, getPaperById, getRelatedPapers } from '@/lib/papers';
 
 export async function getStaticPaths() {
   return {
@@ -13,7 +14,9 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const paper = getPaperById(params.id);
   if (!paper) return { notFound: true };
-  return { props: { paper } };
+  return {
+    props: { paper, related: getRelatedPapers(params.id, 6) },
+  };
 }
 
 const SECTIONS = [
@@ -23,80 +26,148 @@ const SECTIONS = [
   ['industrial_implications', 'Industrial implications'],
 ];
 
-export default function PaperPage({ paper }) {
+function relevanceWord(score) {
+  if (score === null || score === undefined) return null;
+  if (score >= 8) return 'High relevance';
+  if (score >= 5) return 'Moderate relevance';
+  return 'Limited relevance';
+}
+
+export default function PaperPage({ paper, related }) {
+  const authors = paper.authors ?? [];
+  const cats = paper.categories ?? [];
+  const slugs = paper.category_slugs ?? [];
+  const topCat = cats[0];
+  const topSlug = slugs[0];
+  const hasSections = SECTIONS.some(([k]) => paper.summary?.[k]);
+  const hasScore = paper.score !== null && paper.score !== undefined;
+
   return (
     <Layout title={paper.title} description={paper.summary?.research_problem}>
-      <article className="detail">
-        <p className="back">
-          <Link href="/">&larr; All papers</Link>
-        </p>
-        <h1>{paper.title}</h1>
-        <p className="meta">
-          {(paper.authors ?? []).join(', ')}
-          {paper.published_date ? ` · ${paper.published_date}` : ''}
-          {paper.source ? ` · ${paper.source}` : ''}
-          {paper.doi ? (
+      <article className="entity">
+        <div className="entity-meta-row">
+          <Link href="/">← Papers</Link>
+          {topCat ? (
             <>
-              {' · '}
-              <a
-                href={`https://doi.org/${paper.doi}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                doi:{paper.doi}
-              </a>
+              <span className="crumb-sep">/</span>
+              <Link href={`/categories/${topSlug}/`}>{topCat}</Link>
             </>
           ) : null}
+          <span className="spacer" />
+          {paper.doi ? (
+            <a
+              href={`https://doi.org/${paper.doi}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              doi:{paper.doi}
+            </a>
+          ) : null}
+        </div>
+
+        <h1 className="entity-title">{paper.title}</h1>
+        <p className="entity-byline">
+          {authors.slice(0, 6).join(', ')}
+          {authors.length > 6 ? ` +${authors.length - 6} more` : ''}
+          {paper.published_date ? ` · ${paper.published_date}` : ''}
+          {paper.source ? ` · ${paper.source}` : ''}
         </p>
 
-        {paper.score !== null && paper.score !== undefined ? (
-          <div className="score-block">
-            <span
-              className={`score score-${
-                paper.score >= 8 ? 'high' : paper.score >= 5 ? 'mid' : 'low'
-              }`}
-            >
-              {Number(paper.score).toFixed(1)} / 10
-            </span>
-            <span className="muted"> industrial relevance</span>
-            {paper.score_rationale ? (
-              <p className="rationale">{paper.score_rationale}</p>
-            ) : null}
+        {cats.length ? (
+          <div className="entity-links">
+            {cats.map((name, i) => (
+              <Link key={i} href={`/categories/${slugs[i]}/`} className="tag">
+                {name}
+              </Link>
+            ))}
           </div>
         ) : null}
 
-        <ul className="tags">
-          {(paper.categories ?? []).map((name, i) => (
-            <li key={i}>
-              <Link href={`/categories/${paper.category_slugs[i]}/`}>
-                {name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="entity-body">
+          <div>
+            <section className="entity-card">
+              <h2>Summary</h2>
+              {hasSections ? (
+                <dl className="summary-grid">
+                  {SECTIONS.map(([key, label]) =>
+                    paper.summary?.[key] ? (
+                      <div key={key} className="summary-item">
+                        <dt>{label}</dt>
+                        <dd>{paper.summary[key]}</dd>
+                      </div>
+                    ) : null
+                  )}
+                </dl>
+              ) : paper.summary_text ? (
+                <pre className="summary-raw">{paper.summary_text}</pre>
+              ) : (
+                <p className="summary-note">
+                  No summary is available for this paper.
+                </p>
+              )}
+              <p className="summary-note">
+                Generated by a local language model from the paper text. Every
+                listed paper passed an automated consistency check.
+              </p>
 
-        <section className="summary">
-          {SECTIONS.map(([key, label]) =>
-            paper.summary?.[key] ? (
-              <div key={key}>
-                <h2>{label}</h2>
-                <p>{paper.summary[key]}</p>
+              {paper.abstract ? (
+                <details className="entity-abstract">
+                  <summary>Original abstract</summary>
+                  <p>{paper.abstract}</p>
+                </details>
+              ) : null}
+            </section>
+
+            {related.length ? (
+              <section className="entity-related">
+                <h2>Related papers</h2>
+                <div className="serp-results">
+                  {related.map((p) => (
+                    <PaperCard key={p.id} paper={p} compact />
+                  ))}
+                </div>
+                {topSlug ? (
+                  <p className="entity-related-more">
+                    <Link href={`/categories/${topSlug}/`}>
+                      More in {topCat} →
+                    </Link>
+                  </p>
+                ) : null}
+              </section>
+            ) : null}
+
+            <ShareBox post={paper.share_post} title={paper.title} />
+          </div>
+
+          <aside className="entity-side">
+            {hasScore ? (
+              <div className="metrics">
+                <h3>Industrial relevance</h3>
+                <div className="metrics-score">
+                  {Number(paper.score).toFixed(1)}
+                  <span className="cap">/ 10</span>
+                </div>
+                <p className="metrics-word">{relevanceWord(paper.score)}</p>
+                {paper.score_rationale ? (
+                  <p className="metrics-why">{paper.score_rationale}</p>
+                ) : null}
               </div>
-            ) : null
-          )}
-          {!SECTIONS.some(([k]) => paper.summary?.[k]) && paper.summary_text ? (
-            <pre className="summary-raw">{paper.summary_text}</pre>
-          ) : null}
-        </section>
+            ) : null}
 
-        {paper.abstract ? (
-          <details className="abstract">
-            <summary>Original abstract</summary>
-            <p>{paper.abstract}</p>
-          </details>
-        ) : null}
-
-        <ShareBox post={paper.share_post} title={paper.title} />
+            {cats.length ? (
+              <div className="metrics">
+                <h3>Topics</h3>
+                <ul className="metrics-list">
+                  {cats.map((name, i) => (
+                    <li key={i}>
+                      <Link href={`/categories/${slugs[i]}/`}>{name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </aside>
+        </div>
       </article>
     </Layout>
   );

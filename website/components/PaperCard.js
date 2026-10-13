@@ -1,49 +1,51 @@
 import Link from 'next/link';
 
 /**
- * Score pill: green for 8+, amber for 5-7, grey below.
+ * Industrial-relevance score badge. Soft semantic colour: green 8+, amber 5-7,
+ * neutral below. `withLabel` appends " / 10" for the detail-page metric.
  */
-function ScoreBadge({ score }) {
+export function ScoreChip({ score, withLabel = false }) {
   if (score === null || score === undefined) return null;
   const band = score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low';
   return (
-    <span className={`score score-${band}`} title="Industrial relevance score">
+    <span className={`score score-${band}`} title="Industrial-relevance score">
       {Number(score).toFixed(1)}
+      {withLabel ? <span className="score-cap">&nbsp;/ 10</span> : null}
     </span>
   );
 }
 
 /**
- * One paper in a list: title, meta line, categories, and the research-problem
- * sentence from the summary as a teaser.
+ * One result row in the SERP list: title, meta line, topic tags, score aside.
+ * `compact` is used by the related-papers rail — same shape, tighter tag cap.
  */
-export default function PaperCard({ paper }) {
+export default function PaperCard({ paper, compact = false }) {
+  const authors = paper.authors ?? [];
+  const cats = paper.categories ?? [];
+  const tagCap = compact ? 2 : 3;
+
   return (
-    <article className="card">
-      <div className="card-head">
-        <h2>
-          <Link href={`/papers/${paper.id}/`}>{paper.title}</Link>
-        </h2>
-        <ScoreBadge score={paper.score} />
+    <article className="result-row">
+      <div className="result-main">
+        <Link href={`/papers/${paper.id}/`} className="result-title">
+          {paper.title}
+        </Link>
+        <div className="result-meta">
+          {authors.slice(0, 3).join(', ')}
+          {authors.length > 3 ? ' et al.' : ''}
+          {paper.published_date ? ` · ${paper.published_date}` : ''}
+          {paper.source ? ` · ${paper.source}` : ''}
+        </div>
+        {cats.length ? (
+          <div className="result-tags">
+            {cats.slice(0, tagCap).join(', ')}
+            {cats.length > tagCap ? ` +${cats.length - tagCap}` : ''}
+          </div>
+        ) : null}
       </div>
-      <p className="meta">
-        {(paper.authors ?? []).slice(0, 4).join(', ')}
-        {(paper.authors ?? []).length > 4 ? ' et al.' : ''}
-        {paper.published_date ? ` · ${paper.published_date}` : ''}
-        {paper.source ? ` · ${paper.source}` : ''}
-      </p>
-      {paper.summary?.research_problem ? (
-        <p className="teaser">{paper.summary.research_problem}</p>
-      ) : (
-        <p className="teaser">{paper.abstract?.slice(0, 240)}</p>
-      )}
-      <ul className="tags">
-        {(paper.categories ?? []).map((name, i) => (
-          <li key={i}>
-            <Link href={`/categories/${paper.category_slugs[i]}/`}>{name}</Link>
-          </li>
-        ))}
-      </ul>
+      <div className="result-aside">
+        <ScoreChip score={paper.score} />
+      </div>
     </article>
   );
 }
