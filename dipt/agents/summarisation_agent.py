@@ -19,6 +19,7 @@ from typing import Final
 
 from dipt.agents.llm_client import OllamaClient
 from dipt.database.repository import PaperRepository
+from dipt.text_excerpt import head_tail_excerpt
 from dipt.exceptions import LLMError, RepositoryError
 from dipt.models.schemas import PaperStatus, PaperSummary
 
@@ -26,11 +27,16 @@ logger = logging.getLogger(__name__)
 
 # Local 30B-70B models on constrained hardware degrade into repetition loops
 # when handed a very long prompt, so the excerpt is deliberately modest.
-_MAX_TEXT_CHARS: Final[int] = 9000
+# Characters of paper text sent to the model. Taken from both ends (see
+# dipt.text_excerpt) so the results and conclusions are always included.
+_MAX_TEXT_CHARS: Final[int] = 24000
 _REQUEST_DELAY_SECONDS: Final[float] = 2.0
 # Four sections of two to three sentences need roughly 350 to 500 tokens; the
 # cap is headroom plus a guard against a model that never stops.
 _MAX_OUTPUT_TOKENS: Final[int] = 800
+# 24,000 characters is roughly 6,000 tokens; this leaves room for the prompt
+# scaffold and the answer without the excerpt being truncated from the front.
+_NUM_CTX: Final[int] = 16384
 
 _SECTION_NAMES: Final[tuple[str, ...]] = (
     "research_problem",
@@ -172,6 +178,7 @@ class SummarisationAgent:
                 self._model,
                 prompt,
                 max_tokens=_MAX_OUTPUT_TOKENS,
+                num_ctx=_NUM_CTX,
                 json_mode=True,
             )
         except LLMError:
@@ -204,9 +211,8 @@ class SummarisationAgent:
             if path.exists():
                 try:
                     full_text = path.read_text(encoding="utf-8")
-                    return content + (
-                        f"Full text (excerpt):\n{full_text[:_MAX_TEXT_CHARS]}"
-                    )
+                    excerpt = head_tail_excerpt(full_text, _MAX_TEXT_CHARS)
+                    return content + f"Full text (excerpt):\n{excerpt}"
                 except OSError:
                     logger.warning("Could not read text file %s", text_path)
 

@@ -64,6 +64,7 @@ class OllamaClient:
         max_tokens: int | None = None,
         json_mode: bool = False,
         think: bool | None = False,
+        num_ctx: int | None = None,
     ) -> str:
         """Run a single-turn chat completion with retries.
 
@@ -79,6 +80,11 @@ class OllamaClient:
             json_mode: When ``True``, ask Ollama to constrain the output to
                 valid JSON (``format="json"``). The prompt must still describe
                 the JSON shape expected.
+            num_ctx: Context window for this call. Ollama's server-wide
+                default is small, and a prompt that overruns it is silently
+                truncated from the front - which drops the end of the paper,
+                exactly the part a summary needs. Agents that send long
+                excerpts set this explicitly rather than trusting the default.
             think: Controls hybrid-reasoning models (Qwen3.x, gpt-oss, ...).
                 Those models default to reasoning, and Ollama then returns the
                 whole answer in a separate ``thinking`` field leaving
@@ -97,6 +103,8 @@ class OllamaClient:
         options: dict[str, float | int] = {"temperature": temperature}
         if max_tokens is not None:
             options["num_predict"] = max_tokens
+        if num_ctx is not None:
+            options["num_ctx"] = num_ctx
         fmt = "json" if json_mode else ""
         extra: dict[str, bool] = {} if think is None else {"think": think}
 

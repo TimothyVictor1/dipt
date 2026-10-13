@@ -17,12 +17,16 @@ from typing import Final
 
 from dipt.agents.llm_client import OllamaClient
 from dipt.database.repository import PaperRepository
+from dipt.text_excerpt import head_tail_excerpt
 from dipt.exceptions import LLMError, RepositoryError
 from dipt.models.schemas import Category, CategoryAssignment, PaperStatus
 
 logger = logging.getLogger(__name__)
 
-_MAX_TEXT_CHARS: Final[int] = 3000
+# Classification needs the framing and the contribution, not the whole paper.
+_MAX_TEXT_CHARS: Final[int] = 12000
+# The excerpt plus the 47-category list needs more than the server default.
+_NUM_CTX: Final[int] = 8192
 _MAX_CATEGORIES: Final[int] = 3
 _MIN_CONFIDENCE: Final[float] = 0.5
 _REQUEST_DELAY_SECONDS: Final[float] = 2.0
@@ -182,12 +186,13 @@ class CategorisationAgent:
         content = f"Title: {title}\n\n"
 
         text_path = paper.get("full_text_path")
-        if paper["status"] == PaperStatus.PARSED.value and text_path:
+        if text_path:
             path = Path(text_path)
             if path.exists():
                 try:
                     full_text = path.read_text(encoding="utf-8")
-                    return content + f"Full text (excerpt):\n{full_text[:_MAX_TEXT_CHARS]}"
+                    excerpt = head_tail_excerpt(full_text, _MAX_TEXT_CHARS)
+                    return content + f"Full text (excerpt):\n{excerpt}"
                 except OSError:
                     logger.warning("Could not read text file %s", text_path)
 
@@ -220,7 +225,9 @@ class CategorisationAgent:
         )
 
         try:
-            response = self._client.chat(self._model, prompt)
+            response = self._client.chat(
+                self._model, prompt, num_ctx=_NUM_CTX
+            )
         except LLMError:
             logger.exception("LLM categorisation call failed")
             return []
