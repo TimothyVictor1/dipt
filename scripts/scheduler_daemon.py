@@ -85,7 +85,7 @@ def main() -> int:
                 if _interruptible_sleep(_BUSY_RETRY_SECONDS):
                     break
                 continue
-            except Exception as exc:  # noqa: BLE001 - keep the daemon alive
+            except Exception as exc:
                 _log(f"could not start cycle: {exc!r}; retrying in 5 min")
                 if _interruptible_sleep(_BUSY_RETRY_SECONDS):
                     break

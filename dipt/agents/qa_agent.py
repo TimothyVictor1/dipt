@@ -35,6 +35,9 @@ logger = logging.getLogger(__name__)
 _REQUEST_DELAY_SECONDS: Final[float] = 2.0
 _MAX_OUTPUT_TOKENS: Final[int] = 600
 _VALID_TARGETS: Final[frozenset[str]] = frozenset({"summary", "score", "none"})
+#: The outcomes :meth:`QAAgent.check_paper` may return, which are also the
+#: counter names on :class:`QASummary`.
+_OUTCOMES: Final[frozenset[str]] = frozenset({"passed", "auto_fixed", "flagged"})
 
 
 def _as_bool(value: object) -> bool:
@@ -101,6 +104,20 @@ class QASummary:
     flagged: int = 0
     total: int = 0
 
+    def record(self, outcome: str) -> None:
+        """Increment the counter named by ``outcome``.
+
+        Args:
+            outcome: One of ``"passed"``, ``"auto_fixed"``, ``"flagged"``.
+
+        Raises:
+            ValueError: If ``outcome`` is not one of those three. Failing loudly
+                beats silently miscounting a run.
+        """
+        if outcome not in _OUTCOMES:
+            raise ValueError(f"Unknown QA outcome: {outcome!r}")
+        setattr(self, outcome, getattr(self, outcome) + 1)
+
 
 class QAAgent:
     """Consistency-checks scored papers, auto-fixing before escalating.
@@ -148,9 +165,9 @@ class QAAgent:
                 "[%d/%d] QA-checking paper %d", index, summary.total, paper_id
             )
 
-            outcome = self.check_paper(paper)
-            setattr(summary, outcome, getattr(summary, outcome) + 1)
-            time.sleep(_REQUEST_DELAY_SECONDS)
+            summary.record(self.check_paper(paper))
+            if index < summary.total:
+                time.sleep(_REQUEST_DELAY_SECONDS)
 
         logger.info(
             "QA complete: passed=%d, auto_fixed=%d, flagged=%d",

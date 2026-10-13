@@ -16,6 +16,7 @@ import pytest
 
 from dipt.database.repository import PaperRepository
 from dipt.exceptions import RepositoryError
+from dipt.models.schemas import PaperStatus
 
 
 class _FakePool:
@@ -234,3 +235,28 @@ def test_finish_fetch_run_passes_all_fields() -> None:
     assert params[1] == 5
     assert params[2] == "success"
     assert params[3] == 42
+
+
+# ── parser contract ──────────────────────────────────────────────────────
+def test_fetch_papers_by_status_selects_pdf_url() -> None:
+    """The parser's source query must return ``pdf_url``.
+
+    Regression test: the SELECT omitted the column, so every row reached
+    ``ParserAgent`` without a PDF URL and was marked ``no_pdf`` without a
+    download ever being attempted. Assert both the projected column and the
+    key that actually lands in the returned dict.
+    """
+    cursor = MagicMock()
+    cursor.description = [
+        ("id",), ("title",), ("abstract",), ("status",),
+        ("full_text_path",), ("source",), ("pdf_url",),
+    ]
+    cursor.fetchall.return_value = [
+        (1, "T", "A", "fetched", None, "arxiv", "http://example.test/p.pdf")
+    ]
+
+    rows = _repo(cursor).fetch_papers_by_status([PaperStatus.FETCHED])
+
+    issued_sql = cursor.execute.call_args.args[0]
+    assert "pdf_url" in issued_sql
+    assert rows[0]["pdf_url"] == "http://example.test/p.pdf"

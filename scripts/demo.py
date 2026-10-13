@@ -60,7 +60,7 @@ def check() -> int:
         if approved < 1:
             print("  -> no approved papers; run the pipeline first")
             ok = False
-    except Exception as exc:  # noqa: BLE001 - surface any failure plainly
+    except Exception as exc:
         print(f"  NOT REACHABLE: {exc}")
         print("  -> is PostgreSQL running? is the password in .env correct?")
         ok = False
@@ -68,7 +68,7 @@ def check() -> int:
     print("\n=== Ollama ===")
     try:
         url = f"{settings.ollama_base_url}/api/tags"
-        with urllib.request.urlopen(url, timeout=5) as resp:
+        with urllib.request.urlopen(url, timeout=5) as resp:  # noqa: S310
             have = sorted(m["name"] for m in json.load(resp)["models"])
         print("  UP. Models installed:")
         for name in have:
@@ -81,7 +81,7 @@ def check() -> int:
             ok = False
         else:
             print("  all required models present")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"  DOWN or unreachable: {exc}")
         print("  -> launch the Ollama app, or see step 0.3 in the runbook")
         ok = False
@@ -104,7 +104,7 @@ def _user_env_ollama() -> dict[str, str]:
     if sys.platform != "win32":
         return {}
     try:
-        import winreg  # noqa: PLC0415 - platform-specific
+        import winreg
 
         out: dict[str, str] = {}
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Iterator
 
 from dipt.models.schemas import PaperRecord
@@ -42,8 +42,15 @@ class PaperSourceFetcher(ABC):
 
     @property
     def from_date(self) -> str:
-        """Return the lower-bound publication date as an ISO string."""
-        cutoff = datetime.now() - timedelta(days=self._days_back)
+        """Return the lower-bound publication date as an ISO string.
+
+        Anchored to UTC because both upstream APIs filter on UTC dates; using
+        local time would shift the window by a day for runs near midnight.
+
+        Returns:
+            The cutoff date as ``YYYY-MM-DD``.
+        """
+        cutoff = datetime.now(timezone.utc) - timedelta(days=self._days_back)
         return cutoff.strftime("%Y-%m-%d")
 
     @abstractmethod

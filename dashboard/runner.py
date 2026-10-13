@@ -23,8 +23,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-_PROJECT_ROOT = Path(__file__).resolve().parents[1]
-_RUNS_DIR = _PROJECT_ROOT / "runs"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+RUNS_DIR = PROJECT_ROOT / "runs"
 _SENTINEL = "__DIPT_RUN_DONE__ exit="
 _STALL_SECONDS = 30 * 60  # no log growth for this long => assume the run died
 
@@ -72,11 +72,61 @@ class Run:
     log_path: Path
 
 
-def _ensure_dir() -> None:
-    _RUNS_DIR.mkdir(parents=True, exist_ok=True)
+def ensure_runs_dir() -> None:
+    """Create the ``runs/`` state directory if it does not exist."""
+    RUNS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _pid_alive(pid: int) -> bool:
+def detach_kwargs() -> dict:
+    """Return the :class:`subprocess.Popen` kwargs that detach a child.
+
+    The child must lead its own process group so :func:`kill_process_tree`
+    can stop the whole tree without touching the dashboard itself. On Windows
+    that also suppresses a console window popping up.
+
+    Returns:
+        Platform-appropriate keyword arguments for ``Popen``.
+    """
+    if sys.platform == "win32":
+        return {
+            "creationflags": (
+                subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
+                | subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
+            )
+        }
+    return {"start_new_session": True}
+
+
+def kill_process_tree(pid: int) -> bool:
+    """Terminate ``pid`` and its children, on Windows or POSIX.
+
+    A pipeline run spawns Ollama requests and child interpreters, so killing
+    the whole tree (not just the leader) is what actually stops the work.
+
+    Args:
+        pid: Process id of the tree's leader.
+
+    Returns:
+        ``True`` if the kill command ran and reported success.
+    """
+    if sys.platform == "win32":
+        cmd = ["taskkill", "/F", "/T", "/PID", str(pid)]
+    else:
+        # Negative pid targets the process group the child was started in.
+        cmd = ["kill", "-TERM", f"-{pid}"]
+    try:
+        result = subprocess.run(  # noqa: S603 - fixed OS kill command
+            cmd,
+            capture_output=True,
+            timeout=15,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0
+
+
+def pid_alive(pid: int) -> bool:
     """Return whether ``pid`` is a live process."""
     if sys.platform != "win32":
         try:
@@ -89,8 +139,8 @@ def _pid_alive(pid: int) -> bool:
             return False
         return True
     try:
-        out = subprocess.run(
-            ["tasklist", "/FI", f"PID eq {pid}", "/NH", "/FO", "CSV"],
+        out = subprocess.run(  # noqa: S603 - fixed OS liveness probe
+            ["tasklist", "/FI", f"PID eq {pid}", "/NH", "/FO", "CSV"],  # noqa: S607
             capture_output=True,
             text=True,
             timeout=10,
@@ -101,11 +151,62 @@ def _pid_alive(pid: int) -> bool:
     return f'"{pid}"' in out.stdout
 
 
+#: Keys every run's metadata file must carry to be usable.
+_REQUIRED_META_KEYS = ("run_id", "stage", "pid", "started_at")
+
+
 def _parse_meta(path: Path) -> dict | None:
+    """Load a run's metadata file, rejecting anything incomplete.
+
+    Metadata is written after the child is spawned, so a file can be read
+    while half-written. Validating up front keeps a torn file from raising a
+    ``KeyError`` out of the run listing and blanking the dashboard.
+
+    Args:
+        path: Path to the ``<run_id>.json`` file.
+
+    Returns:
+        The metadata dict, or ``None`` if it is missing, unreadable, or
+        incomplete.
+    """
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        meta = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+    if not isinstance(meta, dict):
+        return None
+    if any(key not in meta for key in _REQUIRED_META_KEYS):
+        return None
+    try:
+        datetime.fromisoformat(meta["started_at"])
+    except (TypeError, ValueError):
+        return None
+    return meta
+
+
+def _exit_code_from_log(text: str) -> int | None:
+    """Return the exit code recorded by the run's sentinel line, if complete.
+
+    A run is only finished once :mod:`scripts.run_stage` has written
+    ``__DIPT_RUN_DONE__ exit=<code>``. The log can be read mid-write, so a
+    sentinel with nothing after it yet means "still running", not "failed".
+
+    Args:
+        text: Full log contents.
+
+    Returns:
+        The exit code, or ``None`` if no complete sentinel is present.
+    """
+    idx = text.rfind(_SENTINEL)
+    if idx == -1:
+        return None
+    fields = text[idx + len(_SENTINEL):].split()
+    if not fields:
+        return None  # sentinel written, code not flushed yet
+    try:
+        return int(fields[0])
+    except ValueError:
+        return 1
 
 
 def _status_of(meta: dict, log_path: Path) -> tuple[str, int | None, float]:
@@ -113,20 +214,13 @@ def _status_of(meta: dict, log_path: Path) -> tuple[str, int | None, float]:
     started = datetime.fromisoformat(meta["started_at"])
     now = datetime.now(timezone.utc)
 
-    exit_code: int | None = None
-    tail = ""
     try:
         tail = log_path.read_text(encoding="utf-8", errors="replace")
     except OSError:
         tail = ""
 
-    idx = tail.rfind(_SENTINEL)
-    if idx != -1:
-        rest = tail[idx + len(_SENTINEL):].split()[0] if tail[idx:].split() else "1"
-        try:
-            exit_code = int(rest)
-        except ValueError:
-            exit_code = 1
+    exit_code = _exit_code_from_log(tail)
+    if exit_code is not None:
         end = _mtime(log_path) or now
         return (
             "finished" if exit_code == 0 else "failed",
@@ -134,7 +228,7 @@ def _status_of(meta: dict, log_path: Path) -> tuple[str, int | None, float]:
             (end - started).total_seconds(),
         )
 
-    if _pid_alive(meta["pid"]):
+    if pid_alive(meta["pid"]):
         return "running", None, (now - started).total_seconds()
 
     # No sentinel and the process is gone: crashed, or log went silent.
@@ -168,17 +262,17 @@ def list_runs(limit: int = 25) -> list[Run]:
     Returns:
         A list of :class:`Run` objects.
     """
-    _ensure_dir()
+    ensure_runs_dir()
     runs: list[Run] = []
-    for meta_path in sorted(_RUNS_DIR.glob("*.json"), reverse=True):
+    for meta_path in sorted(RUNS_DIR.glob("*.json"), reverse=True):
         if meta_path.name.startswith("_") or meta_path.name == "schedule.json":
             continue  # daemon/schedule state, not a run
         meta = _parse_meta(meta_path)
-        if meta is None or "run_id" not in meta:
+        if meta is None:
             continue
         if len(runs) >= limit:
             break
-        log_path = _RUNS_DIR / f"{meta['run_id']}.log"
+        log_path = RUNS_DIR / f"{meta['run_id']}.log"
         status, code, dur = _status_of(meta, log_path)
         runs.append(
             Run(
@@ -217,30 +311,21 @@ def _spawn(stage_label: str, cmd: list[str], limit: int | None) -> Run:
             f"'{busy.stage}' (started {busy.started_at:%H:%M}) is still running"
         )
 
-    _ensure_dir()
+    ensure_runs_dir()
     run_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{stage_label}"
-    log_path = _RUNS_DIR / f"{run_id}.log"
-    meta_path = _RUNS_DIR / f"{run_id}.json"
-
-    creationflags = 0
-    if sys.platform == "win32":
-        # New process group so the whole tree can be killed on stop, and no
-        # console window pops up.
-        creationflags = (
-            subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
-            | subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
-        )
+    log_path = RUNS_DIR / f"{run_id}.log"
+    meta_path = RUNS_DIR / f"{run_id}.json"
 
     log_file = log_path.open("w", encoding="utf-8")
     try:
         proc = subprocess.Popen(  # noqa: S603 - fixed command, our own module
             cmd,
-            cwd=str(_PROJECT_ROOT),
+            cwd=str(PROJECT_ROOT),
             stdout=log_file,
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
-            creationflags=creationflags,
             close_fds=True,
+            **detach_kwargs(),
         )
     finally:
         log_file.close()
@@ -323,23 +408,16 @@ def stop_run(run_id: str) -> bool:
         ``True`` if a kill command was issued, ``False`` if the run was not
         found or already finished.
     """
-    meta = _parse_meta(_RUNS_DIR / f"{run_id}.json")
+    meta = _parse_meta(RUNS_DIR / f"{run_id}.json")
     if meta is None:
         return False
     pid = meta["pid"]
-    if not _pid_alive(pid):
+    if not pid_alive(pid):
+        return False
+    if not kill_process_tree(pid):
         return False
     try:
-        subprocess.run(
-            ["taskkill", "/F", "/T", "/PID", str(pid)],
-            capture_output=True,
-            timeout=15,
-            check=False,
-        )
-    except (OSError, subprocess.SubprocessError):
-        return False
-    try:
-        with (_RUNS_DIR / f"{run_id}.log").open("a", encoding="utf-8") as fh:
+        with (RUNS_DIR / f"{run_id}.log").open("a", encoding="utf-8") as fh:
             fh.write("\n[stopped from the dashboard]\n")
     except OSError:
         pass
@@ -356,7 +434,7 @@ def tail_log(run_id: str, lines: int = 80) -> str:
     Returns:
         The log tail, or a short placeholder if the log is missing/empty.
     """
-    path = _RUNS_DIR / f"{run_id}.log"
+    path = RUNS_DIR / f"{run_id}.log"
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
     except OSError:

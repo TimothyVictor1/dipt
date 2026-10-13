@@ -65,7 +65,7 @@ AGENT_PROMPTS: dict[str, tuple[str, str, tuple[str, ...]]] = {
 
 
 @st.cache_resource(show_spinner=False)
-def _pool(dsn: str) -> ConnectionPool:
+def _pool(dsn: str) -> ConnectionPool:  # noqa: ARG001 - dsn is the cache key
     """Return a process-wide connection pool keyed by DSN.
 
     Args:

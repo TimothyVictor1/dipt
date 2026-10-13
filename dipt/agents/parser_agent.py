@@ -27,6 +27,9 @@ logger = logging.getLogger(__name__)
 _MIN_TEXT_LENGTH: Final[int] = 500
 _DOWNLOAD_DELAY_SECONDS: Final[float] = 2.0
 _PDF_MAGIC: Final[bytes] = b"%PDF"
+#: The outcomes :meth:`ParserAgent._process_paper` may return, which are also
+#: the counter names on :class:`ParserSummary`.
+_OUTCOMES: Final[frozenset[str]] = frozenset({"parsed", "no_pdf", "no_text"})
 _USER_AGENT: Final[str] = (
     "DIPT-Research-Bot/1.0 (mailto:tira25@student.bth.se)"
 )
@@ -47,6 +50,20 @@ class ParserSummary:
     no_pdf: int = 0
     no_text: int = 0
     total: int = 0
+
+    def record(self, outcome: str) -> None:
+        """Increment the counter named by ``outcome``.
+
+        Args:
+            outcome: One of ``"parsed"``, ``"no_pdf"``, ``"no_text"``.
+
+        Raises:
+            ValueError: If ``outcome`` is not one of those three. Failing loudly
+                beats silently miscounting a run.
+        """
+        if outcome not in _OUTCOMES:
+            raise ValueError(f"Unknown parser outcome: {outcome!r}")
+        setattr(self, outcome, getattr(self, outcome) + 1)
 
 
 def _clean_text(text: str) -> str:
@@ -93,14 +110,13 @@ class ParserAgent:
 
         for index, paper in enumerate(papers, start=1):
             paper_id = paper["id"]
-            title = paper["title"]
             pdf_url = paper.get("pdf_url") or ""
 
             logger.info("[%d/%d] Parsing paper %d", index, summary.total, paper_id)
 
-            outcome = self._process_paper(paper_id, title, pdf_url)
-            setattr(summary, outcome, getattr(summary, outcome) + 1)
-            time.sleep(_DOWNLOAD_DELAY_SECONDS)
+            summary.record(self._process_paper(paper_id, pdf_url))
+            if index < summary.total:
+                time.sleep(_DOWNLOAD_DELAY_SECONDS)
 
         logger.info(
             "Parser complete: parsed=%d, no_pdf=%d, no_text=%d",
@@ -110,12 +126,11 @@ class ParserAgent:
         )
         return summary
 
-    def _process_paper(self, paper_id: int, title: str, pdf_url: str) -> str:
+    def _process_paper(self, paper_id: int, pdf_url: str) -> str:
         """Download and extract one paper, updating its status.
 
         Args:
             paper_id: Paper primary key.
-            title: Paper title (for logging).
             pdf_url: Direct PDF URL, possibly empty.
 
         Returns:

@@ -63,6 +63,7 @@ class OllamaClient:
         temperature: float = 0.1,
         max_tokens: int | None = None,
         json_mode: bool = False,
+        think: bool | None = False,
     ) -> str:
         """Run a single-turn chat completion with retries.
 
@@ -78,6 +79,13 @@ class OllamaClient:
             json_mode: When ``True``, ask Ollama to constrain the output to
                 valid JSON (``format="json"``). The prompt must still describe
                 the JSON shape expected.
+            think: Controls hybrid-reasoning models (Qwen3.x, gpt-oss, ...).
+                Those models default to reasoning, and Ollama then returns the
+                whole answer in a separate ``thinking`` field leaving
+                ``message.content`` **empty** — which every agent here reads as
+                a failure. Defaults to ``False`` so a reasoning model answers
+                directly. Pass ``True`` to opt a stage into visible reasoning,
+                or ``None`` to accept the model's own default.
 
         Returns:
             The assistant message content, stripped of surrounding whitespace.
@@ -90,6 +98,7 @@ class OllamaClient:
         if max_tokens is not None:
             options["num_predict"] = max_tokens
         fmt = "json" if json_mode else ""
+        extra: dict[str, bool] = {} if think is None else {"think": think}
 
         for attempt in range(1, self._max_retries + 1):
             try:
@@ -98,9 +107,25 @@ class OllamaClient:
                     messages=[{"role": "user", "content": prompt}],
                     options=options,
                     format=fmt,
+                    **extra,
                 )
-                content = response["message"]["content"]
-                return content.strip()
+                message = response["message"]
+                content = (message.get("content") or "").strip()
+                if not content:
+                    # Never fail silently: a reasoning model that ignored
+                    # `think=False` puts everything in `thinking`, and an empty
+                    # string would surface as an unexplained parse failure.
+                    reasoning = (message.get("thinking") or "").strip()
+                    if reasoning:
+                        logger.warning(
+                            "Model '%s' returned only reasoning and no answer "
+                            "(%d chars of thinking). It likely ignored "
+                            "think=False; use a non-reasoning model for this "
+                            "stage or raise max_tokens.",
+                            model,
+                            len(reasoning),
+                        )
+                return content
             except (ollama.ResponseError, KeyError, ConnectionError) as exc:
                 last_error = exc
                 if self._try_pull_missing(model, exc):

@@ -25,7 +25,7 @@ if __name__ == "__main__":
         code = main(sys.argv[1:])
     except SystemExit as exc:  # argparse errors, etc.
         code = int(exc.code) if isinstance(exc.code, int) else 2
-    except BaseException:  # noqa: BLE001 - always leave the sentinel behind
+    except BaseException:
         import traceback
 
         traceback.print_exc()

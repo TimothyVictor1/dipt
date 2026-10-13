@@ -115,7 +115,7 @@ def run_pipeline(limit: int | None = None) -> int:
         _finish(repo, run_id, papers_saved=0, status="failed")
         pipeline.close()
         return 1
-    except Exception:  # noqa: BLE001 - last-ditch: still record the failure
+    except Exception:
         logger.exception("Scheduled run crashed unexpectedly")
         _finish(repo, run_id, papers_saved=0, status="failed")
         pipeline.close()

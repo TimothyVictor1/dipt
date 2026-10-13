@@ -19,6 +19,23 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from dipt.exceptions import ConfigurationError
 
 
+def _quote_dsn_value(value: str) -> str:
+    """Quote and escape one value for a libpq keyword/value DSN.
+
+    libpq splits a DSN on unquoted whitespace and treats ``\\`` and ``'`` as
+    escape characters inside a quoted value, so any value that might contain
+    them has to be wrapped and escaped.
+
+    Args:
+        value: The raw setting value.
+
+    Returns:
+        The value wrapped in single quotes with ``\\`` and ``'`` escaped.
+    """
+    escaped = value.replace("\\", "\\\\").replace("'", "\\'")
+    return f"'{escaped}'"
+
+
 class Settings(BaseSettings):
     """Validated application settings.
 
@@ -115,11 +132,24 @@ class Settings(BaseSettings):
 
     @property
     def database_dsn(self) -> str:
-        """Return a libpq-style DSN string for psycopg2."""
-        return (
-            f"host={self.db_host} port={self.db_port} dbname={self.db_name} "
-            f"user={self.db_user} password={self.db_password}"
-        )
+        """Return a libpq-style DSN string for psycopg2.
+
+        Every value is quoted and escaped per the libpq keyword/value rules.
+        Without this, a password containing a space makes libpq reject the
+        whole DSN, and one containing a backslash is silently mis-read as a
+        different password — both of which surface as baffling auth failures.
+
+        Returns:
+            A DSN safe to hand to :func:`psycopg2.connect`.
+        """
+        parts = {
+            "host": self.db_host,
+            "port": str(self.db_port),
+            "dbname": self.db_name,
+            "user": self.db_user,
+            "password": self.db_password,
+        }
+        return " ".join(f"{key}={_quote_dsn_value(value)}" for key, value in parts.items())
 
     def ensure_directories(self) -> None:
         """Create the PDF and text output directories if they do not exist."""

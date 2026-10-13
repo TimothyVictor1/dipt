@@ -14,7 +14,7 @@ from typing import Final, Iterator
 
 import requests
 
-from dipt.exceptions import SourceParseError, SourceRequestError
+from dipt.exceptions import SourceParseError
 from dipt.models.schemas import PaperRecord, PaperSource
 from dipt.sources.base import PaperSourceFetcher
 

@@ -25,6 +25,8 @@ favour of Markdown tables and text bars.
 
 from __future__ import annotations
 
+import contextlib
+
 import streamlit as st
 
 from dipt import model_store, prompt_store
@@ -363,10 +365,8 @@ def view_pipeline_status() -> None:
 
     approved = counts.get("approved", 0)
     flagged = 0
-    try:
+    with contextlib.suppress(DIPTError):
         flagged = len(repo.list_open_qa_flags())
-    except DIPTError:
-        pass
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Papers total", sum(counts.values()))
@@ -775,9 +775,8 @@ def _settings_models() -> None:
     if upd_col.button(
         "Update model", disabled=not tag,
         help="Re-download this model to get its latest published version.",
-    ):
-        if _run_download(tag):
-            st.success(f"`{tag}` updated to the latest version.")
+    ) and _run_download(tag):
+        st.success(f"`{tag}` updated to the latest version.")
 
     if reset_col.button("Reset to .env default", disabled=override is None):
         if model_store.delete(stage):

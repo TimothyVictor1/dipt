@@ -30,6 +30,38 @@ _MAX_PAGES: Final[int] = 50  # Safety bound to prevent runaway pagination.
 _OAI_NS: Final[str] = "{http://www.openarchives.org/OAI/2.0/}"
 _ARXIV_NS: Final[str] = "{http://arxiv.org/OAI/arXiv/}"
 
+#: Bytes to scan for a DOCTYPE before parsing. A legitimate OAI-PMH response
+#: declares none, so anything in the prolog is enough to decide.
+_PROLOG_SCAN_BYTES: Final[int] = 4096
+
+
+def _parse_xml_safely(payload: bytes, source_name: str) -> ET.Element:
+    """Parse an XML payload, refusing documents that declare entities.
+
+    ``xml.etree`` expands internal entities, so a hostile response can mount a
+    "billion laughs" expansion attack and exhaust memory. A valid OAI-PMH
+    response never carries a DOCTYPE, so rejecting one outright closes that
+    hole without pulling in a third-party parser.
+
+    Args:
+        payload: Raw response body.
+        source_name: Source name, used in the raised error.
+
+    Returns:
+        The parsed document root.
+
+    Raises:
+        SourceParseError: If the document declares a DOCTYPE or is malformed.
+    """
+    if b"<!DOCTYPE" in payload[:_PROLOG_SCAN_BYTES].upper():
+        raise SourceParseError(
+            source_name, "response declares a DOCTYPE; refusing to parse"
+        )
+    try:
+        return ET.fromstring(payload)  # noqa: S314 - DOCTYPE rejected above
+    except ET.ParseError as exc:
+        raise SourceParseError(source_name, str(exc)) from exc
+
 
 class ArxivSource(PaperSourceFetcher):
     """Harvests recent arXiv cs.SE papers via OAI-PMH with pagination."""
@@ -62,10 +94,7 @@ class ArxivSource(PaperSourceFetcher):
                 logger.warning("arXiv HTTP %d on page %d", response.status_code, page)
                 return
 
-            try:
-                root = ET.fromstring(response.content)
-            except ET.ParseError as exc:
-                raise SourceParseError(self.source_name, str(exc)) from exc
+            root = _parse_xml_safely(response.content, self.source_name)
 
             error = root.find(f"{_OAI_NS}error")
             if error is not None:

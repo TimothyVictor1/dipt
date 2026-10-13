@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+import pytest
 import requests
+
+from dipt.exceptions import SourceParseError
 
 from dipt.models.schemas import PaperSource
 from dipt.sources.openalex import (
@@ -106,3 +109,38 @@ def test_fetch_journal_handles_non_200(mock_get: MagicMock) -> None:
 
     results = list(source._fetch_journal("Test Journal", "0000-0000"))
     assert results == []
+
+
+# ── XML hardening ────────────────────────────────────────────────────────
+def test_parse_xml_safely_refuses_entity_declarations() -> None:
+    """A DOCTYPE must be refused: xml.etree expands entities.
+
+    Regression test for a "billion laughs" expansion attack — a hostile or
+    tampered OAI-PMH response could otherwise exhaust memory during a fetch.
+    """
+    from dipt.sources.arxiv import _parse_xml_safely
+
+    bomb = (
+        b'<?xml version="1.0"?><!DOCTYPE lolz ['
+        b'<!ENTITY lol "lol">'
+        b'<!ENTITY lol2 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">'
+        b']><lolz>&lol2;</lolz>'
+    )
+    with pytest.raises(SourceParseError, match="DOCTYPE"):
+        _parse_xml_safely(bomb, "arxiv")
+
+
+def test_parse_xml_safely_accepts_a_normal_response() -> None:
+    """A legitimate OAI-PMH document still parses."""
+    from dipt.sources.arxiv import _parse_xml_safely
+
+    root = _parse_xml_safely(b"<OAI-PMH><x>hi</x></OAI-PMH>", "arxiv")
+    assert root.find("x").text == "hi"
+
+
+def test_parse_xml_safely_wraps_malformed_xml() -> None:
+    """Malformed XML surfaces as a SourceParseError, not a raw ParseError."""
+    from dipt.sources.arxiv import _parse_xml_safely
+
+    with pytest.raises(SourceParseError):
+        _parse_xml_safely(b"<not xml", "arxiv")

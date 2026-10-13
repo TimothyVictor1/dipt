@@ -3,19 +3,40 @@
 from __future__ import annotations
 
 import pytest
+from psycopg2.extensions import parse_dsn
 from pydantic import ValidationError
 
 from dipt.config import Settings
 
 
 def test_database_dsn_is_well_formed() -> None:
-    """The DSN should include every connection field."""
+    """libpq should parse the DSN back to exactly the configured fields."""
     settings = Settings(db_password="secret")  # type: ignore[call-arg]
-    dsn = settings.database_dsn
-    assert "dbname=dipt" in dsn
-    assert "user=dipt_user" in dsn
-    assert "password=secret" in dsn
-    assert "port=5432" in dsn
+    parsed = parse_dsn(settings.database_dsn)
+    assert parsed["dbname"] == "dipt"
+    assert parsed["user"] == "dipt_user"
+    assert parsed["password"] == "secret"
+    assert parsed["port"] == "5432"
+
+
+@pytest.mark.parametrize(
+    "password",
+    [
+        "simple",
+        "with space",          # unquoted, libpq rejects the whole DSN
+        "with'quote",
+        "with\\backslash",     # unescaped, libpq silently drops the backslash
+        "ev'il\\ mix",
+    ],
+)
+def test_database_dsn_round_trips_awkward_passwords(password: str) -> None:
+    """Passwords with spaces, quotes or backslashes must survive the DSN.
+
+    Regression test: an unquoted DSN made libpq reject a password containing a
+    space outright, and silently mis-read one containing a backslash.
+    """
+    settings = Settings(db_password=password)  # type: ignore[call-arg]
+    assert parse_dsn(settings.database_dsn)["password"] == password
 
 
 def test_pool_max_below_min_is_rejected() -> None:

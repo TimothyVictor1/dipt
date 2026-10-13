@@ -57,10 +57,24 @@ def _read() -> dict[str, str]:
 
 
 def _write(data: dict[str, str]) -> None:
+    """Replace the override file atomically.
+
+    A torn write would be unreadable JSON, and :func:`_read` treats that as
+    "no overrides" — silently reverting every stage to its ``.env`` default.
+    Writing to a temporary file and renaming makes the swap all-or-nothing.
+
+    Args:
+        data: The full override mapping to persist.
+
+    Raises:
+        OSError: If the file cannot be written or replaced.
+    """
     _STORE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    _STORE_FILE.write_text(
+    tmp = _STORE_FILE.with_suffix(".json.tmp")
+    tmp.write_text(
         json.dumps(dict(sorted(data.items())), indent=2), encoding="utf-8"
     )
+    tmp.replace(_STORE_FILE)
 
 
 def _check_stage(stage: str) -> None:

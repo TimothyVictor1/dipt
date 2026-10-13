@@ -249,7 +249,7 @@ def export_site_data(repo: PaperRepository, settings: Settings) -> int:
     return len(papers)
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:  # noqa: ARG001 - CLI symmetry
     """CLI entry point.
 
     Args:

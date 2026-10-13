@@ -1,0 +1,56 @@
+# Tooling configuration for DIPT.
+#
+# The project is run as a set of modules (`python -m dipt.pipeline`, etc.)
+# rather than installed as a package, so this file configures the linter and
+# test runner only — it does not declare a build.
+#
+# Lint the whole codebase with:
+#     python -m ruff check .
+# and apply the safe automatic fixes with:
+#     python -m ruff check --fix .
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+# Rules chosen to catch real defects rather than enforce taste: pyflakes (F),
+# pycodestyle (E/W), bugbear (B), security (S), comprehensions (C4),
+# simplification (SIM), return hygiene (RET), unused arguments (ARG),
+# naive datetimes (DTZ), shadowed builtins (A), and Ruff's own checks (RUF).
+select = ["E", "F", "W", "B", "S", "C4", "SIM", "RET", "ARG", "DTZ", "A", "RUF"]
+
+ignore = [
+    # Nested `with` blocks read better than a combined one for the
+    # pool-connection / cursor pairing used throughout the repository.
+    "SIM117",
+    # Long lines are already held to 88 by the formatter; flagging them again
+    # in docstrings and SQL adds noise without adding information.
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Command-line tools print to stdout by design, and report failures plainly
+# rather than letting a traceback reach the operator.
+"scripts/*" = ["T201", "BLE001"]
+# Tests assert, touch private members deliberately, use fixtures whose
+# arguments are intentionally unused, and carry obvious dummy credentials and
+# fixture dates.
+"tests/*" = [
+    "S101",                      # assert is the point of a test
+    "ARG001", "ARG002", "ARG005",  # fixtures and stub lambdas
+    "SLF001",                    # private members are under test
+    "S105", "S106",              # dummy passwords in fixtures
+    "S108",                      # literal /tmp paths in path-handling tests
+    "S318",                      # parsing our own generated RSS
+    "DTZ001",                    # fixed naive dates make assertions readable
+]
+# `_tidy` strips typographic quotes from model output, so the characters
+# themselves have to appear in the source.
+"dipt/share_store.py" = ["RUF001"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Treat unraisable warnings as errors so a swallowed bug in a background
+# thread cannot pass silently.
+filterwarnings = ["error::RuntimeWarning"]

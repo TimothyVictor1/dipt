@@ -110,13 +110,13 @@ def demo_escalate(
     class _FailingSummariser(SummarisationAgent):
         """A summariser whose regeneration attempts never succeed."""
 
-        def summarise_paper(self, paper: dict):  # noqa: D102 - see class doc
+        def summarise_paper(self, paper: dict):
             logger.info(
                 "Auto-fix summariser deliberately returning nothing for "
                 "paper %d",
                 paper["id"],
             )
-            return None
+            return
 
     broken_summariser = _FailingSummariser(
         client, repo, settings.model_summarisation

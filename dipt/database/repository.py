@@ -128,7 +128,10 @@ class PaperRepository:
 
         Returns:
             A list of dict rows with keys: ``id``, ``title``, ``abstract``,
-            ``status``, ``full_text_path``, ``source``.
+            ``status``, ``full_text_path``, ``source``, ``pdf_url``.
+
+            ``pdf_url`` is required by :class:`~dipt.agents.parser_agent.ParserAgent`:
+            without it every paper looks like it has no PDF and is skipped.
 
         Raises:
             RepositoryError: If the query fails.
@@ -138,7 +141,7 @@ class PaperRepository:
 
         status_values = [s.value for s in statuses]
         sql = """
-            SELECT id, title, abstract, status, full_text_path, source
+            SELECT id, title, abstract, status, full_text_path, source, pdf_url
             FROM papers
             WHERE status = ANY(%s)
             ORDER BY
@@ -162,7 +165,7 @@ class PaperRepository:
                     cur.execute(sql, tuple(params))
                     columns = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            return [dict(zip(columns, row, strict=True)) for row in rows]
         except psycopg2.Error as exc:
             raise RepositoryError(f"Failed to fetch papers by status: {exc}") from exc
 
@@ -449,7 +452,7 @@ class PaperRepository:
                     cur.execute(sql, tuple(params))
                     columns = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            return [dict(zip(columns, row, strict=True)) for row in rows]
         except psycopg2.Error as exc:
             raise RepositoryError(
                 f"Failed to fetch papers for QA: {exc}"
@@ -479,7 +482,7 @@ class PaperRepository:
                     cur.execute(sql)
                     columns = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            return [dict(zip(columns, row, strict=True)) for row in rows]
         except psycopg2.Error as exc:
             raise RepositoryError(f"Failed to list QA flags: {exc}") from exc
 
@@ -551,7 +554,7 @@ class PaperRepository:
                     cur.execute(sql, tuple(params))
                     columns = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            return [dict(zip(columns, row, strict=True)) for row in rows]
         except psycopg2.Error as exc:
             raise RepositoryError(
                 f"Failed to list papers overview: {exc}"
@@ -721,7 +724,7 @@ class PaperRepository:
                     cur.execute(sql)
                     columns = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            return [dict(zip(columns, row, strict=True)) for row in rows]
         except psycopg2.Error as exc:
             raise RepositoryError(
                 f"Failed to list all categories: {exc}"
@@ -1004,7 +1007,7 @@ class PaperRepository:
                     cur.execute(sql, (limit,))
                     columns = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            return [dict(zip(columns, row, strict=True)) for row in rows]
         except psycopg2.Error as exc:
             raise RepositoryError(
                 f"Failed to list fetch runs: {exc}"

@@ -463,7 +463,13 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     configure_logging(settings.log_level)
-    pipeline = Pipeline(settings)
+
+    try:
+        pipeline = Pipeline(settings)
+    except DIPTError:
+        # Most often the database being unreachable. Report it, don't traceback.
+        logger.exception("Failed to start the pipeline")
+        return 1
 
     try:
         _run_stage(pipeline, args.stage, args.limit)

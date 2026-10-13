@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-import pytest
 
 from dipt import site_export
 from dipt.models.schemas import PaperSummary

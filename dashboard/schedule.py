@@ -20,6 +20,7 @@ independent, so pick one.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import subprocess
 import sys
@@ -33,11 +34,11 @@ DEFAULT_INTERVAL_HOURS: int = 24
 MIN_INTERVAL_HOURS: int = 1
 MAX_INTERVAL_HOURS: int = 24 * 14
 
-_RUNS_DIR: Path = runner._RUNS_DIR
-_CONFIG = _RUNS_DIR / "schedule.json"
-_DAEMON_META = _RUNS_DIR / "_daemon.json"
-_DAEMON_LOG = _RUNS_DIR / "_daemon.log"
-STOP_FLAG = _RUNS_DIR / "_daemon.stop"
+RUNS_DIR: Path = runner.RUNS_DIR
+_CONFIG = RUNS_DIR / "schedule.json"
+_DAEMON_META = RUNS_DIR / "_daemon.json"
+_DAEMON_LOG = RUNS_DIR / "_daemon.log"
+STOP_FLAG = RUNS_DIR / "_daemon.stop"
 
 
 @dataclass
@@ -76,7 +77,7 @@ def _read_config() -> dict:
 
 
 def _write_config(**changes) -> dict:
-    runner._ensure_dir()
+    runner.ensure_runs_dir()
     cfg = _read_config()
     cfg.update(changes)
     cfg["interval_hours"] = max(
@@ -117,7 +118,7 @@ def _daemon_pid() -> int | None:
 def daemon_running() -> bool:
     """Return whether the schedule daemon process is alive."""
     pid = _daemon_pid()
-    return pid is not None and runner._pid_alive(pid)
+    return pid is not None and runner.pid_alive(pid)
 
 
 def scheduled_cycles(limit: int = 15) -> list[runner.Run]:
@@ -134,31 +135,23 @@ def enable(hours: int, limit: int | None = None) -> None:
             backlog).
     """
     _write_config(enabled=True, interval_hours=hours, cycle_limit=limit)
-    try:
+    with contextlib.suppress(FileNotFoundError):
         STOP_FLAG.unlink()
-    except FileNotFoundError:
-        pass
 
     if daemon_running():
         return
 
-    runner._ensure_dir()
-    creationflags = 0
-    if sys.platform == "win32":
-        creationflags = (
-            subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
-            | subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
-        )
+    runner.ensure_runs_dir()
     log = _DAEMON_LOG.open("a", encoding="utf-8")
     try:
-        proc = subprocess.Popen(  # noqa: S603 - fixed command, our own module
+        proc = subprocess.Popen(
             [sys.executable, "-u", "-m", "scripts.scheduler_daemon"],
-            cwd=str(runner._PROJECT_ROOT),
+            cwd=str(runner.PROJECT_ROOT),
             stdout=log,
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
-            creationflags=creationflags,
             close_fds=True,
+            **runner.detach_kwargs(),
         )
     finally:
         log.close()
@@ -180,22 +173,10 @@ def disable() -> None:
     STOP_FLAG.write_text("stop", encoding="utf-8")
 
     pid = _daemon_pid()
-    if pid is not None and runner._pid_alive(pid):
-        try:
-            subprocess.run(
-                ["taskkill", "/F", "/T", "/PID", str(pid)]
-                if sys.platform == "win32"
-                else ["kill", "-TERM", str(pid)],
-                capture_output=True,
-                timeout=15,
-                check=False,
-            )
-        except (OSError, subprocess.SubprocessError):
-            pass
-    try:
+    if pid is not None and runner.pid_alive(pid):
+        runner.kill_process_tree(pid)
+    with contextlib.suppress(FileNotFoundError):
         _DAEMON_META.unlink()
-    except FileNotFoundError:
-        pass
 
     # Also stop a cycle the daemon may have spawned.
     for cyc in scheduled_cycles(limit=3):

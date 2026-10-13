@@ -76,7 +76,12 @@ class ConnectionPool:
             yield conn
             conn.commit()
         except Exception:
-            conn.rollback()
+            # A rollback on an already-broken connection raises in turn; letting
+            # that escape would replace the real error with a confusing one.
+            try:
+                conn.rollback()
+            except psycopg2.Error:
+                logger.exception("Rollback failed after a transaction error")
             logger.exception("Transaction rolled back due to an error")
             raise
         finally:

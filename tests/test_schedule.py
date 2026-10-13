@@ -19,8 +19,8 @@ from dashboard import runner, schedule
 @pytest.fixture(autouse=True)
 def _tmp_runs(tmp_path, monkeypatch):
     """Redirect both modules' runs directory to a temp folder."""
-    monkeypatch.setattr(runner, "_RUNS_DIR", tmp_path)
-    monkeypatch.setattr(schedule, "_RUNS_DIR", tmp_path)
+    monkeypatch.setattr(runner, "RUNS_DIR", tmp_path)
+    monkeypatch.setattr(schedule, "RUNS_DIR", tmp_path)
     monkeypatch.setattr(schedule, "_CONFIG", tmp_path / "schedule.json")
     monkeypatch.setattr(schedule, "_DAEMON_META", tmp_path / "_daemon.json")
     monkeypatch.setattr(schedule, "_DAEMON_LOG", tmp_path / "_daemon.log")
@@ -85,7 +85,7 @@ def test_enable_does_not_spawn_a_second_daemon(_tmp_runs, monkeypatch) -> None:
 
 def test_disable_writes_stop_flag_and_kills_daemon(_tmp_runs, monkeypatch) -> None:
     schedule._DAEMON_META.write_text(json.dumps({"pid": 777}), encoding="utf-8")
-    monkeypatch.setattr(runner, "_pid_alive", lambda pid: pid == 777)
+    monkeypatch.setattr(runner, "pid_alive", lambda pid: pid == 777)
     killed = MagicMock()
     monkeypatch.setattr(schedule.subprocess, "run", killed)
     monkeypatch.setattr(schedule, "scheduled_cycles", lambda limit=3: [])
@@ -116,7 +116,7 @@ def _fake_cycle(status: str, minutes_ago: int, limit: int | None = None) -> runn
         status=status,
         exit_code=0 if status == "finished" else None,
         duration_s=600.0,
-        log_path=schedule._RUNS_DIR / "x.log",
+        log_path=schedule.RUNS_DIR / "x.log",
     )
 
 
@@ -154,7 +154,7 @@ def test_scheduled_cycles_filters_to_scheduled_stage(monkeypatch) -> None:
             status="finished",
             exit_code=0,
             duration_s=1.0,
-            log_path=schedule._RUNS_DIR / "y.log",
+            log_path=schedule.RUNS_DIR / "y.log",
         ),
     ]
     monkeypatch.setattr(runner, "list_runs", lambda limit=60: runs)

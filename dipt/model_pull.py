@@ -62,11 +62,10 @@ def is_installed(base_url: str, tag: str) -> bool:
     if not tag:
         return False
     installed = set(list_installed(base_url))
-    if tag in installed:
-        return True
-    if ":" not in tag and f"{tag}:latest" in installed:
-        return True
-    return False
+    # A bare name such as "llama3.3" is stored by Ollama as "llama3.3:latest".
+    return tag in installed or (
+        ":" not in tag and f"{tag}:latest" in installed
+    )
 
 
 def pull(base_url: str, tag: str, on_progress: ProgressFn | None = None) -> None:
