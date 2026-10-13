@@ -30,3 +30,4 @@ node_modules/
 Thumbs.db
 .idea/
 .vscode/
+config/provenance/

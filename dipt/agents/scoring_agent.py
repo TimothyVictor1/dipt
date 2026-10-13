@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import Final
 
 from dipt.agents.llm_client import OllamaClient
+from dipt import provenance
 from dipt.database.repository import PaperRepository
 from dipt.exceptions import LLMError, RepositoryError
 from dipt.models.schemas import PaperScore, PaperStatus
@@ -24,12 +25,20 @@ logger = logging.getLogger(__name__)
 _REQUEST_DELAY_SECONDS: Final[float] = 2.0
 _MIN_SCORE: Final[float] = 1.0
 _MAX_SCORE: Final[float] = 10.0
-# A reasoning model spends most of its output in a <think> block before the
-# short XML answer, so this cap is generous compared with the other agents.
-_MAX_OUTPUT_TOKENS: Final[int] = 2500
-# Scoring at near-zero temperature makes the model park on one modal number for
-# every paper; a little sampling variety restores discrimination across papers.
-_TEMPERATURE: Final[float] = 0.35
+# The answer is a number and two or three sentences. The old cap of 2500 was
+# sized for a reasoning model that spent most of its output in a <think> block
+# before answering; the client now suppresses that reasoning (think=False), so
+# the budget only has to cover the answer itself.
+_MAX_OUTPUT_TOKENS: Final[int] = 800
+# Deterministic by design. An earlier comment here claimed that sampling
+# "restores discrimination across papers", which confuses variance with
+# discrimination: temperature makes the same paper score differently on
+# different runs, it does not make two different papers score differently from
+# each other. A relevance score that cannot be reproduced cannot be audited, so
+# scoring runs at temperature 0 with a fixed seed. If scores cluster, the fix
+# belongs in the rubric or in what the model is shown, not in the sampler.
+_TEMPERATURE: Final[float] = 0.0
+_SEED: Final[int] = 20260101
 
 _THINK_RE: Final[re.Pattern[str]] = re.compile(
     r"<think>.*?</think>", re.DOTALL | re.IGNORECASE
@@ -183,6 +192,14 @@ class ScoringAgent:
         except RepositoryError:
             logger.exception("Failed to save score for paper %d", paper["id"])
             return None
+        provenance.record(
+            "scoring",
+            paper["id"],
+            model=self._model,
+            prompt_template=self._prompt_template,
+            temperature=_TEMPERATURE,
+            seed=_SEED,
+        )
         return result
 
     def _generate(self, paper: dict) -> PaperScore | None:
@@ -212,6 +229,7 @@ class ScoringAgent:
                 prompt,
                 temperature=_TEMPERATURE,
                 max_tokens=_MAX_OUTPUT_TOKENS,
+                seed=_SEED,
             )
         except LLMError:
             logger.exception("LLM scoring call failed")

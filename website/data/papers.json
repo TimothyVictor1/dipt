@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-08T20:23:20.080560+00:00",
+  "generated_at": "2026-10-13T13:20:27.696655+00:00",
   "count": 28,
   "papers": [
     {
@@ -32,7 +32,7 @@
         "software-engineering-for-ai-se4ai",
         "large-language-models-for-code-llm4code"
       ],
-      "share_post": "I came across this paper on Kerncap, which tackles the tricky task of capturing and reproducing GPU kernel executions on AMD GPUs. It introduces a symbolic architecture and a deterministic Validator to make this process more efficient and accurate. Practitioners targeting AMD GPUs might find it useful for developing and debugging their applications. #SoftwareEngineering"
+      "share_post": "Capturing and reproducing GPU kernel executions on AMD hardware is notoriously difficult because it demands exact state management and recompilation. Kerncap tackles this by using an LLM-driven traversal to replace rigid ID selection, allowing developers to generate self-contained, editable reproducers for HIP and Triton kernels. This approach significantly reduces the friction in debugging and validating AMD-native software engineering workflows."
     },
     {
       "id": 946,
@@ -63,7 +63,7 @@
         "large-language-models-for-code-llm4code",
         "agentic-software-engineering-agent"
       ],
-      "share_post": "I came across a paper on TSCG, a new method for managing context in large language models. It aims to improve accuracy and efficiency in few-shot and zero-shot scenarios, which could be really useful for practitioners working with resource-constrained environments or needing to deploy large models at scale. What I found interesting is how conservative TSCG often outperforms its balanced counterpart, especially with smaller models. #AI4SE"
+      "share_post": "Managing context in agentic LLMs often feels like a trade-off between accuracy and token cost, but this paper suggests we can optimize both. The TSCG approach introduces deterministic tool-schema compilation to handle few-shot and zero-shot scenarios more efficiently. It is particularly promising for resource-constrained deployments where conservative schema handling significantly boosts performance without bloating the context window. #LLM #SoftwareEngineering"
     },
     {
       "id": 944,
@@ -97,7 +97,7 @@
         "software-security",
         "ai-for-software-engineering-ai4se"
       ],
-      "share_post": "I came across a paper on mitigating false positives in static memory safety analysis for Rust programs using reinforcement learning. It caught my eye because it tackles the issue of warning fatigue by improving the precision of static analysis tools. This means developers can trust the warnings more, which is crucial for software security. #softwareengineering"
+      "share_post": "Static analysis tools for Rust are drowning in false positives, turning safety warnings into background noise that developers eventually ignore. This research uses reinforcement learning to strategically target expensive fuzzing resources, aiming to cut through the noise and preserve trust in the remaining alerts. It is a pragmatic step toward making automated security checks actually useful rather than just noisy. #SoftwareSecurity"
     },
     {
       "id": 943,
@@ -132,7 +132,7 @@
         "software-engineering-for-blockchain",
         "empirical-software-engineering"
       ],
-      "share_post": "I came across this paper that examines how firmware updates in ASIC cryptocurrency miners can be exploited by attackers. It highlights that these updates expose vulnerabilities and sensitive information, making it easier for attacks to occur without needing physical access to the miner. Practitioners should take note to understand and address these issues to safeguard their mining operations. #softwaresecurity"
+      "share_post": "It is striking how firmware update packages for ASIC cryptocurrency miners expose enough sensitive operational data to significantly lower the barrier for attackers. This research bridges a critical gap by linking those firmware artifacts directly to concrete attacker capabilities and economic impact, showing that you don’t need physical access to the miner to exploit its vulnerabilities. For practitioners in software security and blockchain engineering, it highlights a substantial attack surface that demands closer scrutiny during development and deployment. #SoftwareSecurity"
     },
     {
       "id": 939,
@@ -163,7 +163,7 @@
         "large-language-models-for-code-llm4code",
         "software-engineering-for-ai-se4ai"
       ],
-      "share_post": "I came across this paper on integrating small language models on-device in mobile apps. It looks at how reducing the model's role from generating full puzzles to just hints can work within Android's constraints. Practitioners might find it useful to learn about the specific challenges and solutions for ensuring a seamless offline experience. #softwareengineering"
+      "share_post": "It’s one thing to run a large language model on a phone; it’s another to make it work reliably in a real mobile app without crashing or draining the battery. This paper details the friction points of that transition by building a Wordle-style game, showing how the model's role had to shrink from generating full puzzles to just writing short hints to fit on-device constraints. They identify five specific failure modes and offer practical architectural fixes for engineers trying to keep user data private while still delivering useful AI features. #SE4AI #OnDeviceAI"
     },
     {
       "id": 938,
@@ -199,7 +199,7 @@
         "ai-for-software-engineering-ai4se",
         "open-source-software-engineering"
       ],
-      "share_post": "I came across a paper on vulnerability identification that caught my eye. It discusses how VPFinder improves accuracy by combining different sources of information about vulnerabilities and their fixes. This could be really useful for practitioners looking to enhance the reliability of automated vulnerability detection in their projects. #SoftwareEngineering"
+      "share_post": "Automated vulnerability detection often struggles with false alarms because it treats code fixes and bug reports as isolated silos. This paper explores how VPFinder improves accuracy by modeling the semantic interactions between these two sources rather than relying on them independently. For practitioners, this suggests a path toward more reliable tooling that understands the context of a fix, not just its syntax. #SoftwareEngineering"
     },
     {
       "id": 937,
@@ -230,7 +230,7 @@
         "software-quality",
         "large-language-models-for-code-llm4code"
       ],
-      "share_post": "I came across a paper on Code Broker, a multi-agent system for automated code quality assessment. It uses a hierarchical agent pipeline to handle complex code review tasks more efficiently than traditional static analysis tools. This could be useful for practitioners looking for a more flexible and context-aware approach to code quality evaluation. #softwarequality"
+      "share_post": "Static analysis tools are good at finding syntax errors, but they struggle to understand the context of a codebase. Code Broker tackles this by using a multi-agent system where LLMs decompose complex quality assessments into manageable tasks. This hierarchical approach offers a more flexible alternative to traditional static checkers for practitioners dealing with messy real-world Python projects. #AI4SE"
     },
     {
       "id": 936,
@@ -266,7 +266,7 @@
         "software-security",
         "large-language-models-for-code-llm4code"
       ],
-      "share_post": "I came across a paper titled \"Do Agents Dream of Root Shells?\" that examines how Large Language Model (LLM) agents perform in Capture The Flag (CTF) challenges. The research highlights that while these agents make partial progress on various tasks, they rarely complete challenges fully. This is important for practitioners to understand the current limitations and capabilities of LLMs in cybersecurity, aiding in their design and deployment. #softwaresecurity"
+      "share_post": "The gap between solving a single step and completing an entire Capture The Flag challenge is wider than we might hope. This study reveals that while LLM agents frequently make measurable partial progress, they rarely solve these cybersecurity tasks end-to-end autonomously. Understanding this specific failure mode is crucial for anyone designing or evaluating secure AI systems. #SoftwareSecurity"
     },
     {
       "id": 933,

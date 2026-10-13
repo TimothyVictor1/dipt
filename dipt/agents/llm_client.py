@@ -65,6 +65,7 @@ class OllamaClient:
         json_mode: bool = False,
         think: bool | None = False,
         num_ctx: int | None = None,
+        seed: int | None = None,
     ) -> str:
         """Run a single-turn chat completion with retries.
 
@@ -92,6 +93,9 @@ class OllamaClient:
                 a failure. Defaults to ``False`` so a reasoning model answers
                 directly. Pass ``True`` to opt a stage into visible reasoning,
                 or ``None`` to accept the model's own default.
+            seed: Sampling seed. With ``temperature=0`` this makes a call
+                reproducible, so a stored judgement can be regenerated and
+                checked rather than merely trusted.
 
         Returns:
             The assistant message content, stripped of surrounding whitespace.
@@ -105,6 +109,8 @@ class OllamaClient:
             options["num_predict"] = max_tokens
         if num_ctx is not None:
             options["num_ctx"] = num_ctx
+        if seed is not None:
+            options["seed"] = seed
         fmt = "json" if json_mode else ""
         extra: dict[str, bool] = {} if think is None else {"think": think}
 

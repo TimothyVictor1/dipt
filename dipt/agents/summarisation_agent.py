@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Final
 
 from dipt.agents.llm_client import OllamaClient
+from dipt import provenance
 from dipt.database.repository import PaperRepository
 from dipt.exceptions import LLMError, RepositoryError
 from dipt.models.schemas import PaperStatus, PaperSummary
@@ -37,6 +38,10 @@ _MAX_OUTPUT_TOKENS: Final[int] = 800
 # 24,000 characters is roughly 6,000 tokens; this leaves room for the prompt
 # scaffold and the answer without the excerpt being truncated from the front.
 _NUM_CTX: Final[int] = 16384
+# A summary is a reading of the paper, not a creative act, and it has to be
+# reproducible for the provenance record to be worth anything.
+_TEMPERATURE: Final[float] = 0.0
+_SEED: Final[int] = 20260101
 
 _SECTION_NAMES: Final[tuple[str, ...]] = (
     "research_problem",
@@ -158,6 +163,16 @@ class SummarisationAgent:
         except RepositoryError:
             logger.exception("Failed to save summary for paper %d", paper["id"])
             return None
+        provenance.record(
+            "summarisation",
+            paper["id"],
+            model=self._model,
+            prompt_template=self._prompt_template,
+            temperature=_TEMPERATURE,
+            seed=_SEED,
+            num_ctx=_NUM_CTX,
+            excerpt_chars=_MAX_TEXT_CHARS,
+        )
         return result
 
     def _generate(self, paper: dict) -> PaperSummary | None:
@@ -177,8 +192,10 @@ class SummarisationAgent:
             response = self._client.chat(
                 self._model,
                 prompt,
+                temperature=_TEMPERATURE,
                 max_tokens=_MAX_OUTPUT_TOKENS,
                 num_ctx=_NUM_CTX,
+                seed=_SEED,
                 json_mode=True,
             )
         except LLMError:
