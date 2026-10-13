@@ -101,7 +101,7 @@ Re-saving / "Update model" re-pulls the latest version of a tag.
 | Quality gate  | `qwen3.6:35b-a3b`   | fast SE-relevance gate |
 | Categorisation| `qwen3.6:35b-a3b`   | 47-category assignment |
 | Summarisation | `qwen3.6:35b-a3b`   | JSON mode; see note below |
-| Scoring       | `deepseek-r1:70b`   | reasoning model, "virtual CTO" |
+| Scoring       | `qwen3.6:35b-a3b`   | hybrid-reasoning, "virtual CTO" |
 | QA            | `llama3.1:70b`      | summary/score consistency check |
 | Promote       | `qwen3.6:35b-a3b`   | drafts the shareable social post |
 
