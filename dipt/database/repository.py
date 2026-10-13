@@ -9,7 +9,7 @@ parameterised, eliminating SQL-injection risk.
 from __future__ import annotations
 
 import logging
-from typing import Sequence
+from collections.abc import Sequence
 
 import psycopg2
 

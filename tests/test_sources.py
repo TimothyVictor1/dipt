@@ -8,7 +8,6 @@ import pytest
 import requests
 
 from dipt.exceptions import SourceParseError
-
 from dipt.models.schemas import PaperSource
 from dipt.sources.openalex import (
     OpenAlexSource,

@@ -7,7 +7,7 @@ check are mocked, so these exercise the config, status, and control logic only.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
@@ -106,7 +106,7 @@ def test_stop_requested_reflects_flag_file(_tmp_runs) -> None:
 
 # ── status ───────────────────────────────────────────────────────────────
 def _fake_cycle(status: str, minutes_ago: int, limit: int | None = None) -> runner.Run:
-    started = datetime.now(timezone.utc) - timedelta(minutes=minutes_ago)
+    started = datetime.now(UTC) - timedelta(minutes=minutes_ago)
     return runner.Run(
         run_id=f"{started:%Y%m%d-%H%M%S}-scheduled",
         stage="scheduled",
@@ -150,7 +150,7 @@ def test_scheduled_cycles_filters_to_scheduled_stage(monkeypatch) -> None:
             stage="summarise",
             limit=5,
             pid=1,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
             status="finished",
             exit_code=0,
             duration_s=1.0,

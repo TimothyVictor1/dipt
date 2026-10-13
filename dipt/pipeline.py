@@ -30,6 +30,7 @@ import argparse
 import logging
 import sys
 
+from dipt import model_store, prompt_store
 from dipt.agents.categorisation_agent import CategorisationAgent
 from dipt.agents.fetch_agent import FetchAgent
 from dipt.agents.llm_client import OllamaClient
@@ -44,7 +45,6 @@ from dipt.database.connection import ConnectionPool
 from dipt.database.repository import PaperRepository
 from dipt.exceptions import DIPTError, RepositoryError
 from dipt.logging_config import configure_logging
-from dipt import model_store, prompt_store
 from dipt.models.schemas import PaperStatus
 from dipt.sources.arxiv import ArxivSource
 from dipt.sources.base import PaperSourceFetcher

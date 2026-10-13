@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC
 from unittest.mock import MagicMock
-
 
 from dipt import site_export
 from dipt.models.schemas import PaperSummary
@@ -96,15 +96,15 @@ def test_build_categories_counts_and_sorts() -> None:
 
 
 def test_render_rss_is_wellformed_xml() -> None:
-    import xml.dom.minidom as minidom
+    from xml.dom import minidom
 
     settings = MagicMock()
     settings.site_base_url = "https://example.test/"
     settings.site_title = "DIPT Test"
     papers = [site_export._paper_payload(_row(title="Title & <fun>"))]
-    from datetime import datetime, timezone
+    from datetime import datetime
 
-    xml = site_export._render_rss(papers, settings, datetime(2026, 9, 7, tzinfo=timezone.utc))
+    xml = site_export._render_rss(papers, settings, datetime(2026, 9, 7, tzinfo=UTC))
     # Parses without error and escapes the title.
     minidom.parseString(xml)
     assert "Title &amp; &lt;fun&gt;" in xml

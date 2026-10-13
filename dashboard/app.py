@@ -29,8 +29,6 @@ import contextlib
 
 import streamlit as st
 
-from dipt import model_store, prompt_store
-from dipt.exceptions import DIPTError, ModelPullError
 from dashboard import runner, schedule
 from dashboard.data import (
     AGENT_PROMPTS,
@@ -43,6 +41,8 @@ from dashboard.data import (
     missing_format_fields,
     model_is_installed,
 )
+from dipt import model_store, prompt_store
+from dipt.exceptions import DIPTError, ModelPullError
 
 st.set_page_config(page_title="DIPT dashboard", page_icon="📄", layout="wide")
 

@@ -20,7 +20,7 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -212,7 +212,7 @@ def _exit_code_from_log(text: str) -> int | None:
 def _status_of(meta: dict, log_path: Path) -> tuple[str, int | None, float]:
     """Compute ``(status, exit_code, duration_s)`` for a run."""
     started = datetime.fromisoformat(meta["started_at"])
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     try:
         tail = log_path.read_text(encoding="utf-8", errors="replace")
@@ -240,7 +240,7 @@ def _status_of(meta: dict, log_path: Path) -> tuple[str, int | None, float]:
 
 def _mtime(path: Path) -> datetime | None:
     try:
-        return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
     except OSError:
         return None
 
@@ -312,7 +312,7 @@ def _spawn(stage_label: str, cmd: list[str], limit: int | None) -> Run:
         )
 
     ensure_runs_dir()
-    run_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{stage_label}"
+    run_id = f"{datetime.now(UTC):%Y%m%d-%H%M%S}-{stage_label}"
     log_path = RUNS_DIR / f"{run_id}.log"
     meta_path = RUNS_DIR / f"{run_id}.json"
 
@@ -335,7 +335,7 @@ def _spawn(stage_label: str, cmd: list[str], limit: int | None) -> Run:
         "stage": stage_label,
         "limit": limit,
         "pid": proc.pid,
-        "started_at": datetime.now(timezone.utc).isoformat(),
+        "started_at": datetime.now(UTC).isoformat(),
         "cmd": cmd,
     }
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")

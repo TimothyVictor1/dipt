@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 from dipt import scheduler
@@ -15,24 +15,24 @@ def test_window_defaults_when_no_prior_run() -> None:
 
 
 def test_window_is_gap_plus_overlap() -> None:
-    last = datetime.now(timezone.utc) - timedelta(days=3, hours=2)
+    last = datetime.now(UTC) - timedelta(days=3, hours=2)
     # ceil(just over 3d2h) = 4, plus one overlap day.
     assert scheduler._window_since_last_run(last, default_days=7) == 5
 
 
 def test_window_rounds_partial_day_up() -> None:
-    last = datetime.now(timezone.utc) - timedelta(hours=20)
+    last = datetime.now(UTC) - timedelta(hours=20)
     # ceil(just over 20h) = 1, plus one overlap day.
     assert scheduler._window_since_last_run(last, default_days=7) == 2
 
 
 def test_window_never_below_one() -> None:
-    last = datetime.now(timezone.utc) - timedelta(minutes=5)
+    last = datetime.now(UTC) - timedelta(minutes=5)
     assert scheduler._window_since_last_run(last, default_days=7) == 2
 
 
 def test_window_clamped_to_max() -> None:
-    last = datetime.now(timezone.utc) - timedelta(days=5000)
+    last = datetime.now(UTC) - timedelta(days=5000)
     assert scheduler._window_since_last_run(last, default_days=7) == 365
 
 
@@ -55,7 +55,7 @@ def test_run_pipeline_records_success_and_narrows_window() -> None:
     # 20 h ago -> ceil(<1 day) = 1, plus one overlap day = 2. Using a partial
     # day keeps the assertion stable against the clock advancing mid-test.
     repo.get_last_successful_fetch.return_value = datetime.now(
-        timezone.utc
+        UTC
     ) - timedelta(hours=20)
     repo.start_fetch_run.return_value = 77
 

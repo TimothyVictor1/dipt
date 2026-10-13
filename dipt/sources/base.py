@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone
-from typing import Iterator
+from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 
 from dipt.models.schemas import PaperRecord
 
@@ -50,7 +50,7 @@ class PaperSourceFetcher(ABC):
         Returns:
             The cutoff date as ``YYYY-MM-DD``.
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(days=self._days_back)
+        cutoff = datetime.now(UTC) - timedelta(days=self._days_back)
         return cutoff.strftime("%Y-%m-%d")
 
     @abstractmethod

@@ -8,7 +8,7 @@ files is, since that is what the dashboard depends on.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -27,7 +27,7 @@ def _write_run(tmp_path, run_id: str, *, started: datetime, log: str) -> None:
         json.dumps(
             {
                 "run_id": run_id,
-                "stage": run_id.split("-")[-1],
+                "stage": run_id.rsplit("-", maxsplit=1)[-1],
                 "limit": 5,
                 "pid": 424242,
                 "started_at": started.isoformat(),
@@ -44,7 +44,7 @@ def test_finished_run_is_detected_from_sentinel(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-000000-summarise",
-        started=datetime.now(timezone.utc) - timedelta(minutes=5),
+        started=datetime.now(UTC) - timedelta(minutes=5),
         log="working...\n__DIPT_RUN_DONE__ exit=0\n",
     )
 
@@ -58,7 +58,7 @@ def test_failed_run_is_detected_from_nonzero_exit(_runs_dir, monkeypatch) -> Non
     _write_run(
         _runs_dir,
         "20260101-000000-score",
-        started=datetime.now(timezone.utc) - timedelta(minutes=1),
+        started=datetime.now(UTC) - timedelta(minutes=1),
         log="boom\n__DIPT_RUN_DONE__ exit=1\n",
     )
 
@@ -71,7 +71,7 @@ def test_running_when_pid_alive_and_no_sentinel(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-000000-score",
-        started=datetime.now(timezone.utc) - timedelta(minutes=2),
+        started=datetime.now(UTC) - timedelta(minutes=2),
         log="[3/25] Scoring paper 930\n",
     )
 
@@ -85,7 +85,7 @@ def test_died_when_pid_gone_and_no_sentinel(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-000000-qa",
-        started=datetime.now(timezone.utc) - timedelta(minutes=3),
+        started=datetime.now(UTC) - timedelta(minutes=3),
         log="[1/5] QA-checking paper 926\n",
     )
 
@@ -97,7 +97,7 @@ def test_active_run_returns_the_running_one(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-010000-summarise",
-        started=datetime.now(timezone.utc),
+        started=datetime.now(UTC),
         log="starting\n",
     )
     assert runner.active_run().stage == "summarise"
@@ -108,7 +108,7 @@ def test_start_run_rejects_when_busy(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-010000-score",
-        started=datetime.now(timezone.utc),
+        started=datetime.now(UTC),
         log="starting\n",
     )
     with pytest.raises(runner.RunnerBusy):
@@ -126,7 +126,7 @@ def test_tail_log_returns_last_lines(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-000000-parse",
-        started=datetime.now(timezone.utc),
+        started=datetime.now(UTC),
         log=lines + "\n__DIPT_RUN_DONE__ exit=0\n",
     )
     tail = runner.tail_log("20260101-000000-parse", lines=10)
@@ -145,7 +145,7 @@ def test_truncated_sentinel_does_not_crash(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-000000-qa",
-        started=datetime.now(timezone.utc) - timedelta(minutes=2),
+        started=datetime.now(UTC) - timedelta(minutes=2),
         log="working...\n__DIPT_RUN_DONE__ exit=",
     )
 
@@ -163,7 +163,7 @@ def test_incomplete_meta_file_is_skipped(_runs_dir, monkeypatch) -> None:
     _write_run(
         _runs_dir,
         "20260101-000001-score",
-        started=datetime.now(timezone.utc),
+        started=datetime.now(UTC),
         log="__DIPT_RUN_DONE__ exit=0\n",
     )
 

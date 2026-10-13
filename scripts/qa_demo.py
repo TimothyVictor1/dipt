@@ -116,7 +116,6 @@ def demo_escalate(
                 "paper %d",
                 paper["id"],
             )
-            return
 
     broken_summariser = _FailingSummariser(
         client, repo, settings.model_summarisation

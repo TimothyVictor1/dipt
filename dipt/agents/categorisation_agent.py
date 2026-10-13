@@ -17,9 +17,9 @@ from typing import Final
 
 from dipt.agents.llm_client import OllamaClient
 from dipt.database.repository import PaperRepository
-from dipt.text_excerpt import head_tail_excerpt
 from dipt.exceptions import LLMError, RepositoryError
 from dipt.models.schemas import Category, CategoryAssignment, PaperStatus
+from dipt.text_excerpt import head_tail_excerpt
 
 logger = logging.getLogger(__name__)
 

@@ -22,7 +22,7 @@ from __future__ import annotations
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from dashboard import runner, schedule
 
@@ -32,7 +32,7 @@ _BUSY_RETRY_SECONDS = 300
 
 def _log(message: str) -> None:
     print(
-        f"{datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S} | {message}",
+        f"{datetime.now(UTC):%Y-%m-%d %H:%M:%S} | {message}",
         flush=True,
     )
 

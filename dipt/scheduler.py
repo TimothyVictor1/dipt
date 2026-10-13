@@ -25,7 +25,7 @@ from __future__ import annotations
 import logging
 import math
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from dipt.config import get_settings
 from dipt.exceptions import DIPTError, RepositoryError
@@ -54,7 +54,7 @@ def _window_since_last_run(last_started: datetime | None, default_days: int) -> 
     if last_started is None:
         return default_days
 
-    now = datetime.now(last_started.tzinfo or timezone.utc)
+    now = datetime.now(last_started.tzinfo or UTC)
     gap_days = math.ceil((now - last_started).total_seconds() / 86400)
     return max(1, min(_MAX_WINDOW_DAYS, gap_days + _OVERLAP_DAYS))
 
@@ -80,7 +80,7 @@ def run_pipeline(limit: int | None = None) -> int:
     repo = pipeline.repository
     tracked = pipeline.has_fetch_log
 
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
     run_id: int | None = None
     days_back = settings.fetch_days_back
 
@@ -156,7 +156,7 @@ def _finish(repo, run_id: int | None, papers_saved: int, status: str) -> None:
         return
     try:
         repo.finish_fetch_run(
-            run_id, datetime.now(timezone.utc), papers_saved, status
+            run_id, datetime.now(UTC), papers_saved, status
         )
     except RepositoryError:
         logger.exception("Could not record run %s outcome", run_id)
@@ -177,7 +177,11 @@ def main(argv: list[str] | None = None) -> int:
         try:
             limit = int(args[0])
         except ValueError:
-            logger.error("Usage: python -m dipt.scheduler [N]")
+            # A bad CLI argument is a usage mistake, not an exception
+            # worth a traceback.
+            logger.error(
+                "Usage: python -m dipt.scheduler [N]"
+            )
             return 2
     return run_pipeline(limit)
 

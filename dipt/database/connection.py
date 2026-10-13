@@ -9,8 +9,8 @@ every repository call.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
 
 import psycopg2
 from psycopg2 import pool as pg_pool

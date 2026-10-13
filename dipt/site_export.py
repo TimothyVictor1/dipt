@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from email.utils import format_datetime
 from pathlib import Path
 from typing import Final
@@ -172,7 +172,7 @@ def _render_rss(papers: list[dict], settings: Settings, generated: datetime) -> 
         if paper["published_date"]:
             try:
                 pub_dt = datetime.fromisoformat(paper["published_date"]).replace(
-                    tzinfo=timezone.utc
+                    tzinfo=UTC
                 )
                 pub = f"<pubDate>{format_datetime(pub_dt)}</pubDate>"
             except ValueError:
@@ -181,7 +181,7 @@ def _render_rss(papers: list[dict], settings: Settings, generated: datetime) -> 
             "    <item>\n"
             f"      <title>{escape(paper['title'])}</title>\n"
             f"      <link>{escape(link)}</link>\n"
-            f"      <guid isPermaLink=\"true\">{escape(link)}</guid>\n"
+            f'      <guid isPermaLink="true">{escape(link)}</guid>\n'
             f"      <description>{escape(summary)}</description>\n"
             + (f"      {pub}\n" if pub else "")
             + "    </item>"
@@ -218,7 +218,7 @@ def export_site_data(repo: PaperRepository, settings: Settings) -> int:
     rows = repo.list_approved_papers()
     papers = [_paper_payload(row) for row in rows]
     categories = _build_categories(papers)
-    generated = datetime.now(timezone.utc)
+    generated = datetime.now(UTC)
 
     data_dir = _SITE_DIR / "data"
     public_dir = _SITE_DIR / "public"

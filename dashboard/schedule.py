@@ -25,7 +25,7 @@ import json
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from dashboard import runner
@@ -83,7 +83,7 @@ def _write_config(**changes) -> dict:
     cfg["interval_hours"] = max(
         MIN_INTERVAL_HOURS, min(MAX_INTERVAL_HOURS, int(cfg["interval_hours"]))
     )
-    cfg["updated_at"] = datetime.now(timezone.utc).isoformat()
+    cfg["updated_at"] = datetime.now(UTC).isoformat()
     _CONFIG.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
     return cfg
 
@@ -159,7 +159,7 @@ def enable(hours: int, limit: int | None = None) -> None:
         json.dumps(
             {
                 "pid": proc.pid,
-                "started_at": datetime.now(timezone.utc).isoformat(),
+                "started_at": datetime.now(UTC).isoformat(),
             },
             indent=2,
         ),

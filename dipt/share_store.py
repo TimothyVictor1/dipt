@@ -109,7 +109,7 @@ def _tidy(text: str) -> str:
         A cleaned single- or multi-paragraph post, capped in length.
     """
     out = (text or "").strip()
-    out = re.sub(r"^(post|draft|linkedin|tweet)\s*[:\-]\s*", "", out, flags=re.I)
+    out = re.sub(r"^(post|draft|linkedin|tweet)\s*[:\-]\s*", "", out, flags=re.IGNORECASE)
     if len(out) >= 2 and out[0] in "\"'“‘" and out[-1] in "\"'”’":
         out = out[1:-1].strip()
     out = re.sub(r"[ \t]+\n", "\n", out)

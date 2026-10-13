@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from dipt import pipeline as pipeline_mod
-from dipt.pipeline import Pipeline, _run_stage
 from dipt.models.schemas import PaperStatus
+from dipt.pipeline import Pipeline, _run_stage
 
 
 @pytest.fixture

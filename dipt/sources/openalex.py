@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Final, Iterator
+from collections.abc import Iterator
+from typing import Final
 
 import requests
 
