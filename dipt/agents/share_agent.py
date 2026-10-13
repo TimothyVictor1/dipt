@@ -30,8 +30,11 @@ _MIN_USABLE_CHARS: Final[int] = 40
 _PROMPT_TEMPLATE = """You are helping Professor Tony Gorschek, a Software
 Engineering researcher, share a paper he found interesting.
 
-Write the post as HIM, in the first person ("I came across...", "What I found
-useful...", "This one caught my eye..."). It will go on LinkedIn and X.
+Write the post as HIM, in the first person. It will go on LinkedIn and X.
+
+Open differently every time. Do not reuse a stock opening formula - lead with
+whatever is actually interesting about this particular paper (the problem, a
+finding, a number, a tension), not with a phrase about having found it.
 
 PAPER TITLE:
 {title}

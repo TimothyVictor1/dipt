@@ -85,12 +85,12 @@ class Settings(BaseSettings):
 
     # Ollama / models
     ollama_base_url: str = Field(default="http://localhost:11434")
-    model_quality_gate: str = Field(default="llama3.1:8b")
-    model_categorisation: str = Field(default="llama3.1:70b")
-    model_summarisation: str = Field(default="qwen2.5-coder:32b")
+    model_quality_gate: str = Field(default="qwen3.6:35b-a3b")
+    model_categorisation: str = Field(default="qwen3.6:35b-a3b")
+    model_summarisation: str = Field(default="qwen3.6:35b-a3b")
     model_scoring: str = Field(default="deepseek-r1:70b")
     model_qa: str = Field(default="llama3.1:70b")
-    model_promote: str = Field(default="qwen2.5-coder:32b")
+    model_promote: str = Field(default="qwen3.6:35b-a3b")
 
     # Sources
     contact_email: str = Field(default="tira25@student.bth.se")

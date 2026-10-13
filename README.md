@@ -98,12 +98,12 @@ Re-saving / "Update model" re-pulls the latest version of a tag.
 
 | Stage | Model | Notes |
 |-------|-------|-------|
-| Quality gate  | `llama3.1:8b`       | fast SE-relevance gate |
-| Categorisation| `llama3.1:70b`      | 47-category assignment |
-| Summarisation | `qwen2.5-coder:32b` | JSON mode; see note below |
+| Quality gate  | `qwen3.6:35b-a3b`   | fast SE-relevance gate |
+| Categorisation| `qwen3.6:35b-a3b`   | 47-category assignment |
+| Summarisation | `qwen3.6:35b-a3b`   | JSON mode; see note below |
 | Scoring       | `deepseek-r1:70b`   | reasoning model, "virtual CTO" |
 | QA            | `llama3.1:70b`      | summary/score consistency check |
-| Promote       | `qwen2.5-coder:32b` | drafts the shareable social post |
+| Promote       | `qwen3.6:35b-a3b`   | drafts the shareable social post |
 
 The brief specifies `command-r-plus` for summarisation. It does not start on
 the current HP Z2 Mini iGPU allocation (the 56 GB of weights load, then
