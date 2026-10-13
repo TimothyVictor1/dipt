@@ -11,7 +11,7 @@ requests==2.32.3
 PyMuPDF==1.24.10
 
 # Local LLM client
-ollama==0.3.3
+ollama>=0.6.2,<0.7          # >=0.6 required for `think` on hybrid-reasoning models
 
 # Dashboard (Markdown-table rendering only, so pyarrow is not required)
 streamlit==1.38.0
